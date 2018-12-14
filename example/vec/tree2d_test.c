@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
   fp = fopen( "src", "w" );
   for( i=0; i<N; i++ ){
     zVec3DCreate( &v, zRandF(-10,10), zRandF(-10,10), 0 );
-    zVec3DListInsert( &list, &v, true );
+    zVec3DListInsert( &list, &v );
     zVecTree3DAdd( &tree, &v );
     zVec3DDataNLFWrite( fp, &v );
   }
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
   zVec3DDataNLFWrite( fp, nn );
   fclose( fp );
 
-  zVec3DListDestroy( &list, true );
+  zVec3DListDestroy( &list );
   zVecTree3DDestroy( &tree );
   return 0;
 }

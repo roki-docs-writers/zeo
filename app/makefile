@@ -17,9 +17,10 @@ COMPILE=$(CC) $(CFLAGS) -o $@ $< $(LINK)
 
 INSTALL=install -m 755
 
-CONFIGGEN=cure-config-gen
+CONFIGGEN=zeda-config-gen
 CONFIG=zeo-config
-TARGET=$(CONFIG) qhull gjk terra
+TARGET=$(CONFIG) zeo_qhull zeo_gjk
+# zeo_terra
 
 #####################################################################
 all : $(TARGET)
@@ -33,9 +34,8 @@ $(CONFIG):
 	@echo " CC	" $<
 	@$(COMPILE)
 install: $(TARGET)
-	@echo " INSTALL" $^
+	@echo " INSTALL	" $^
 	@$(INSTALL) $^ $(BINDIR)
-
 clean :
 	@echo " CLEAN"
 	-@rm -f *.o *~ core $(TARGET) *_out

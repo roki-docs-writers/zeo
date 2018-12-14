@@ -45,6 +45,11 @@
 
 #define ZEO_ERR_BREP_CONV    "cannot convert polyhedron to B-Rep solid"
 
+#define ZEO_ERR_TERRA_INVSIZ "grid size unspecified"
+#define ZEO_ERR_TERRA_INVRSL "too fine (or negative) grid resolution"
+#define ZEO_ERR_TERRA_OOREG   "out of region (%g,%g): cannot estimate ground height"
+#define ZEO_ERR_TERRA_OORAN  "grid out of range"
+
 #define ZEO_ERR_FATAL        "fatal error! - please report to the author"
 
 #endif /* __ZEO_ERRMSG_H__ */

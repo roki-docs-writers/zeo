@@ -4,8 +4,8 @@
  * zeo_vec_tree - 3D vector tree.
  */
 
-#ifndef __ZEO_VEC_TREE_H__
-#define __ZEO_VEC_TREE_H__
+#ifndef __ZEO_VEC3D_TREE_H__
+#define __ZEO_VEC3D_TREE_H__
 
 /* NOTE: never include this header file in user programs. */
 
@@ -73,4 +73,4 @@ __EXPORT double zVecTree3DNN(zVecTree3D *tree, zVec3D *v, zVecTree3D **nn);
 
 __END_DECLS
 
-#endif /* __ZEO_VEC_TREE_H__ */
+#endif /* __ZEO_VEC3D_TREE_H__ */

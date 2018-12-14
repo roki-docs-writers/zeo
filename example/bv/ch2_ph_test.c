@@ -18,7 +18,7 @@ int main(void)
     zVec3DDataNLFWrite( fp, &v[i] );
   }
   fclose( fp );
-  zCH2D2PH( &ch, v, N );
+  zCH2D2PH3D( &ch, v, N );
   fp = fopen( "ch", "w" );
   for( i=0; i<zPH3DVertNum(&ch); i++ )
     zVec3DDataNLFWrite( fp, zPH3DVert(&ch,i) );

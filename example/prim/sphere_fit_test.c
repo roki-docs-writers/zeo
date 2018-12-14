@@ -10,7 +10,7 @@ void generate_pc_sphere(zSphere3D *s, zVec3DList *pc, int n)
     zVec3DCreate( &v, zRandF(0,1), zRandF(0,1), zRandF(0,1) );
     zVec3DMulDRC( &v, (zSphere3DRadius(s)+zRandF(-0.001,0.001))/zVec3DNorm(&v) );
     zVec3DAddDRC( &v, zSphere3DCenter(s) );
-    zVec3DListInsert( pc, &v, true );
+    zVec3DListInsert( pc, &v );
   }
 }
 
@@ -77,6 +77,6 @@ int main(int argc, char *argv[])
   zSphere3DFWrite( stderr, &sout );
   output_pc_sphere( &sout, &pc );
   printf( "%d %g %g\n", n, zVec3DDist(zSphere3DCenter(&sorg),zSphere3DCenter(&sout))/zSphere3DRadius(&sorg), fabs(zSphere3DRadius(&sorg)-zSphere3DRadius(&sout))/zSphere3DRadius(&sorg) );
-  zVec3DListDestroy( &pc, true );
+  zVec3DListDestroy( &pc );
   return 0;
 }

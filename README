@@ -15,19 +15,21 @@ including:
  - 3D shape primitives (box, sphere, cylinder, cone, ellipsoid,
    elliptic cylinder, polyhedron)
  - multiple 3D shapes
+ - point cloud
  - trianglation of non-convex
  - bounding volume (AABB, OBB, boundin ball, convex-hull)
  - collision checking (AABB tree, GJK, Muller-Preparata)
  - principal component analysis of point cloud
  - B-Rep (boundary representation) and boolean operations
+ - elevation map
 
-CURE and ZM are required.
+ZEDA and ZM are required.
 
 -----------------------------------------------------------------
 [Installation / Uninstallation]
 
 <install>
-0. Install CURE and ZM in advance.
+0. Install ZEDA and ZM in advance.
 
 1. Unpack the distributed archive where you want.
 

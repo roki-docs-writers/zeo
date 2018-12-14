@@ -132,27 +132,31 @@ __EXPORT zVec6D *zFrame3DError(zFrame3D *f1, zFrame3D *f2, zVec6D *err);
 
 /*! \brief create a frame from a handy expression.
  *
- * zFrame3DZYX() creates a 3D frame whose original point is at
+ * zFrame3DFromZYX() creates a 3D frame whose original point is at
  * ( \a x, \a y, \a z ) and attitude is expressed by z-y-x
  * Eulerian angle.
  *
- * zFrame3DZYZ() creates a 3D frame whose original point is at
+ * zFrame3DFromZYZ() creates a 3D frame whose original point is at
  * ( \a x, \a y, \a z ) and attitude is expressed by z-y-z
  * Eulerian angle.
  *
- * zFrame3DDH() creates a 3D frame from modified Denaviet-Hartenberg
+ * zFrame3DFromAA() creates a 3D frame whose original point is at
+ * ( \a x, \a y, \a z ) and attitude is expressed by the equivalent
+ * angle-axis vector.
+ *
+ * zFrame3DFromDH() creates a 3D frame from modified Denaviet-Hartenberg
  * (DH) parameters (\a a, \a alpha, \a d, \a theta).
  *
  * For any of these functions, the result is put into \a f.
  * \return
  * All these functions return a pointer \a f.
  * \sa
- * zMat3DZYX, zMat3DZYZ
+ * zMat3DFromZYX, zMat3DFromZYZ, zMat3DFromAA
  */
-__EXPORT zFrame3D *zFrame3DZYX(zFrame3D *f, double x, double y, double z, double azim, double elev, double tilt);
-__EXPORT zFrame3D *zFrame3DZYZ(zFrame3D *f, double x, double y, double z, double heading, double pitch, double bank);
-__EXPORT zFrame3D *zFrame3DAA(zFrame3D *f, double x, double y, double z, double xa, double ya, double za);
-__EXPORT zFrame3D *zFrame3DDH(zFrame3D *f, double a, double alpha, double d, double theta);
+__EXPORT zFrame3D *zFrame3DFromZYX(zFrame3D *f, double x, double y, double z, double azim, double elev, double tilt);
+__EXPORT zFrame3D *zFrame3DFromZYZ(zFrame3D *f, double x, double y, double z, double heading, double pitch, double bank);
+__EXPORT zFrame3D *zFrame3DFromAA(zFrame3D *f, double x, double y, double z, double xa, double ya, double za);
+__EXPORT zFrame3D *zFrame3DFromDH(zFrame3D *f, double a, double alpha, double d, double theta);
 
 /*! \brief convert a 3D frame to an array or a 6D vector.
  *

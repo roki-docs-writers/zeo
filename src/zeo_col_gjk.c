@@ -400,7 +400,7 @@ bool _zGJKPDInitAddPoint(zVec3D p1[], int n1, zVec3D p2[], int n2, zGJKSlotList 
       ( tri != NULL && zIsTiny( zTri3DPointDist( tri, &ns.w ) ) ) )
     return false;
   _zGJKSlotListInsert( slist, &ns );
-  zVec3DListInsert( vlist, &ns.w, true );
+  zVec3DListInsert( vlist, &ns.w );
   return true;
 }
 
@@ -418,9 +418,9 @@ bool _zGJKPDInit(zVec3D p1[], int n1, zVec3D p2[], int n2, zGJKSimplex *s, zGJKS
   for( i=0; i<s->n; i++ )
     _zGJKSlotListInsert( slist, &s->slot[i] );
   zListForEach( slist, sc )
-    zVec3DListInsert( vlist, &sc->data.w, true );
+    zVec3DListInsert( vlist, &sc->data.w );
 
-/* ************************************************************ */
+  /* ************************************************************ */
   if( s->n == 2 ){
     zEdge3DCreate( &edge, &s->slot[0].w, &s->slot[1].w );
     zVec3DOrthoSpace( zEdge3DVec(&edge), &v1, &v2 );
@@ -449,7 +449,7 @@ bool _zGJKPDInit(zVec3D p1[], int n1, zVec3D p2[], int n2, zGJKSimplex *s, zGJKS
     return true;
 
  FALSE:
-  zVec3DListDestroy( vlist, true );
+  zVec3DListDestroy( vlist );
   zListDestroy( zGJKSlotListCell, slist );
   return false;
 }
@@ -479,8 +479,7 @@ bool _zGJKPD(zVec3D p1[], int n1, zVec3D p2[], int n2, zVec3D *c1, zVec3D *c2, z
     zListForEach( &slist, sc )
       if( zVec3DEqual( &ns.w, &sc->data.w ) ) goto BREAK;
     _zGJKSlotListInsert( &slist, &ns );
-    zVec3DListInsert( &vlist, &ns.w, true );
-
+    zVec3DListInsert( &vlist, &ns.w );
     zPH3DDestroy( &ph );
   }
  BREAK:
@@ -499,7 +498,7 @@ bool _zGJKPD(zVec3D p1[], int n1, zVec3D p2[], int n2, zVec3D *c1, zVec3D *c2, z
     if( j == 3 ) break;
   }
   zPH3DDestroy( &ph );
-  zVec3DListDestroy( &vlist, true );
+  zVec3DListDestroy( &vlist );
   zListDestroy( zGJKSlotListCell, &slist );
   return true;
 }

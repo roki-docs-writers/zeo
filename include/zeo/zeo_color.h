@@ -7,7 +7,6 @@
 #ifndef __ZEO_COLOR_H__
 #define __ZEO_COLOR_H__
 
-#include <cure/cure.h>
 #include <zeo/zeo_misc.h>
 
 __BEGIN_DECLS
@@ -58,7 +57,11 @@ __EXPORT zRGB *zRGBSet(zRGB *rgb, float red, float green, float blue);
 #define zGS(c)       ( ( (c)->r + (c)->g + (c)->b ) / 3.0 )
 #define zGSSet(c,i)  ( (c)->r = (c)->g = (c)->b = (i) )
 
+/*! \brief multiply a set of RGB parameters by another. */
 __EXPORT zRGB *zRGBMul(zRGB *rgb1, zRGB *rgb2, zRGB *rgb);
+
+/*! \brief blend a pair of RGB parameters at a given ratio. */
+__EXPORT zRGB *zRGBBlend(zRGB *rgb1, zRGB *rgb2, double ratio, zRGB *rgb);
 
 /*! \brief decode a string to RGB.
  *

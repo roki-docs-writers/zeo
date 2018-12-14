@@ -6,8 +6,8 @@ int main(void)
 {
   register int i;
   zVec3D p, cp;
-  zVec3DList ch;
-  zVec3DListCell *vc;
+  zLoop3D ch;
+  zLoop3DCell *vc;
   FILE *fp;
 
   zRandInit();
@@ -33,6 +33,6 @@ int main(void)
   zVec3DDataNLFWrite( fp, &cp );
   fclose( fp );
 
-  zVec3DListDestroy( &ch, false );
+  zLoop3DDestroy( &ch );
   return 0;
 }

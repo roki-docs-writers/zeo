@@ -222,16 +222,16 @@ zMat3D *zECyl3DInertia(zECyl3D *cyl, zMat3D *inertia)
   /* aligned inertia tensor */
   aa = 0.25 * zSqr( zECyl3DRadius(cyl,0) ) * vol;
   bb = 0.25 * zSqr( zECyl3DRadius(cyl,1) ) * vol;
-  zECyl3DAxis( cyl, zMat3DVec(&att,zZ) );
-  hh = zVec3DSqrNorm(zMat3DVec(&att,zZ)) * vol / 12.0;
+  zECyl3DAxis( cyl, &att.b.z );
+  hh = zVec3DSqrNorm(&att.b.z) * vol / 12.0;
   zMat3DCreate( &i,
     bb+hh, 0, 0,
     0, aa+hh, 0,
     0, 0, aa+bb );
   /* rotate */
-  zVec3DCopy( zECyl3DRadVec(cyl,0), zMat3DVec(&att,zX) );
-  zVec3DCopy( zECyl3DRadVec(cyl,1), zMat3DVec(&att,zY) );
-  zVec3DNormalizeDRC( zMat3DVec(&att,zZ) );
+  zVec3DCopy( zECyl3DRadVec(cyl,0), &att.b.x );
+  zVec3DCopy( zECyl3DRadVec(cyl,1), &att.b.y );
+  zVec3DNormalizeDRC( &att.b.z );
   zMulMatMat3DDRC( &att, &i );
   return zMulMatMatT3D( &i, &att, inertia );
 }
@@ -248,8 +248,8 @@ zPH3D *zECyl3DToPH(zECyl3D *cyl, zPH3D *ph)
 
   if( !zPH3DAlloc( ph, zECyl3DDiv(cyl)*2, (zECyl3DDiv(cyl)-1)*4 ) )
     return NULL;
-  vert = zPH3DVertBuf( ph );
-  face = zPH3DFaceBuf( ph );
+  vert = zPH3DVertBuf(ph);
+  face = zPH3DFaceBuf(ph);
 
   zECyl3DAxis( cyl, &d );
   if( zVec3DNormalizeDRC( &d ) < 0 ){

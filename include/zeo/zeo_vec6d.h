@@ -19,14 +19,13 @@ __BEGIN_DECLS
 typedef union {
   double e[6];
   zVec3D v[2];
+  struct{
+    zVec3D lin, ang;
+  } t;
 } zVec6D;
 
-/* for backward compatibility */
-#define zVec6DElem(u,i)      ( (u)->e[i] )
-#define zVec6DSetElem(u,i,e) ( zVec6DElem(u,i) = (e) )
-
-#define zVec6DLin(u)         ( &(u)->v[0] )
-#define zVec6DAng(u)         ( &(u)->v[1] )
+#define zVec6DLin(u)         ( &(u)->t.lin )
+#define zVec6DAng(u)         ( &(u)->t.ang )
 #define zVec6DSetLin(u,l)    zVec3DCopy( l, zVec6DLin(u) )
 #define zVec6DSetAng(u,r)    zVec3DCopy( r, zVec6DAng(u) )
 
@@ -46,26 +45,48 @@ extern const zVec6D zvec6Dangz;
 #define ZVEC6DANGY ( (zVec6D *)&zvec6Dangy )
 #define ZVEC6DANGZ ( (zVec6D *)&zvec6Dangz )
 
-/*! \brief create, copy and cleanup a 6D vector.
+/*! \brief create a 6D vector.
  *
- * zVec6DCreate() creates a 6D vector \a v which consists of \a x, \a y,
+ * zVec6DCreate() creates a 6D vector \a v from 6 components \a x, \a y,
  * \a z, \a xa, \a ya and \a za.
- *
- * zVec3DToVec6D() creates a 6D vector \a v from two 3D vectors \a vlin
- * and \a vang.
- *
- * zVec6DCopy() copies a 6D vector \a src to the other \a dest.
- *
- * zVec6DClear() sets all the components of a 6D vector \a v for zero.
  * \return
- * zVec6DCreate(), zVec3DToVec6D() and zVec6DClear() return a pointer \a v.
+ * zVec6DCreate() returns a pointer \a v.
+ */
+#define _zVec6DCreate(v,x,y,z,xa,ya,za) do{\
+  _zVec3DCreate( zVec6DLin(v), x, y, z );\
+  _zVec3DCreate( zVec6DAng(v), xa, ya, za );\
+} while(0)
+__EXPORT zVec6D *zVec6DCreate(zVec6D *v, double x, double y, double z, double xa, double ya, double za);
+
+/*! \brief create a 6D vector from two 3D vectors.
  *
+ * zVec6DFromVec3D creates a 6D vector \a v from two 3D vectors \a vl
+ * and \a va.
+ * \return
+ * zVec6DFromVec3D returns a pointer \a v.
+ */
+#define _zVec6DFromVec3D(v,vl,va) do{\
+  zVec3DCopy( vl, zVec6DLin(v) );\
+  zVec3DCopy( va, zVec6DAng(v) );\
+} while(0)
+__EXPORT zVec6D *zVec6DFromVec3D(zVec6D *v, zVec3D *vl, zVec3D *va);
+
+/*! \brief copy a 6D vector to another.
+ *
+ * zVec6DCopy() copies a 6D vector \a src to another 6D vector \a dest.
+ * \return
  * zVec6DCopy() returns a pointer \a dest.
  */
-__EXPORT zVec6D *zVec6DCreate(zVec6D *v, double x, double y, double z, double xa, double ya, double za);
-__EXPORT zVec6D *zVec3DToVec6D(zVec6D *v, zVec3D *v1, zVec3D *v2);
 #define zVec6DCopy(s,d) zCopy( zVec6D, s, d )
-#define zVec6DClear(v)  zVec6DCopy( ZVEC6DZERO, v )
+
+/*! \brief clear a 6D vector.
+ *
+ * zVec6DClear() sets all components of a 6D vector \a v for zero.
+ * \return
+ * zVec6DClear() returns a pointer \a v.
+ */
+#define _zVec6DClear(v)  _zVec6DCreate( v, 0, 0, 0, 0, 0, 0 )
+#define zVec6DClear(v)   zVec6DCreate( v, 0, 0, 0, 0, 0, 0 )
 
 /*! \brief check if the two 6D vectors are equal.
  *
@@ -79,7 +100,9 @@ __EXPORT zVec6D *zVec3DToVec6D(zVec6D *v, zVec3D *v1, zVec3D *v2);
  * zVec6DMatch() and zVec6DEqual() return the true value if \a v1 and \a v2
  * are equal. Otherwise, the false value is returned.
  */
+#define _zVec6DMatch(v1,v2) ( _zVec3DMatch( zVec6DLin(v1), zVec6DLin(v2) ) && _zVec3DMatch( zVec6DAng(v1), zVec6DAng(v2) ) )
 __EXPORT bool zVec6DMatch(zVec6D *v1, zVec6D *v2);
+#define _zVec6DEqual(v1,v2) ( _zVec3DEqual( zVec6DLin(v1), zVec6DLin(v2) ) && _zVec3DEqual( zVec6DAng(v1), zVec6DAng(v2) ) )
 __EXPORT bool zVec6DEqual(zVec6D *v1, zVec6D *v2);
 
 /*! \brief check if a 6D vector is tiny.
@@ -98,7 +121,9 @@ __EXPORT bool zVec6DEqual(zVec6D *v1, zVec6D *v2);
  * \sa
  * zIsTol, zIsTiny
  */
+#define _zVec6DIsTol(v,tol) ( _zVec3DIsTol( zVec6DLin(v), tol ) && _zVec3DIsTol( zVec6DAng(v), tol ) )
 __EXPORT bool zVec6DIsTol(zVec6D *v, double tol);
+#define _zVec6DIsTiny(v) _zVec6DIsTol( v, zTOL )
 #define zVec6DIsTiny(v) zVec6DIsTol( v, zTOL )
 
 /* ********************************************************** */
@@ -139,18 +164,58 @@ __EXPORT bool zVec6DIsTol(zVec6D *v, double tol);
  *
  * zVec6DDiv() and zVec6DDivDRC() return the null pointer if \a k is zero.
  */
+#define _zVec6DAdd(v1,v2,v) do{\
+  _zVec3DAdd( zVec6DLin(v1), zVec6DLin(v2), zVec6DLin(v) );\
+  _zVec3DAdd( zVec6DAng(v1), zVec6DAng(v2), zVec6DAng(v) );\
+} while(0)
 __EXPORT zVec6D *zVec6DAdd(zVec6D *v1, zVec6D *v2, zVec6D *v);
+#define _zVec6DSub(v1,v2,v) do{\
+  _zVec3DSub( zVec6DLin(v1), zVec6DLin(v2), zVec6DLin(v) );\
+  _zVec3DSub( zVec6DAng(v1), zVec6DAng(v2), zVec6DAng(v) );\
+} while(0)
 __EXPORT zVec6D *zVec6DSub(zVec6D *v1, zVec6D *v2, zVec6D *v);
+#define _zVec6DRev(v,rv) do{\
+  _zVec3DRev( zVec6DLin(v), zVec6DLin(rv) );\
+  _zVec3DRev( zVec6DAng(v), zVec6DAng(rv) );\
+} while(0)
 __EXPORT zVec6D *zVec6DRev(zVec6D *v, zVec6D *rv);
+#define _zVec6DMul(v,k,mv) do{\
+  _zVec3DMul( zVec6DLin(v), k, zVec6DLin(mv) );\
+  _zVec3DMul( zVec6DAng(v), k, zVec6DAng(mv) );\
+} while(0)
 __EXPORT zVec6D *zVec6DMul(zVec6D *v, double k, zVec6D *mv);
 __EXPORT zVec6D *zVec6DDiv(zVec6D *v, double k, zVec6D *dv);
+#define _zVec6DCat(v1,k,v2,v) do{\
+  _zVec3DCat( zVec6DLin(v1), k, zVec6DLin(v2), zVec6DLin(v) );\
+  _zVec3DCat( zVec6DAng(v1), k, zVec6DAng(v2), zVec6DAng(v) );\
+} while(0)
 __EXPORT zVec6D *zVec6DCat(zVec6D *v1, double k, zVec6D *v2, zVec6D *v);
 
-#define zVec6DAddDRC(v1,v2)   zVec6DAdd(v1,v2,v1)
-#define zVec6DSubDRC(v1,v2)   zVec6DSub(v1,v2,v1)
-#define zVec6DRevDRC(v)       zVec6DRev(v,v)
-#define zVec6DMulDRC(v,k)     zVec6DMul(v,k,v)
-#define zVec6DDivDRC(v,k)     zVec6DDiv(v,k,v)
+#define _zVec6DAddDRC(v1,v2) do{\
+  _zVec3DAddDRC( zVec6DLin(v1), zVec6DLin(v2) );\
+  _zVec3DAddDRC( zVec6DAng(v1), zVec6DAng(v2) );\
+} while(0)
+#define zVec6DAddDRC(v1,v2) zVec6DAdd(v1,v2,v1)
+#define _zVec6DSubDRC(v1,v2) do{\
+  _zVec3DSubDRC( zVec6DLin(v1), zVec6DLin(v2) );\
+  _zVec3DSubDRC( zVec6DAng(v1), zVec6DAng(v2) );\
+} while(0)
+#define zVec6DSubDRC(v1,v2) zVec6DSub(v1,v2,v1)
+#define _zVec6DRevDRC(v) do{\
+  _zVec3DRevDRC( zVec6DLin(v) );\
+  _zVec3DRevDRC( zVec6DAng(v) );\
+} while(0)
+#define zVec6DRevDRC(v) zVec6DRev(v,v)
+#define _zVec6DMulDRC(v,k) do{\
+  _zVec3DMulDRC( zVec6DLin(v), k );\
+  _zVec3DMulDRC( zVec6DAng(v), k );\
+} while(0)
+#define zVec6DMulDRC(v,k) zVec6DMul(v,k,v)
+#define zVec6DDivDRC(v,k) zVec6DDiv(v,k,v)
+#define _zVec6DCatDRC(v1,k,v2) do{\
+  _zVec3DCatDRC( zVec6DLin(v1), k, zVec6DLin(v2) );\
+  _zVec3DCatDRC( zVec6DAng(v1), k, zVec6DAng(v2) );\
+} while(0)
 #define zVec6DCatDRC(v1,k,v2) zVec6DCat(v1,k,v2,v1)
 
 /*! \brief inner product of two 6D vectors.
@@ -159,6 +224,7 @@ __EXPORT zVec6D *zVec6DCat(zVec6D *v1, double k, zVec6D *v2, zVec6D *v);
  * \a v1 and \a v2.
  * \retval \a v1 ^T \a v2
  */
+#define _zVec6DInnerProd(v1,v2) ( _zVec3DInnerProd( zVec6DLin(v1), zVec6DLin(v2) ) + _zVec3DInnerProd( zVec6DAng(v1), zVec6DAng(v2) ) )
 __EXPORT double zVec6DInnerProd(zVec6D *v1, zVec6D *v2);
 
 /*! \brief shift a 6D vector in 3D space.
@@ -188,10 +254,14 @@ __EXPORT double zVec6DInnerProd(zVec6D *v1, zVec6D *v2);
  * zVec6DLinShift() and zVec6DAngShift() return a pointer \a dest.
  * zVec6DLinShiftDRC() and zVec6DAngShift() return a pointer \a vec.
  */
-__EXPORT zVec6D *zVec6DLinShift(zVec6D *src, zVec3D *pos, zVec6D *dest);
 __EXPORT zVec6D *zVec6DLinShiftDRC(zVec6D *vec, zVec3D *pos);
-__EXPORT zVec6D *zVec6DAngShift(zVec6D *src, zVec3D *pos, zVec6D *dest);
+#define _zVec6DLinShift(s,p,d) do{\
+} while(0)
+__EXPORT zVec6D *zVec6DLinShift(zVec6D *src, zVec3D *pos, zVec6D *dest);
 __EXPORT zVec6D *zVec6DAngShiftDRC(zVec6D *vec, zVec3D *pos);
+#define _zVec6DAngShift(s,p,d) do{\
+} while(0)
+__EXPORT zVec6D *zVec6DAngShift(zVec6D *src, zVec3D *pos, zVec6D *dest);
 
 /* ********************************************************** */
 /* differential kinematics

@@ -191,8 +191,8 @@ int zBBall(zSphere3D *bb, zVec3D p[], int num, zVec3D **vp)
 {
   zVec3DList pl;
 
-  if( !zVec3DListCreate( &pl, p, num, false ) ) return 0;
+  if( !zVec3DListFromArray( &pl, p, num ) ) return 0;
   num = zBBallPL( bb, &pl, vp );
-  zVec3DListDestroy( &pl, false );
+  zVec3DListDestroy( &pl );
   return num;
 }

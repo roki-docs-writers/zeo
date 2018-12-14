@@ -1,13 +1,30 @@
 #include <zeo/zeo_col.h>
 #include <zeo/zeo_bv.h>
 
+/* intersection between a loop of vertices and 3D plane */
+int intersect_vlist_plane(zVec3DList *vl, zPlane3D *p, zVec3D ip[])
+{
+  zEdge3D e;
+  zVec3DListCell *cp1, *cp2;
+  int n = 0;
+
+  cp1 = zListHead(vl);
+  zListForEach( vl, cp2 ){
+    zEdge3DCreate( &e, cp1->data, cp2->data );
+    if( zIntersectEdgePlane3D( &e, p, &ip[n] ) ) n++;
+    cp1 = cp2;
+  }
+  return n;
+}
+
 #define N 100
 
 int main(void)
 {
   int i, n;
-  zVec3DList vlist, ch;
-  zVec3DListCell *vp;
+  zVec3DList vlist;
+  zLoop3D ch;
+  zLoop3DCell *vp;
   zVec3D v, ip[N], po;
   zPlane3D pl;
   FILE *fp;
@@ -17,15 +34,15 @@ int main(void)
   fp = fopen( "src", "w" );
   for( i=0; i<N; i++ ){
     zVec3DCreate( &v, zRandF(-10,10), zRandF(-10,10), 0 );
-    zVec3DListInsert( &vlist, &v, true );
+    zVec3DListInsert( &vlist, &v );
     zVec3DDataNLFWrite( fp, &v );
   }
   fclose( fp );
 
   zVec3DCreate( &po, -1, 0, 0 );
-  zPlane3DCreate( &pl, &po, Z_UNITXVEC3D );
+  zPlane3DCreate( &pl, &po, ZVEC3DX );
 
-  n = zIntersectVecListPlane3D( &vlist, &pl, ip );
+  n = intersect_vlist_plane( &vlist, &pl, ip );
   fp = fopen( "ip", "w" );
   for( i=0; i<n; i++ )
     zVec3DDataNLFWrite( fp, &ip[i] );
@@ -38,13 +55,13 @@ int main(void)
   zVec3DDataNLFWrite( fp, zListTail(&ch)->data );
   fclose( fp );
 
-  n = zIntersectVecListPlane3D( &ch, &pl, ip );
+  n = intersect_vlist_plane( &ch, &pl, ip );
   fp = fopen( "ipch", "w" );
   for( i=0; i<n; i++ )
     zVec3DDataNLFWrite( fp, &ip[i] );
   fclose( fp );
 
-  zVec3DListDestroy( &ch, false );
-  zVec3DListDestroy( &vlist, true );
+  zLoop3DDestroy( &ch );
+  zVec3DListDestroy( &vlist );
   return 0;
 }

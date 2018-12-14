@@ -12,9 +12,21 @@
  * ********************************************************** */
 
 /* zEPCreate
+ * - create Euler parameter.
+ */
+zEP *zEPCreate(zEP *ep, double w, double x, double y, double z)
+{
+  ep->e[0] = w;
+  ep->e[1] = x;
+  ep->e[2] = y;
+  ep->e[3] = z;
+  return zEPNormalize( ep );
+}
+
+/* zEPCreateAA
  * - create Euler parameter from rotation angle and axis vector.
  */
-zEP *zEPCreate(zEP *ep, double theta, zVec3D *axis)
+zEP *zEPCreateAA(zEP *ep, double theta, zVec3D *axis)
 {
   double sh, ch;
 
@@ -54,13 +66,13 @@ zVec3D *zEP2AA(zEP *ep, zVec3D *aa)
  */
 zEP *zAA2EP(zVec3D *aa, zEP *ep)
 {
-  return zEPCreate( ep, zVec3DNorm(aa), aa );
+  return zEPCreateAA( ep, zVec3DNorm(aa), aa );
 }
 
-/* zMat3DEP
+/* zMat3DFromEP
  * - convert Euler parameter to attitude matrix.
  */
-zMat3D *zMat3DEP(zMat3D *m, zEP *ep)
+zMat3D *zMat3DFromEP(zMat3D *m, zEP* ep)
 {
   double e00, e11, e22, e33, e12, e23, e31, e01, e02, e03;
 
@@ -88,13 +100,10 @@ zEP *zMat3DToEP(zMat3D *m, zEP *ep)
   double s;
   register int i, j, k, l;
 
-  if( !zIsTiny( ( s = m->e[0][0]+m->e[1][1]+m->e[2][2]+1 ) ) ){
+  if( !zIsTiny( ( s = m->c.xx+m->c.yy+m->c.zz+1 ) ) ){
     ep->ex.w = 0.5 * sqrt( s );
     s = 0.25 / ep->ex.w;
-    zVec3DCreate( &ep->ex.v,
-      ( m->e[1][2] - m->e[2][1] ) * s,
-      ( m->e[2][0] - m->e[0][2] ) * s,
-      ( m->e[0][1] - m->e[1][0] ) * s );
+    zVec3DCreate( &ep->ex.v, ( m->c.yz - m->c.zy ) * s, ( m->c.zx - m->c.xz ) * s, ( m->c.xy - m->c.yz ) * s );
   } else{
     ep->ex.w = 0;
     for( i=0; i<3; i++ ){
@@ -118,10 +127,10 @@ zEP *zMat3DToEP(zMat3D *m, zEP *ep)
  */
 zVec3D *zEPRotVec(zEP *ep, zVec3D *v, zVec3D *rv)
 {
-  zVec3DOuterProd( &ep->ex.v, v, rv );
+  _zVec3DOuterProd( &ep->ex.v, v, rv );
   zVec3DMulDRC( rv, 2*ep->ex.w );
-  zVec3DCatDRC( rv, zSqr(ep->ex.w)-zVec3DSqrNorm(&ep->ex.v), v );
-  zVec3DCatDRC( rv, 2*zVec3DInnerProd(&ep->ex.v,v), &ep->ex.v );
+  zVec3DCatDRC( rv, zSqr(ep->ex.w)-_zVec3DSqrNorm(&ep->ex.v), v );
+  zVec3DCatDRC( rv, 2*_zVec3DInnerProd(&ep->ex.v,v), &ep->ex.v );
   return rv;
 }
 
@@ -130,9 +139,9 @@ zVec3D *zEPRotVec(zEP *ep, zVec3D *v, zVec3D *rv)
  */
 zVec3D *zEPVel2AngVel(zEP *epvel, zEP *ep, zVec3D *angvel)
 {
-  zVec3DOuterProd( &ep->ex.v, &epvel->ex.v, angvel );
-  zVec3DCatDRC( angvel, ep->ex.w, &epvel->ex.v );
-  zVec3DCatDRC( angvel,-epvel->ex.w, &ep->ex.v );
+  _zVec3DOuterProd( &ep->ex.v, &epvel->ex.v, angvel );
+  _zVec3DCatDRC( angvel, ep->ex.w, &epvel->ex.v );
+  _zVec3DCatDRC( angvel,-epvel->ex.w, &ep->ex.v );
   return zVec3DMulDRC( angvel, 2 );
 }
 
@@ -141,10 +150,10 @@ zVec3D *zEPVel2AngVel(zEP *epvel, zEP *ep, zVec3D *angvel)
  */
 zEP *zAngVel2EPVel(zVec3D *angvel, zEP *ep, zEP *epvel)
 {
-  epvel->ex.w = -0.5*zVec3DInnerProd(&ep->ex.v,angvel);
-  zVec3DOuterProd( angvel, &ep->ex.v, &epvel->ex.v );
-  zVec3DCatDRC( &epvel->ex.v, ep->ex.w, angvel );
-  zVec3DMulDRC( &epvel->ex.v, 0.5 );
+  epvel->ex.w = -0.5*_zVec3DInnerProd(&ep->ex.v,angvel);
+  _zVec3DOuterProd( angvel, &ep->ex.v, &epvel->ex.v );
+  _zVec3DCatDRC( &epvel->ex.v, ep->ex.w, angvel );
+  _zVec3DMulDRC( &epvel->ex.v, 0.5 );
   return epvel;
 }
 
@@ -154,7 +163,7 @@ zEP *zAngVel2EPVel(zVec3D *angvel, zEP *ep, zEP *epvel)
 zEP *zEPSub(zEP *ep1, zEP *ep2, zEP *ep)
 {
   ep->ex.w = ep1->ex.w - ep2->ex.w;
-  zVec3DSub( &ep1->ex.v, &ep2->ex.v, &ep->ex.v );
+  _zVec3DSub( &ep1->ex.v, &ep2->ex.v, &ep->ex.v );
   return ep;
 }
 
@@ -164,7 +173,7 @@ zEP *zEPSub(zEP *ep1, zEP *ep2, zEP *ep)
 zEP *zEPRev(zEP *ep1, zEP *ep)
 {
   ep->ex.w = -ep1->ex.w;
-  zVec3DRev( &ep1->ex.v, &ep->ex.v );
+  _zVec3DRev( &ep1->ex.v, &ep->ex.v );
   return ep;
 }
 
@@ -174,7 +183,7 @@ zEP *zEPRev(zEP *ep1, zEP *ep)
 zEP *zEPMul(zEP *ep1, double k, zEP *ep)
 {
   ep->ex.w = k * ep1->ex.w;
-  zVec3DMul( &ep1->ex.v, k, &ep->ex.v );
+  _zVec3DMul( &ep1->ex.v, k, &ep->ex.v );
   return ep;
 }
 
@@ -184,7 +193,7 @@ zEP *zEPMul(zEP *ep1, double k, zEP *ep)
 zEP *zEPCat(zEP *ep1, double k, zEP *ep2, zEP *ep)
 {
   ep->ex.w = ep1->ex.w + k * ep2->ex.w;
-  zVec3DCat( &ep1->ex.v, k, &ep2->ex.v, &ep->ex.v );
+  _zVec3DCat( &ep1->ex.v, k, &ep2->ex.v, &ep->ex.v );
   return zEPNormalize( ep );
 }
 
@@ -206,7 +215,7 @@ zEP *zEPDif(zEP *ep1, zEP *ep2, double dt, zEP *ep_vel)
  */
 double zEPInnerProd(zEP *ep1, zEP *ep2)
 {
-  return ep1->ex.w*ep2->ex.w + zVec3DInnerProd( &ep1->ex.v, &ep2->ex.v );
+  return ep1->ex.w*ep2->ex.w + _zVec3DInnerProd( &ep1->ex.v, &ep2->ex.v );
 }
 
 /* zEPNorm
@@ -240,10 +249,10 @@ zEP *zEPCascade(zEP *e1, zEP *e2, zEP *e)
 {
   zEP tmp;
 
-  tmp.ex.w = e1->ex.w * e2->ex.w - zVec3DInnerProd(&e1->ex.v,&e2->ex.v);
-  zVec3DOuterProd( &e2->ex.v, &e1->ex.v, &tmp.ex.v );
-  zVec3DCatDRC( &tmp.ex.v, e1->ex.w, &e2->ex.v );
-  zVec3DCatDRC( &tmp.ex.v, e2->ex.w, &e1->ex.v );
+  tmp.ex.w = e1->ex.w * e2->ex.w - _zVec3DInnerProd(&e1->ex.v,&e2->ex.v);
+  _zVec3DOuterProd( &e2->ex.v, &e1->ex.v, &tmp.ex.v );
+  _zVec3DCatDRC( &tmp.ex.v, e1->ex.w, &e2->ex.v );
+  _zVec3DCatDRC( &tmp.ex.v, e2->ex.w, &e1->ex.v );
   zEPCopy( &tmp, e );
   return e;
 }
@@ -283,7 +292,7 @@ zMat3D *zMat3DInterDiv(zMat3D *m1, zMat3D *m2, double t, zMat3D *m)
   zMat3DToEP( m1, &ep1 );
   zMat3DToEP( m2, &ep2 );
   zEPInterDiv( &ep1, &ep2, t, &ep );
-  return zMat3DEP( m, &ep );
+  return zMat3DFromEP( m, &ep );
 }
 
 /* zEPFWrite

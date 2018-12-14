@@ -204,14 +204,14 @@ zMat3D *zCone3DInertia(zCone3D *cone, zMat3D *inertia)
   vol = zCone3DVolume( cone );
   /* aligned inertia tensor */
   rr = 3 * zSqr(zCone3DRadius(cone)) * vol;
-  zCone3DAxis( cone, zMat3DVec(&att,zZ) );
-  hh = 0.75 * zVec3DSqrNorm(zMat3DVec(&att,zZ)) * vol;
+  zCone3DAxis( cone, &att.b.z );
+  hh = 0.75 * zVec3DSqrNorm(&att.b.z) * vol;
   zMat3DCreate( &i,
     0.05*(rr+hh), 0, 0,
     0, 0.05*(rr+hh), 0,
     0, 0, 0.1*rr );
   /* rotate */
-  zVec3DOrthoSpace( zMat3DVec(&att,zZ), zMat3DVec(&att,zX), zMat3DVec(&att,zY) );
+  zVec3DOrthoSpace( &att.b.z, &att.b.x, &att.b.y );
   zMulMatMat3DDRC( &att, &i );
   return zMulMatMatT3D( &i, &att, inertia );
 }

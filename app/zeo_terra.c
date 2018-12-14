@@ -1,31 +1,50 @@
-#include <cure/cure_option.h>
+/* zeo_terra
+ * - terrain map generator
+ *  1. generate leven terrain map
+ *     input: xmin:xmax, ymin:ymax, zmin:zmax, dx, dy
+ *     output: terrain map
+ *  2. estimate terrain map from PCD
+ *     input: PCD file, xmin:xmax, ymin:ymax, zmin:zmax, dx, dy
+ *     output: terrain map
+ *  3. resize terrain map (yet to be implemented)
+ *     input: terrain map, xmin:xmax, ymin:ymax, zmin:zmax, dx, dy
+ *     output: terrain map
+ *  4. convert terrain map to triangle mesh (yet to be implemented)
+ *     input: terrain map
+ *     output: shape
+ */
+
 #include <zeo/zeo_mshape.h>
+#include <zeo/zeo_terra.h>
 
 enum{
   TERRA_OUTFILE = 0,
-  TERRA_NX, TERRA_NY,
-  TERRA_X0, TERRA_Y0, TERRA_X1, TERRA_Y1,
-  TERRA_COLOR1, TERRA_COLOR2,
+  TERRA_INFILE,
+  TERRA_XRANGE,
+  TERRA_YRANGE,
+  TERRA_ZRANGE,
+  TERRA_RESOL,
+  TERRA_PCD,
+  TERRA_VERBOSE,
   TERRA_HELP,
   TERRA_INVALID
 };
 zOption opt[] = {
-  { "o",  "output", "<file name>", "output file", (char *)"terra.z3d", false },
-  { "nx", "mesh-x", "<number>", "mesh division number along x-axis", (char *)"10", false },
-  { "ny", "mesh-y", "<number>", "mesh division number along y-axis", (char *)"10", false },
-  { "x0", NULL, "<number>", "minimum boundary along x-axis", (char *)"-1.0", false },
-  { "y0", NULL, "<number>", "minimum boundary along y-axis", (char *)"-1.0", false },
-  { "x1", NULL, "<number>", "maximum boundary along x-axis", (char *)"1.0", false },
-  { "y1", NULL, "<number>", "maximum boundary along y-axis", (char *)"1.0", false },
-  { "c1", "color1", "<#hex>", "first color of mesh", (char *)"#d00040", false },
-  { "c2", "color2", "<#hex>", "second color of mesh", (char *)"#0000d0", false },
-  { "h",  "help", NULL, "show this message", NULL, false },
-  { NULL,   NULL, NULL, NULL, NULL, false },
+  { "o", "output", "<file name>", "output .ztr file", (char *)"terra.ztr", false },
+  { "i", "input", "<file name>", "input .ztr file", NULL, false },
+  { "x", "xrange", "<xmin>:<xmax>", "range in x-axis", (char *)"-1:1", false },
+  { "y", "yrange", "<ymin>:<ymax>", "range in y-axis", (char *)"-1:1", false },
+  { "z", "zrange", "<zmin>:<zmax>", "range in z-axis", (char *)"0:10", false },
+  { "r", "resolution", "<dx>:<dy>", "horizontal resolution", (char *)"0.1:0.1", false },
+  { "p", "pcd", "<file name>", "PCD (point cloud data) file", NULL, false },
+  { "v", "verbose", NULL, "make this program verbose", NULL, false },
+  { "h", "help", NULL, "show this message", NULL, false },
+  { NULL, NULL, NULL, NULL, NULL, false },
 };
 
 void terraUsage(void)
 {
-  eprintf( "Usage: terra [options] [outfile]\n" );
+  eprintf( "Usage: terra [options]\n" );
   eprintf( "<options>\n" );
   zOptionHelp( opt );
   exit( EXIT_SUCCESS );

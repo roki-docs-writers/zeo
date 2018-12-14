@@ -16,13 +16,12 @@ __BEGIN_DECLS
  * 3D vector class
  * ********************************************************** */
 
-typedef struct{
+typedef union{
+  struct{
+    double x, y, z;
+  } c;
   double e[3];
 } zVec3D;
-
-/* for backward compatibility */
-#define zVec3DElem(v,i)      ( (v)->e[i] )
-#define zVec3DSetElem(v,i,x) ( zVec3DElem(v,i) = (x) )
 
 /*! \brief 3D zero vector and unit vectors */
 extern const zVec3D zvec3Dzero;
@@ -34,24 +33,21 @@ extern const zVec3D zvec3Dz;
 #define ZVEC3DY    ( (zVec3D *)&zvec3Dy )
 #define ZVEC3DZ    ( (zVec3D *)&zvec3Dz )
 
-/*! \brief create, copy and cleanup a 3D vector.
+/*! \brief create a 3D vector.
  *
- * zVec3DCreate() creates a 3D vector \a v which consists of \a x, \a y
- * and \a z.
- *
- * zVec3DCopy() copies \a src to \a dest.
- *
- * zVec3DClear() sets all components of \a v for zero.
+ * zVec3DCreate() creates a 3D vector \a v which consists of \a x, \a y and \a z
+ * for its components.
  * \return
- * zVec3DCreate() and zVec3DClear() return a pointer \a v.
- *
- * zVec3DCopy() returns no value.
+ * zVec3DCreate() returns a pointer \a v.
  */
+#define _zVec3DCreate(v,_x,_y,_z) do{\
+  (v)->c.x = (_x);\
+  (v)->c.y = (_y);\
+  (v)->c.z = (_z);\
+} while(0)
 __EXPORT zVec3D *zVec3DCreate(zVec3D *v, double x, double y, double z);
-#define zVec3DCopy(s,d) zCopy( zVec3D, (s), (d) )
-#define zVec3DClear(v)  zVec3DCopy( ZVEC3DZERO, v )
 
-/*! \brief creation of a 3D vector by the set of value for a polar expression.
+/*! \brief create a 3D vector by the set of value for a polar expression.
  *
  * zVec3DCreatePolar() creates a vector \a v from a set of values
  * for a polar coordinate ( \a r, \a theta, \a phi ), where
@@ -60,6 +56,23 @@ __EXPORT zVec3D *zVec3DCreate(zVec3D *v, double x, double y, double z);
  * \retval \a v
  */
 __EXPORT zVec3D *zVec3DCreatePolar(zVec3D *v, double r, double theta, double phi);
+
+/*! \brief copy a 3D vector to another.
+ *
+ * zVec3DCopy() copies a 3D vector \a src to another \a dest.
+ * \return
+ * zVec3DCopy() returns a pointer \a dest.
+ */
+#define zVec3DCopy(s,d) zCopy( zVec3D, s, d )
+
+/*! \brief clear a 3D vector to zero.
+ *
+ * zVec3DClear() sets all components of \a v for zero.
+ * \return
+ * zVec3DClear() returns a pointer \a v.
+ */
+#define _zVec3DClear(v) _zVec3DCreate( v, 0, 0, 0 )
+#define zVec3DClear(v)  zVec3DCreate( v, 0, 0, 0 )
 
 /*! \brief check if the two 3D vectors are equal.
  *
@@ -73,9 +86,10 @@ __EXPORT zVec3D *zVec3DCreatePolar(zVec3D *v, double r, double theta, double phi
  * zVec3DMatch() and zVec3DEqual() return the true value if
  * \a v1 and \a v2 are equal, or false otherwise.
  */
+#define _zVec3DMatch(v1,v2) ( (v1)->c.x == (v2)->c.x && (v1)->c.y == (v2)->c.y && (v1)->c.z == (v2)->c.z )
 __EXPORT bool zVec3DMatch(zVec3D *v1, zVec3D *v2);
+#define _zVec3DEqual(v1,v2) ( zIsTiny( (v1)->c.x - (v2)->c.x ) && zIsTiny( (v1)->c.y - (v2)->c.y ) && zIsTiny( (v1)->c.z - (v2)->c.z ) )
 __EXPORT bool zVec3DEqual(zVec3D *v1, zVec3D *v2);
-__EXPORT bool zVec3DEqualTol(zVec3D *v1, zVec3D *v2, double tol);
 
 /*! \brief check if 3D vector is tiny.
  *
@@ -94,8 +108,10 @@ __EXPORT bool zVec3DEqualTol(zVec3D *v1, zVec3D *v2, double tol);
  * \sa
  * zIsTol, zIsTiny
  */
+#define _zVec3DIsTol(v,tol) ( zIsTol( (v)->c.x, (tol) ) && zIsTol( (v)->c.y, (tol) ) && zIsTol( (v)->c.z, (tol) ) )
 __EXPORT bool zVec3DIsTol(zVec3D *v, double tol);
-#define zVec3DIsTiny(v) zVec3DIsTol( v, zTOL )
+#define _zVec3DIsTiny(v) _zVec3DIsTol( v, zTOL )
+#define zVec3DIsTiny(v)  zVec3DIsTol( v, zTOL )
 
 /*! \brief check if a 3D vector includes NaN or Inf components. */
 __EXPORT bool zVec3DIsNan(zVec3D *v);
@@ -142,69 +158,94 @@ __EXPORT bool zVec3DIsNan(zVec3D *v);
  * zVec3DDiv() and zVec3DDivDRC() return the null pointer if
  * the given scalar value is zero.
  */
+#define _zVec3DAdd(v1,v2,v) do{\
+  (v)->c.x = (v1)->c.x + (v2)->c.x;\
+  (v)->c.y = (v1)->c.y + (v2)->c.y;\
+  (v)->c.z = (v1)->c.z + (v2)->c.z;\
+} while(0)
 __EXPORT zVec3D *zVec3DAdd(zVec3D *v1, zVec3D *v2, zVec3D *v);
+
+#define _zVec3DSub(v1,v2,v) do{\
+  (v)->c.x = (v1)->c.x - (v2)->c.x;\
+  (v)->c.y = (v1)->c.y - (v2)->c.y;\
+  (v)->c.z = (v1)->c.z - (v2)->c.z;\
+} while(0)
 __EXPORT zVec3D *zVec3DSub(zVec3D *v1, zVec3D *v2, zVec3D *v);
+
+#define _zVec3DRev(v,rv) do{\
+  (rv)->c.x = -(v)->c.x;\
+  (rv)->c.y = -(v)->c.y;\
+  (rv)->c.z = -(v)->c.z;\
+} while(0)
 __EXPORT zVec3D *zVec3DRev(zVec3D *v, zVec3D *rv);
+
+#define _zVec3DMul(v,k,mv) do{\
+  (mv)->c.x = (k) * (v)->c.x;\
+  (mv)->c.y = (k) * (v)->c.y;\
+  (mv)->c.z = (k) * (v)->c.z;\
+} while(0)
 __EXPORT zVec3D *zVec3DMul(zVec3D *v, double k, zVec3D *mv);
+
 __EXPORT zVec3D *zVec3DDiv(zVec3D *v, double k, zVec3D *dv);
+
+#define _zVec3DAmp(v,a,av) do{\
+  (av)->c.x = (a)->c.x * (v)->c.x;\
+  (av)->c.y = (a)->c.y * (v)->c.y;\
+  (av)->c.z = (a)->c.z * (v)->c.z;\
+} while(0)
 __EXPORT zVec3D *zVec3DAmp(zVec3D *v, zVec3D *a, zVec3D *av);
+
+#define _zVec3DCat(v1,k,v2,v) do{\
+  (v)->c.x = (v1)->c.x + (k) * (v2)->c.x;\
+  (v)->c.y = (v1)->c.y + (k) * (v2)->c.y;\
+  (v)->c.z = (v1)->c.z + (k) * (v2)->c.z;\
+} while(0)
 __EXPORT zVec3D *zVec3DCat(zVec3D *v1, double k, zVec3D *v2, zVec3D *v);
 
-#define zVec3DAddDRC(v1,v2)   zVec3DAdd(v1,v2,v1)
-#define zVec3DSubDRC(v1,v2)   zVec3DSub(v1,v2,v1)
-#define zVec3DRevDRC(v)       zVec3DRev(v,v)
-#define zVec3DMulDRC(v,k)     zVec3DMul(v,k,v)
-#define zVec3DDivDRC(v,k)     zVec3DDiv(v,k,v)
-#define zVec3DAmpDRC(v,a)     zVec3DAmp(v,a,v)
-#define zVec3DCatDRC(v1,k,v2) zVec3DCat(v1,k,v2,v1)
-
-/*! \brief norm of the vector.
- *
- * zVec3DNorm() calculates a norm of the 3D vector \a v.
- *
- * zVec3DSqrNorm() calculates a squared norm of \a v.
- *
- * zVec3DDist() calculates a distance between the two points
- * indicated by \a v1 and \a v2, which are position vectors for
- * each point.
- *
- * zVec3DSqrDist() calculates a squared distance between
- * \a v1 and \a v2.
- * \return
- * zVec3DNorm() returns a norm of \a v.
- *
- * zVec3DSqrNorm() returns a squared norm of \a v.
- *
- * zVec3DDist() returns a distance between \a v1 and \a v2.
- *
- * zVec3DSqrDist() returns a squared distance between \a v1
- * and \a v2.
- */
-__EXPORT double zVec3DSqrNorm(zVec3D *v);
-#define zVec3DNorm(v) sqrt( zVec3DSqrNorm((v)) )
-
-__EXPORT double zVec3DWSqrNorm(zVec3D *v, zVec3D *w);
-#define zVec3DWNorm(v,w) sqrt( zVec3DWSqrNorm(v,w) )
-
-__EXPORT double zVec3DSqrDist(zVec3D *v1, zVec3D *v2);
-#define zVec3DDist(v1,v2) sqrt( zVec3DSqrDist((v1),(v2)) )
-
-/*! \brief normalize a 3D vector.
- *
- * zVec3DNormalize() normalizes the 3D vector \a v.
- * The result is put into \a nv.
- *
- * zVec3DNormalizeDRC() normalizes the vector \a v directly.
- *
- * As a result of nomalization, the norm of a vector will be 1.
- * \return
- * Both functions return a pointer to the result vector.
- * If the norm of \a v is less than zTOL, the null pointer is returned.
- */
-__EXPORT double zVec3DNormalizeNC(zVec3D *v, zVec3D *nv);
-__EXPORT double zVec3DNormalize(zVec3D *v, zVec3D *nv);
-#define zVec3DNormalizeNCDRC(v) zVec3DNormalizeNC(v,v)
-#define zVec3DNormalizeDRC(v)   zVec3DNormalize(v,v)
+/*! \brief directly add a 3D vector to another. */
+#define _zVec3DAddDRC(v1,v2) do{\
+  (v1)->c.x += (v2)->c.x;\
+  (v1)->c.y += (v2)->c.y;\
+  (v1)->c.z += (v2)->c.z;\
+} while(0)
+__EXPORT zVec3D *zVec3DAddDRC(zVec3D *v1, zVec3D *v2);
+/*! \brief directly subtract a 3D vector from another. */
+#define _zVec3DSubDRC(v1,v2) do{\
+  (v1)->c.x -= (v2)->c.x;\
+  (v1)->c.y -= (v2)->c.y;\
+  (v1)->c.z -= (v2)->c.z;\
+} while(0)
+__EXPORT zVec3D *zVec3DSubDRC(zVec3D *v1, zVec3D *v2);
+/*! \brief directly reverse a 3D vector. */
+#define _zVec3DRevDRC(v) do{\
+  (v)->c.x = -(v)->c.x;\
+  (v)->c.y = -(v)->c.y;\
+  (v)->c.z = -(v)->c.z;\
+} while(0)
+__EXPORT zVec3D *zVec3DRevDRC(zVec3D *v);
+/*! \brief directly multiply a 3D vector by a scalar value. */
+#define _zVec3DMulDRC(v,k) do{\
+  (v)->c.x *= (k);\
+  (v)->c.y *= (k);\
+  (v)->c.z *= (k);\
+} while(0)
+__EXPORT zVec3D *zVec3DMulDRC(zVec3D *v, double k);
+/*! \brief directly divide a 3D vector by a scalar value. */
+__EXPORT zVec3D *zVec3DDivDRC(zVec3D *v, double k);
+/*! \brief directly amplify a 3D vector by another. */
+#define _zVec3DAmpDRC(v,a) do{\
+  (v)->c.x *= (a)->c.x;\
+  (v)->c.y *= (a)->c.y;\
+  (v)->c.z *= (a)->c.z;\
+} while(0)
+__EXPORT zVec3D *zVec3DAmpDRC(zVec3D *v1, zVec3D *v2);
+/*! \brief directly concatenate a 3D vector multiplied by a scalar to another. */
+#define _zVec3DCatDRC(v1,k,v2) do{\
+  (v1)->c.x += (k) * (v2)->c.x;\
+  (v1)->c.y += (k) * (v2)->c.y;\
+  (v1)->c.z += (k) * (v2)->c.z;\
+} while(0)
+__EXPORT zVec3D *zVec3DCatDRC(zVec3D *v1, double k, zVec3D *v2);
 
 /*! \brief inner/outer products.
  *
@@ -234,11 +275,75 @@ __EXPORT double zVec3DNormalize(zVec3D *v, zVec3D *nv);
  * For zVec3DOuterProd() and zVec3DTripleProd(), it is allowed
  * to let \a v point to the same address with \a v1 or \a v2.
  */
+#define _zVec3DInnerProd(v1,v2) ( (v1)->c.x*(v2)->c.x + (v1)->c.y*(v2)->c.y + (v1)->c.z*(v2)->c.z )
 __EXPORT double zVec3DInnerProd(zVec3D *v1, zVec3D *v2);
+#define __zVec3DOuterProd(v1,v2,__x,__y,__z) do{\
+  __x = (v1)->c.y * (v2)->c.z - (v1)->c.z * (v2)->c.y;\
+  __y = (v1)->c.z * (v2)->c.x - (v1)->c.x * (v2)->c.z;\
+  __z = (v1)->c.x * (v2)->c.y - (v1)->c.y * (v2)->c.x;\
+} while(0)
+#define _zVec3DOuterProd(v1,v2,v) do{\
+  double __x, __y, __z;\
+  __zVec3DOuterProd( v1, v2, __x, __y, __z );\
+ _zVec3DCreate( v, __x, __y, __z );\
+} while(0)
 __EXPORT zVec3D *zVec3DOuterProd(zVec3D *v1, zVec3D *v2, zVec3D *v);
 __EXPORT double zVec3DOuterProdNorm(zVec3D *v1, zVec3D *v2);
 __EXPORT double zVec3DGrassmannProd(zVec3D *v1, zVec3D *v2, zVec3D *v3);
+#define _zVec3DTripleProd(v1,v2,v3,v) do{\
+  zVec3D __v;\
+  __zVec3DOuterProd( v2, v3, __v.c.x, __v.c.y, __v.c.z );\
+  _zVec3DOuterProd( v1, &__v, v );\
+} while(0)
 __EXPORT zVec3D *zVec3DTripleProd(zVec3D *v1, zVec3D *v2, zVec3D *v3, zVec3D *v);
+
+/*! \brief calculate norm of a 3D vector.
+ *
+ * zVec3DNorm() calculates a norm of a 3D vector \a v.
+ * zVec3DSqrNorm() calculates a squared norm of \a v.
+ * \return
+ * zVec3DNorm() returns a norm of \a v.
+ * zVec3DSqrNorm() returns a squared norm of \a v.
+ */
+#define _zVec3DSqrNorm(v) _zVec3DInnerProd( v, v )
+__EXPORT double zVec3DSqrNorm(zVec3D *v);
+#define _zVec3DNorm(v) sqrt( _zVec3DSqrNorm(v) )
+#define zVec3DNorm(v) sqrt( zVec3DSqrNorm(v) )
+
+#define _zVec3DWSqrNorm(v,w) ( (v)->c.x*(v)->c.x*(w)->c.x + (v)->c.y*(v)->c.y*(w)->c.y + (v)->c.z*(v)->c.z*(w)->c.z )
+__EXPORT double zVec3DWSqrNorm(zVec3D *v, zVec3D *w);
+#define _zVec3DWNorm(v,w) sqrt( _zVec3DWSqrNorm(v,w) )
+#define zVec3DWNorm(v,w) sqrt( zVec3DWSqrNorm(v,w) )
+
+/*! \brief calculate distance between two 3D vectors.
+ *
+ * zVec3DDist() calculates a distance between two points located
+ * two position 3D vectors by \a v1 and \a v2.
+ *
+ * zVec3DSqrDist() calculates a squared distance between two points
+ * located by \a v1 and \a v2.
+ * \return
+ * zVec3DDist() returns a distance between \a v1 and \a v2.
+ * zVec3DSqrDist() returns a squared distance between \a v1 and \a v2.
+ */
+__EXPORT double zVec3DSqrDist(zVec3D *v1, zVec3D *v2);
+#define zVec3DDist(v1,v2) sqrt( zVec3DSqrDist((v1),(v2)) )
+
+/*! \brief normalize a 3D vector.
+ *
+ * zVec3DNormalize() normalizes a 3D vector \a v and put it into \a nv.
+ * zVec3DNormalizeDRC() normalizes the vector \a v directly.
+ *
+ * As a result of nomalization, the norm of \a nv will be 1.
+ * \return
+ * zVec3DNormalize() and zVec3DNormalizeNC() return the norm of the
+ * originala pointer \a v.
+ * If the norm of \a v is less than zTOL, -1is returned.
+ */
+__EXPORT double zVec3DNormalizeNC(zVec3D *v, zVec3D *nv);
+__EXPORT double zVec3DNormalize(zVec3D *v, zVec3D *nv);
+#define zVec3DNormalizeNCDRC(v) zVec3DNormalizeNC(v,v)
+#define zVec3DNormalizeDRC(v)   zVec3DNormalize(v,v)
 
 /* ********************************************************** */
 /* geometry
@@ -258,7 +363,18 @@ __EXPORT zVec3D *zVec3DTripleProd(zVec3D *v1, zVec3D *v2, zVec3D *v3, zVec3D *v)
  * \return
  * Both functions return a pointer to \a v.
  */
+#define _zVec3DInterDiv(v1,v2,r,v) do{\
+  (v)->c.x = (v1)->c.x + (r) * ( (v2)->c.x - (v1)->c.x );\
+  (v)->c.y = (v1)->c.y + (r) * ( (v2)->c.y - (v1)->c.y );\
+  (v)->c.z = (v1)->c.z + (r) * ( (v2)->c.z - (v1)->c.z );\
+} while(0)
 __EXPORT zVec3D *zVec3DInterDiv(zVec3D *v1, zVec3D *v2, double ratio, zVec3D *v);
+
+#define _zVec3DMid(v1,v2,v) do{\
+  (v)->c.x = 0.5 * ( (v1)->c.x + (v2)->c.x );\
+  (v)->c.y = 0.5 * ( (v1)->c.y + (v2)->c.y );\
+  (v)->c.z = 0.5 * ( (v1)->c.z + (v2)->c.z );\
+} while(0)
 __EXPORT zVec3D *zVec3DMid(zVec3D *v1, zVec3D *v2, zVec3D *v);
 
 /*! \brief angle between the two vectors.

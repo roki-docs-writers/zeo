@@ -7,51 +7,38 @@
 #ifndef __ZEO_OPTIC_H__
 #define __ZEO_OPTIC_H__
 
-#include <cure/cure.h>
 #include <zeo/zeo_color.h>
 
 __BEGIN_DECLS
 
 /* ********************************************************** */
-/* CLASS: zOpticalInfo
- * class for the information about optical characterization
- * parameters
- * ********************************************************** */
-
+/*! \brief optical characterization parameters
+ *//********************************************************* */
 typedef struct{
   Z_NAMED_CLASS
-  zRGB amb;     /* coefficients of reflection for ambient */
-  zRGB dif;     /* coefficients of diffuse reflection */
-  zRGB spc;     /* coefficients of specular reflection */
-  double ns;    /* Phong's exponential for specular reflection */
-  double sns;   /* shininess */
-  double alpha; /* alpha value */
+  zRGB amb;     /*!< \brief coefficients of reflection for ambient */
+  zRGB dif;     /*!< \brief coefficients of diffuse reflection */
+  zRGB spc;     /*!< \brief coefficients of specular reflection */
+  double esr;   /*!< \brief Phong's exponential for specular reflection */
+  double sns;   /*!< \brief shininess */
+  double alpha; /*!< \brief alpha value */
 } zOpticalInfo;
 
-#define zOpticalInfoAmb(o)   ( &(o)->amb )
-#define zOpticalInfoDif(o)   ( &(o)->dif )
-#define zOpticalInfoSpc(o)   ( &(o)->spc )
-#define zOpticalInfoExp(o)   (o)->ns
-#define zOpticalInfoSns(o)   (o)->sns
-#define zOpticalInfoAlpha(o) (o)->alpha
-
-#define zOpticalInfoSetAmb(o,a)   zRGBCopy(a,zOpticalInfoAmb(o))
-#define zOpticalInfoSetDif(o,d)   zRGBCopy(d,zOpticalInfoDif(o))
-#define zOpticalInfoSetSpc(o,s)   zRGBCopy(s,zOpticalInfoSpc(o))
-#define zOpticalInfoSetExp(o,n)   ( zOpticalInfoExp(o) = (n) )
-#define zOpticalInfoSetSns(o,s)   ( zOpticalInfoSns(o) = (s) )
-#define zOpticalInfoSetAlpha(o,a) ( zOpticalInfoAlpha(o) = (a) )
+#define zOpticalInfoSetAmb(o,a) zRGBCopy( a, &(o)->amb )
+#define zOpticalInfoSetDif(o,d) zRGBCopy( d, &(o)->dif )
+#define zOpticalInfoSetSpc(o,s) zRGBCopy( s, &(o)->spc )
 
 /*! \brief create, initialize, copy and destroy a set of optical parameters.
  *
  * zOpticalInfoCreate() creates a set of optical parameters \a oi.
- * \a amb is a coefficient of reflection for ambient.
- * \a dif is a coefficient of diffuse reflection.
- * \a spc is a coefficient of specular reflection.
- * \a ns is Phong's specular exponential value.
+ * \a ar, \a ag and \a ab are for coefficients of ambient reflection.
+ * \a dr, \a dg and \a db are for coefficients of diffuse reflection.
+ * \a sr, \a sg and \a sb are for coefficients of specular reflection.
+ * \a esr is Phong's exponential for specular reflection.
  * \a sns is the shininess.
- * \a alpha is the alpha value.
- * \a name is a name of the optical set.
+ * \a alpha is the alpha value (transparent ratio).
+ * \a name is a name of the optical set, which is not mandatory
+ * (the null pointer works).
  *
  * zOpticalInfoInit() initializes a set of optical parameters \a oi.
  * All parameters will be set for 1.0.
@@ -66,7 +53,7 @@ typedef struct{
  *
  * zOpticalInfoDestroy() returns no value.
  */
-__EXPORT zOpticalInfo *zOpticalInfoCreate(zOpticalInfo *oi, float ar, float ag, float ab, float dr, float dg, float db, float sr, float sg, float sb, double ns, double sns, double alpha, char *name);
+__EXPORT zOpticalInfo *zOpticalInfoCreate(zOpticalInfo *oi, float ar, float ag, float ab, float dr, float dg, float db, float sr, float sg, float sb, double esr, double sns, double alpha, char *name);
 #define zOpticalInfoCreateSimple(o,r,g,b,n) \
   zOpticalInfoCreate( (o), 0.5*r, 0.5*g, 0.5*b, r, g, b, 0, 0, 0, 0, 0, 1, (n) )
 #define zOpticalInfoInit(o) \
@@ -78,7 +65,11 @@ __EXPORT zOpticalInfo *zOpticalInfoClone(zOpticalInfo *src, zOpticalInfo *dest);
   zOpticalInfoInit(o);\
 } while(0)
 
+/*! \brief multiply a set of optical parameters to another. */
 __EXPORT zOpticalInfo *zOpticalInfoMul(zOpticalInfo *oi1, zOpticalInfo *oi2, zOpticalInfo *oi);
+
+/*! \brief blend a pair of sets of optical parameters at a given ratio. */
+__EXPORT zOpticalInfo *zOpticalInfoBlend(zOpticalInfo *oi1, zOpticalInfo *oi2, double ratio, zOpticalInfo *oi, char *name);
 
 /* tag to identify optical info. */
 #define ZOPTIC_TAG "optic"
@@ -97,7 +88,9 @@ __EXPORT zOpticalInfo *zOpticalInfoMul(zOpticalInfo *oi1, zOpticalInfo *oi2, zOp
  *  specular <value> <value> <value>
  *    ^ coefficients of specular reflection
  *  exp      <value>
- *    ^ Phong s specular exponential value
+ *    ^ Phong s exponential for specular reflection
+ *  shininess <value>
+ *    ^ shininess
  *  alpha <value>
  *    ^ alpha value
  *

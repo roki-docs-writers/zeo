@@ -1,7 +1,5 @@
-# dependency
-# CURE-1.1.0
-# ZM-1.0.0a
-
 PREFIX=$(HOME)/usr
 PROJNAME=zeo
 VERSION=1.1.2
+
+DEPENDENCY="zeda=1.1.1;zm=1.1.1"

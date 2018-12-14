@@ -444,8 +444,8 @@ bool _zQHHorizon(zQHFacetList *vs, zQHPoint *p, zQHFacetList *cone)
   zQHFacetListCell *fc;
   zQHFacet *f, *f_prev;
   zQHPoint *p0;
-  int s;
-  int cnt = 0;
+  int n;
+  register int i = 0, s;
 
   zListInit( cone );
   /* find first ridge */
@@ -463,9 +463,12 @@ bool _zQHHorizon(zQHFacetList *vs, zQHPoint *p, zQHFacetList *cone)
   zListInsertHead( cone, fc );
   s = ( s + 1 ) % 3;
   p0 = f->p[s];
+  n = zListNum( vs );
   do{
-    /* safety */
-    if( cnt++ > 1000 ) return false;
+    if( i++ > n ){ /* probably a circulation occurs */
+      ZRUNERROR( ZEO_ERR_FATAL );
+      return false;
+    }
     if( f->c[s]->visible ){
       f_prev = f;
       f = f->c[s];

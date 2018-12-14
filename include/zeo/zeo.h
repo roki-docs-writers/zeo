@@ -12,19 +12,22 @@
  - 3D shape primitives (box, sphere, cylinder, cone, ellipsoid,
    elliptic cylinder, polyhedron)
  - multiple 3D shapes
+ - point cloud
  - trianglation of non-convex
  - bounding volume (AABB, OBB, boundin ball, convex-hull)
  - collision checking (AABB tree, GJK, Muller-Preparata)
  - principal component analysis of point cloud
  - B-Rep (boundary representation) and boolean operations
+ - elevation map
  */
 
 #ifndef __ZEO_H__
 #define __ZEO_H__
 
 #include <zeo/zeo_mat6d.h>
-#include <zeo/zeo_ep.h>
+#include <zeo/zeo_pointcloud.h>
 #include <zeo/zeo_col.h>
 #include <zeo/zeo_mshape.h>
+#include <zeo/zeo_terra.h>
 
 #endif /* __ZEO_H__ */

@@ -275,8 +275,8 @@ zAABox3D *zAABBPL(zAABox3D *bb, zVec3DList *pl, zVec3DListCell **vp)
   if( zListIsEmpty(pl) ) return NULL;
 
   pc = zListTail( pl );
-  zVec3DCopy( pc->data, &bb->pmin );
-  zVec3DCopy( pc->data, &bb->pmax );
+  memcpy( &bb->pmin, &pc->data, sizeof(zVec3D) );
+  memcpy( &bb->pmax, &pc->data, sizeof(zVec3D) );
   if( vp ) vp[0] = vp[1] = vp[2] = vp[3] = vp[4] = vp[5] = pc;
   zListForEach( pl, pc )
     _zAABBPLInc( bb, pc, vp );
@@ -296,8 +296,8 @@ zAABox3D *zAABBXferPL(zAABox3D *bb, zVec3DList *pl, zFrame3D *f)
 
   pc = zListTail( pl );
   zXfer3D( f, pc->data, &px );
-  zVec3DCopy( pc->data, &bb->pmin );
-  zVec3DCopy( pc->data, &bb->pmax );
+  memcpy( &bb->pmin, pc->data, sizeof(zVec3D) );
+  memcpy( &bb->pmax, pc->data, sizeof(zVec3D) );
   zListForEach( pl, pc ){
     zXfer3D( f, pc->data, &px );
     _zAABBInc( bb, &px, NULL );

@@ -6,17 +6,17 @@
 
 #include <zeo/zeo_triangulate.h>
 
-static zVec3D *_zTriangulateNorm(zVec3DList *vlist, zVec3D *norm);
-static bool _zTriangulateCheck(zTri3D *t, zVec3DList *vlist, zVec3DListCell *pre, zVec3DListCell *pst);
+static zVec3D *_zTriangulateNorm(zLoop3D *vlist, zVec3D *norm);
+static bool _zTriangulateCheck(zTri3D *t, zLoop3D *vlist, zLoop3DCell *pre, zLoop3DCell *pst);
 
 /* (static)
  * _zTriangulateNorm
  * - normal vector of non-convex for inside-outside judgement.
  */
-zVec3D *_zTriangulateNorm(zVec3DList *vlist, zVec3D *norm)
+zVec3D *_zTriangulateNorm(zLoop3D *vlist, zVec3D *norm)
 {
   double x_min;
-  zVec3DListCell *vp, *st, *pre, *pst;
+  zLoop3DCell *vp, *st, *pre, *pst;
   zVec3D e1, e2;
 
   /* find x-extreme */
@@ -40,9 +40,9 @@ zVec3D *_zTriangulateNorm(zVec3DList *vlist, zVec3D *norm)
  * _zTriangulateCheck
  * - check if a triangle piece is valid.
  */
-bool _zTriangulateCheck(zTri3D *t, zVec3DList *vlist, zVec3DListCell *pre, zVec3DListCell *pst)
+bool _zTriangulateCheck(zTri3D *t, zLoop3D *vlist, zLoop3DCell *pre, zLoop3DCell *pst)
 {
-  zVec3DListCell *vp;
+  zLoop3DCell *vp;
 
   vp = pst == zListHead(vlist) ? zListTail(vlist) : zListCellNext(pst);
   while( vp != pre ){
@@ -54,20 +54,20 @@ bool _zTriangulateCheck(zTri3D *t, zVec3DList *vlist, zVec3DListCell *pre, zVec3
 }
 
 /* zTriangulate
- * - triangulate a non-convex.
+ * - triangulate a non-convex loop of vertices.
  */
 int zTriangulate(zVec3D v[], int n, zTri3DList *tlist)
 {
-  zVec3DList vlist;
-  zVec3DListCell *vp, *pre, *pst;
+  zLoop3D vlist;
+  zLoop3DCell *vp, *pre, *pst;
   zVec3D norm;
   zTri3D t;
 
-  zListInit( tlist );
-  if( !zVec3DListCreate( &vlist, v, n, false ) ){
+  if( !zLoop3DFromArray( &vlist, v, n ) ){
     ZALLOCERROR();
     return 0;
   }
+  zListInit( tlist );
   /* normal vector for reference */
   _zTriangulateNorm( &vlist, &norm );
   /* incremental triangulation */
@@ -83,10 +83,10 @@ int zTriangulate(zVec3D v[], int n, zTri3DList *tlist)
       pre = zListCellPrev(vp);
       pst = zListCellNext(vp);
     }
-    if( !zTri3DListInsert( tlist, &t, true ) ) break;
+    if( !zTri3DListInsert( tlist, &t ) ) break;
     zListPurge( &vlist, vp );
     zFree( vp );
   }
-  zVec3DListDestroy( &vlist, false );
+  zLoop3DDestroy( &vlist );
   return zListNum(tlist);
 }

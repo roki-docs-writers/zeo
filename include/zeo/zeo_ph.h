@@ -7,7 +7,6 @@
 #ifndef __ZEO_PH_H__
 #define __ZEO_PH_H__
 
-#include <cure/cure.h>
 #include <zeo/zeo_elem.h>
 
 __BEGIN_DECLS
@@ -27,13 +26,13 @@ typedef struct{
 
 #define zPH3DVertNum(ph)      zArrayNum(&(ph)->vert)
 #define zPH3DVertBuf(ph)      zArrayBuf(&(ph)->vert)
-#define zPH3DVert(ph,i)       zArrayElem(&(ph)->vert,i)
+#define zPH3DVert(ph,i)       zArrayElemNC(&(ph)->vert,i)
 #define zPH3DSetVertNum(ph,n) zArraySetNum(&(ph)->vert,n)
 #define zPH3DSetVertBuf(ph,b) zArraySetBuf(&(ph)->vert,b)
 
 #define zPH3DFaceNum(ph)      zArrayNum(&(ph)->face)
 #define zPH3DFaceBuf(ph)      zArrayBuf(&(ph)->face)
-#define zPH3DFace(ph,i)       zArrayElem(&(ph)->face,i)
+#define zPH3DFace(ph,i)       zArrayElemNC(&(ph)->face,i)
 #define zPH3DSetFaceNum(ph,n) zArraySetNum(&(ph)->face,n)
 #define zPH3DSetFaceBuf(ph,b) zArraySetBuf(&(ph)->face,b)
 

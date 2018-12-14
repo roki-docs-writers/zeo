@@ -1,4 +1,3 @@
-#include <cure/cure.h>
 #include <zeo/zeo.h>
 
 void vec_create_rand(zVec3D *v, double min, double max)

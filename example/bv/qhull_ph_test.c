@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
   if( argc < 2 ) return 1;
   zMShape3DReadFile( &shape, argv[1] );
 
-  src( ( ph = zShape3DBody(zMShape3DShape(&shape,0)) ) );
+  src( ( ph = zShape3DPH(zMShape3DShape(&shape,0)) ) );
   zCH3D( &ch, zPH3DVertBuf(ph), zPH3DVertNum(ph) );
   output( &ch );
   printf( "src: vert=%d, face=%d\n", zPH3DVertNum(ph), zPH3DFaceNum(ph) );

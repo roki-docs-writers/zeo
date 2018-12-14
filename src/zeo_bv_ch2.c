@@ -7,15 +7,15 @@
 #include <zeo/zeo_bv.h>
 
 /* ********************************************************** */
-/* planar (2D) convex hull
+/* planar (2D) convex hull for a list of points
  * ********************************************************** */
 
 /* (static)
- * _zCH2DBase
+ * _zCH2DBasePL
  * - find two independent base vectors on a plane.
  */
-static zVec3D *_zCH2DBase(zVec3DList *pl, zVec3D s[]);
-zVec3D *_zCH2DBase(zVec3DList *pl, zVec3D s[])
+static zVec3D *_zCH2DBasePL(zVec3DList *pl, zVec3D s[]);
+zVec3D *_zCH2DBasePL(zVec3DList *pl, zVec3D s[])
 {
   zVec3DListCell *pc;
   zVec3D n;
@@ -43,11 +43,11 @@ zVec3D *_zCH2DBase(zVec3DList *pl, zVec3D s[])
 }
 
 /* (static)
- *  __z_ch2d_cmp
+ *  __z_ch2d_pl_cmp
  * - comparison function of two vertices for sorting.
  */
-static int __z_ch2d_cmp(void *v1, void *v2, void *priv);
-int __z_ch2d_cmp(void *v1, void *v2, void *priv)
+static int __z_ch2d_pl_cmp(void *v1, void *v2, void *priv);
+int __z_ch2d_pl_cmp(void *v1, void *v2, void *priv)
 {
   double d1, d2;
   zVec3D *s1, *s2;
@@ -66,25 +66,23 @@ int __z_ch2d_cmp(void *v1, void *v2, void *priv)
 }
 
 /* zCH2DPL
- * - planar convex hull of list of vertices.
+ * - planar convex hull of a list of vertices.
  */
-zVec3DList *zCH2DPL(zVec3DList *ch, zVec3DList *pl)
+zLoop3D *zCH2DPL(zLoop3D *ch, zVec3DList *pl)
 {
   zVec3D s[2], d;
   zVec3DListCell *p0, *p1, *p;
   double t, t_max;
 
   zListInit( ch );
-  if( !_zCH2DBase( pl, s ) ){
+  if( !_zCH2DBasePL( pl, s ) ){
     ZRUNERROR( ZEO_ERR_CH_DEG1 );
     return NULL;
   }
-  zVec3DListQuickSort( pl, __z_ch2d_cmp, s );
+  zVec3DListQuickSort( pl, __z_ch2d_pl_cmp, s );
   /* upper bound */
-  for( p0=zListTail(pl); p0!=zListHead(pl);
-       zVec3DListInsert( ch, p0->data, false ), p0=p1 )
-    for( t_max=-zPI_2, p1=p=zListCellNext(p0);
-         p!=zListRoot(pl); p=zListCellNext(p) )
+  for( p0=zListTail(pl); p0!=zListHead(pl); zLoop3DInsert( ch, p0->data ), p0=p1 )
+    for( t_max=-zPI_2, p1=p=zListCellNext(p0); p!=zListRoot(pl); p=zListCellNext(p) )
       if( !zVec3DIsTiny( zVec3DSub( p->data, p0->data, &d ) ) &&
           ( t = atan2( zVec3DInnerProd(&d,&s[1]), zVec3DInnerProd(&d,&s[0]) ) ) >= t_max ){
         t_max = t;
@@ -94,10 +92,8 @@ zVec3DList *zCH2DPL(zVec3DList *ch, zVec3DList *pl)
   zVec3DRevDRC( &s[0] );
   zVec3DRevDRC( &s[1] );
   /* lower bound */
-  for( ; p0!=zListTail(pl);
-       zVec3DListInsert( ch, p0->data, false ), p0=p1 )
-    for( t_max=-zPI_2, p1=p=zListCellPrev(p0);
-         p!=zListRoot(pl); p=zListCellPrev(p) )
+  for( ; p0!=zListTail(pl); zLoop3DInsert( ch, p0->data ), p0=p1 )
+    for( t_max=-zPI_2, p1=p=zListCellPrev(p0); p!=zListRoot(pl); p=zListCellPrev(p) )
       if( !zVec3DIsTiny( zVec3DSub( p->data, p0->data, &d ) ) &&
           ( t = atan2( zVec3DInnerProd(&d,&s[1]), zVec3DInnerProd(&d,&s[0]) ) ) >= t_max ){
         t_max = t;
@@ -106,19 +102,98 @@ zVec3DList *zCH2DPL(zVec3DList *ch, zVec3DList *pl)
   return ch;
 }
 
-/* zCH2D
- * - planar convex hull.
- */
-zVec3DList *zCH2D(zVec3DList *ch, zVec3D p[], int num)
-{
-  zVec3DList pl;
-  register int i;
+/* ********************************************************** */
+/* planar (2D) convex hull for an array of points
+ * ********************************************************** */
 
-  zListInit( &pl );
-  for( i=0; i<num; i++ )
-    zVec3DListInsert( &pl, &p[i], false );
-  ch = zCH2DPL( ch, &pl );
-  zVec3DListDestroy( &pl, false );
+/* (static)
+ * _zCH2DBase
+ * - find two independent base vectors on a plane.
+ */
+static zVec3D *_zCH2DBase(zVec3D p[], int num, zVec3D s[]);
+zVec3D *_zCH2DBase(zVec3D p[], int num, zVec3D s[])
+{
+  register int i;
+  zVec3D n;
+
+  for( i=1; i<num; i++ )
+    if( !zVec3DIsTiny( zVec3DSub( &p[i], &p[0], &s[0] ) ) )
+      goto STEP2;
+  ZRUNERROR( ZEO_ERR_CH_DEG1 );
+  return NULL;
+ STEP2:
+  for( i++; i<num; i++ ){
+    if( !zVec3DIsTiny( zVec3DSub( &p[i], &p[0], &s[1] ) ) &&
+        !zVec3DIsTiny( zVec3DOuterProd( &s[0], &s[1], &n ) ) )
+      goto STEP3;
+  }
+  ZRUNERROR( ZEO_ERR_CH_DEG2 );
+  return NULL;
+ STEP3:
+  zVec3DOuterProd( &n, &s[0], &s[1] );
+  zVec3DNormalizeDRC( &s[0] );
+  zVec3DNormalizeDRC( &s[1] );
+  return s;
+}
+
+/* (static)
+ *  __z_ch2d_cmp
+ * - comparison function of two vertices for sorting.
+ */
+static int __z_ch2d_cmp(void *v1, void *v2, void *priv);
+int __z_ch2d_cmp(void *v1, void *v2, void *priv)
+{
+  double d1, d2;
+  zVec3D *s1, *s2;
+
+  s1 = (zVec3D *)priv;
+  s2 = (zVec3D *)priv + 1;
+  d1 = zVec3DInnerProd( (zVec3D *)v1, s1 );
+  d2 = zVec3DInnerProd( (zVec3D *)v2, s1 );
+  if( zIsTiny( d1 - d2 ) ){
+    d1 = zVec3DInnerProd( (zVec3D *)v1, s2 );
+    d2 = zVec3DInnerProd( (zVec3D *)v2, s2 );
+    if( zIsTiny( d1 - d2 ) ) return 0;
+    return d1 > d2 ? 1 : -1;
+  }
+  return d1 > d2 ? 1 : -1;
+}
+
+/* zCH2D
+ * - planar convex hull of an array of vertices.
+ */
+zLoop3D *zCH2D(zLoop3D *ch, zVec3D p[], int num)
+{
+  zVec3D s[2], d;
+  register int i, j, k;
+  double t, t_max;
+
+  zListInit( ch );
+  if( !_zCH2DBase( p, num, s ) ){
+    ZRUNERROR( ZEO_ERR_CH_DEG1 );
+    return NULL;
+  }
+  zQuickSort( p, num, sizeof(zVec3D), __z_ch2d_cmp, s );
+
+  /* upper bound */
+  for( i=0; i<num-1; zLoop3DInsert( ch, &p[i] ), i=j )
+    for( t_max=-zPI_2, j=k=i+1; k<num; k++ )
+      if( !zVec3DIsTiny( zVec3DSub( &p[k], &p[i], &d ) ) &&
+          ( t = atan2( zVec3DInnerProd(&d,&s[1]), zVec3DInnerProd(&d,&s[0]) ) ) >= t_max ){
+        t_max = t;
+        j = k;
+      }
+  /* reverse bases */
+  zVec3DRevDRC( &s[0] );
+  zVec3DRevDRC( &s[1] );
+  /* lower bound */
+  for( ; i>0; zLoop3DInsert( ch, &p[i] ), i=j )
+    for( t_max=-zPI_2, j=k=i-1; k>=0; k-- )
+      if( !zVec3DIsTiny( zVec3DSub( &p[k], &p[i], &d ) ) &&
+          ( t = atan2( zVec3DInnerProd(&d,&s[1]), zVec3DInnerProd(&d,&s[0]) ) ) >= t_max ){
+        t_max = t;
+        j = k;
+      }
   return ch;
 }
 
@@ -126,10 +201,10 @@ zVec3DList *zCH2D(zVec3DList *ch, zVec3D p[], int num)
  * _zCH2D2PH3D
  * - convert a planar convex hull to a polyhedron.
  */
-static zPH3D *_zCH2D2PH3D(zPH3D *ch, zVec3DList *vl);
-zPH3D *_zCH2D2PH3D(zPH3D *ch, zVec3DList *vl)
+static zPH3D *_zCH2D2PH3D(zPH3D *ch, zLoop3D *vl);
+zPH3D *_zCH2D2PH3D(zPH3D *ch, zLoop3D *vl)
 {
-  zVec3DListCell *vc;
+  zLoop3DCell *vc;
   register int vn, i;
 
   vn = zListNum(vl);
@@ -153,10 +228,10 @@ zPH3D *_zCH2D2PH3D(zPH3D *ch, zVec3DList *vl)
  */
 zPH3D *zCH2D2PH3D(zPH3D *ch, zVec3D vert[], int n)
 {
-  zVec3DList vl;
+  zLoop3D vl;
 
   if( !zCH2D( &vl, vert, n ) || !_zCH2D2PH3D( ch, &vl ) ) return NULL;
-  zVec3DListDestroy( &vl, false );
+  zLoop3DDestroy( &vl );
   return ch;
 }
 
@@ -165,19 +240,19 @@ zPH3D *zCH2D2PH3D(zPH3D *ch, zVec3D vert[], int n)
  */
 zPH3D *zCH2DPL2PH3D(zPH3D *ch, zVec3DList *pl)
 {
-  zVec3DList vl;
+  zLoop3D vl;
 
   if( !zCH2DPL( &vl, pl ) || !_zCH2D2PH3D( ch, &vl ) ) return NULL;
-  zVec3DListDestroy( &vl, false );
+  zLoop3DDestroy( &vl );
   return ch;
 }
 
 /* zCH2DClosest
  * - the closest point in a convex hull to a point.
  */
-double zCH2DClosest(zVec3DList *ch, zVec3D *p, zVec3D *cp)
+double zCH2DClosest(zLoop3D *ch, zVec3D *p, zVec3D *cp)
 {
-  zVec3DListCell *vc, *vcp;
+  zLoop3DCell *vc, *vcp;
   zVec3D norm, v1, v2, tmp;
   zEdge3D e;
   double d = HUGE_VAL, d_new;

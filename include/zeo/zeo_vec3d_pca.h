@@ -4,8 +4,8 @@
  * zeo_vec_pca - principal component analysis.
  */
 
-#ifndef __ZEO_VEC_PCA_H__
-#define __ZEO_VEC_PCA_H__
+#ifndef __ZEO_VEC3D_PCA_H__
+#define __ZEO_VEC3D_PCA_H__
 
 /* NOTE: never include this header file in user programs. */
 
@@ -52,4 +52,4 @@ __EXPORT zVec3D *zVec3DBaryPCA(zVec3D v[], int num, zVec3D *c, zVec3D evec[]);
 
 __END_DECLS
 
-#endif /* __ZEO_VEC_PCA_H__ */
+#endif /* __ZEO_VEC3D_PCA_H__ */

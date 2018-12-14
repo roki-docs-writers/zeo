@@ -7,7 +7,7 @@
 #include <zeo/zeo_bv.h>
 
 static void _zOBB3DMinDir(zBox3D *obb, zPH3D *ch, zPlane3D *pl);
-static double _zOBB3DRect(zVec3DList *edge, zVec3D *c, zVec3D *d1, zVec3D *d2, double *l1, double *l2);
+static double _zOBB3DRect(zLoop3D *edge, zVec3D *c, zVec3D *d1, zVec3D *d2, double *l1, double *l2);
 static bool _zOBB3DMaxDir(zBox3D *obb, zPH3D *ch, zPlane3D *pl);
 
 /* (static)
@@ -39,10 +39,10 @@ void _zOBB3DMinDir(zBox3D *obb, zPH3D *ch, zPlane3D *pl)
  * _zOBB3DRect
  * - minimum bounding rectangle of a planar convex hull.
  */
-double _zOBB3DRect(zVec3DList *edge, zVec3D *c, zVec3D *d1, zVec3D *d2, double *l1, double *l2)
+double _zOBB3DRect(zLoop3D *edge, zVec3D *c, zVec3D *d1, zVec3D *d2, double *l1, double *l2)
 {
   double min1, min2, max1, max2, d;
-  zVec3DListCell *vp;
+  zLoop3DCell *vp;
 
   min1 = max1 = zVec3DInnerProd( d1, zListTail(edge)->data );
   min2 = max2 = zVec3DInnerProd( d2, zListTail(edge)->data );
@@ -66,8 +66,8 @@ double _zOBB3DRect(zVec3DList *edge, zVec3D *c, zVec3D *d1, zVec3D *d2, double *
  */
 bool _zOBB3DMaxDir(zBox3D *obb, zPH3D *ch, zPlane3D *pl)
 {
-  zVec3DList rim;
-  zVec3DListCell *vp1, *vp2;
+  zLoop3D rim;
+  zLoop3DCell *vp1, *vp2;
   zVec3D e1, e2, c, dc;
   double l1, l2;
   double area, area_min;
@@ -99,7 +99,7 @@ bool _zOBB3DMaxDir(zBox3D *obb, zPH3D *ch, zPlane3D *pl)
       area_min = area;
     }
   }
-  zVec3DListDestroy( &rim, false );
+  zLoop3DDestroy( &rim );
   /* shift-back the center point */
   zVec3DAddDRC( zBox3DCenter(obb), &dc );
   return true;

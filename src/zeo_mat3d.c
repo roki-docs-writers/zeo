@@ -26,23 +26,24 @@ zMat3D *zMat3DCreate(zMat3D *m,
   double a21, double a22, double a23,
   double a31, double a32, double a33)
 {
-  m->e[0][0] = a11; m->e[1][0] = a12; m->e[2][0] = a13;
-  m->e[0][1] = a21; m->e[1][1] = a22; m->e[2][1] = a23;
-  m->e[0][2] = a31; m->e[1][2] = a32; m->e[2][2] = a33;
+  _zMat3DCreate( m, a11, a12, a13, a21, a22, a23, a31, a32, a33 );
   return m;
 }
 
-/* zMat3DT
- * - transpose a 3D matrix.
+/* zMat3DMatch
+ * - check if the two 3D matrices are strictly equal.
  */
-zMat3D *zMat3DT(zMat3D *m, zMat3D *tm)
+bool zMat3DMatch(zMat3D *m1, zMat3D *m2)
 {
-	zMat3D tmp;
-  tmp.e[0][0] = m->e[0][0]; tmp.e[1][0] = m->e[0][1]; tmp.e[2][0] = m->e[0][2];
-  tmp.e[0][1] = m->e[1][0]; tmp.e[1][1] = m->e[1][1]; tmp.e[2][1] = m->e[1][2];
-  tmp.e[0][2] = m->e[2][0]; tmp.e[1][2] = m->e[2][1]; tmp.e[2][2] = m->e[2][2];
-	zMat3DCopy( &tmp, tm );
-  return tm;
+  return _zMat3DMatch( m1, m2 );
+}
+
+/* zMat3DEqual
+ * - check if the two 3D matrices are equal.
+ */
+bool zMat3DEqual(zMat3D *m1, zMat3D *m2)
+{
+  return _zMat3DEqual( m1, m2 );
 }
 
 /* zMat3DRow
@@ -50,21 +51,30 @@ zMat3D *zMat3DT(zMat3D *m, zMat3D *tm)
  */
 zVec3D *zMat3DRow(zMat3D *m, int i, zVec3D *v)
 {
-  v->e[0] = m->e[0][i];
-  v->e[1] = m->e[1][i];
-  v->e[2] = m->e[2][i];
+  _zMat3DRow( m, i, v );
   return v;
 }
 
-/* zMat3DCol
- * - abstract column vector from 3D matrix.
+/* zMat3DT
+ * - transpose a 3D matrix.
  */
-zVec3D *zMat3DCol(zMat3D *m, int i, zVec3D *v)
+zMat3D *zMat3DT(zMat3D *m, zMat3D *tm)
 {
-  v->e[0] = m->e[i][0];
-  v->e[1] = m->e[i][1];
-  v->e[2] = m->e[i][2];
-  return v;
+  if( tm == m ){
+    _zMat3DTDRC( m );
+  } else{
+    _zMat3DT( m, tm );
+  }
+  return tm;
+}
+
+/* zMat3DTDRC
+ * - directly transpose a 3D matrix.
+ */
+zMat3D *zMat3DTDRC(zMat3D *m)
+{
+  _zMat3DTDRC( m );
+  return m;
 }
 
 /* ********************************************************** */
@@ -76,15 +86,7 @@ zVec3D *zMat3DCol(zMat3D *m, int i, zVec3D *v)
  */
 zMat3D *zMat3DAdd(zMat3D *m1, zMat3D *m2, zMat3D *m)
 {
-  m->e[0][0] = m1->e[0][0] + m2->e[0][0];
-  m->e[1][0] = m1->e[1][0] + m2->e[1][0];
-  m->e[2][0] = m1->e[2][0] + m2->e[2][0];
-  m->e[0][1] = m1->e[0][1] + m2->e[0][1];
-  m->e[1][1] = m1->e[1][1] + m2->e[1][1];
-  m->e[2][1] = m1->e[2][1] + m2->e[2][1];
-  m->e[0][2] = m1->e[0][2] + m2->e[0][2];
-  m->e[1][2] = m1->e[1][2] + m2->e[1][2];
-  m->e[2][2] = m1->e[2][2] + m2->e[2][2];
+  _zMat3DAdd( m1, m2, m );
   return m;
 }
 
@@ -93,15 +95,7 @@ zMat3D *zMat3DAdd(zMat3D *m1, zMat3D *m2, zMat3D *m)
  */
 zMat3D *zMat3DSub(zMat3D *m1, zMat3D *m2, zMat3D *m)
 {
-  m->e[0][0] = m1->e[0][0] - m2->e[0][0];
-  m->e[1][0] = m1->e[1][0] - m2->e[1][0];
-  m->e[2][0] = m1->e[2][0] - m2->e[2][0];
-  m->e[0][1] = m1->e[0][1] - m2->e[0][1];
-  m->e[1][1] = m1->e[1][1] - m2->e[1][1];
-  m->e[2][1] = m1->e[2][1] - m2->e[2][1];
-  m->e[0][2] = m1->e[0][2] - m2->e[0][2];
-  m->e[1][2] = m1->e[1][2] - m2->e[1][2];
-  m->e[2][2] = m1->e[2][2] - m2->e[2][2];
+  _zMat3DSub( m1, m2, m );
   return m;
 }
 
@@ -110,15 +104,7 @@ zMat3D *zMat3DSub(zMat3D *m1, zMat3D *m2, zMat3D *m)
  */
 zMat3D *zMat3DRev(zMat3D *m, zMat3D *rm)
 {
-  rm->e[0][0] = -m->e[0][0];
-  rm->e[1][0] = -m->e[1][0];
-  rm->e[2][0] = -m->e[2][0];
-  rm->e[0][1] = -m->e[0][1];
-  rm->e[1][1] = -m->e[1][1];
-  rm->e[2][1] = -m->e[2][1];
-  rm->e[0][2] = -m->e[0][2];
-  rm->e[1][2] = -m->e[1][2];
-  rm->e[2][2] = -m->e[2][2];
+  _zMat3DRev( m, rm );
   return rm;
 }
 
@@ -127,15 +113,7 @@ zMat3D *zMat3DRev(zMat3D *m, zMat3D *rm)
  */
 zMat3D *zMat3DMul(zMat3D *m, double k, zMat3D *mm)
 {
-  mm->e[0][0] = k * m->e[0][0];
-  mm->e[1][0] = k * m->e[1][0];
-  mm->e[2][0] = k * m->e[2][0];
-  mm->e[0][1] = k * m->e[0][1];
-  mm->e[1][1] = k * m->e[1][1];
-  mm->e[2][1] = k * m->e[2][1];
-  mm->e[0][2] = k * m->e[0][2];
-  mm->e[1][2] = k * m->e[1][2];
-  mm->e[2][2] = k * m->e[2][2];
+  _zMat3DMul( m, k, mm );
   return mm;
 }
 
@@ -149,15 +127,7 @@ zMat3D *zMat3DDiv(zMat3D *m, double k, zMat3D *dm)
     return NULL;
   }
   k = 1.0 / k;
-  dm->e[0][0] = k * m->e[0][0];
-  dm->e[1][0] = k * m->e[1][0];
-  dm->e[2][0] = k * m->e[2][0];
-  dm->e[0][1] = k * m->e[0][1];
-  dm->e[1][1] = k * m->e[1][1];
-  dm->e[2][1] = k * m->e[2][1];
-  dm->e[0][2] = k * m->e[0][2];
-  dm->e[1][2] = k * m->e[1][2];
-  dm->e[2][2] = k * m->e[2][2];
+  _zMat3DMul( m, k, dm );
   return dm;
 }
 
@@ -166,60 +136,52 @@ zMat3D *zMat3DDiv(zMat3D *m, double k, zMat3D *dm)
  */
 zMat3D *zMat3DCat(zMat3D *m1, double k, zMat3D *m2, zMat3D *m)
 {
-  m->e[0][0] = m1->e[0][0] + k * m2->e[0][0];
-  m->e[1][0] = m1->e[1][0] + k * m2->e[1][0];
-  m->e[2][0] = m1->e[2][0] + k * m2->e[2][0];
-  m->e[0][1] = m1->e[0][1] + k * m2->e[0][1];
-  m->e[1][1] = m1->e[1][1] + k * m2->e[1][1];
-  m->e[2][1] = m1->e[2][1] + k * m2->e[2][1];
-  m->e[0][2] = m1->e[0][2] + k * m2->e[0][2];
-  m->e[1][2] = m1->e[1][2] + k * m2->e[1][2];
-  m->e[2][2] = m1->e[2][2] + k * m2->e[2][2];
+  _zMat3DCat( m1, k, m2, m );
   return m;
 }
 
 /* zMat3DDyad
  * - dyadic product.
  */
-zMat3D *zMat3DDyad(zVec3D *v1, zVec3D *v2, zMat3D *dyad)
+zMat3D *zMat3DDyad(zMat3D *m, zVec3D *v1, zVec3D *v2)
 {
-  dyad->e[0][0] = v1->e[0] * v2->e[0];
-  dyad->e[1][0] = v1->e[0] * v2->e[1];
-  dyad->e[2][0] = v1->e[0] * v2->e[2];
-  dyad->e[0][1] = v1->e[1] * v2->e[0];
-  dyad->e[1][1] = v1->e[1] * v2->e[1];
-  dyad->e[2][1] = v1->e[1] * v2->e[2];
-  dyad->e[0][2] = v1->e[2] * v2->e[0];
-  dyad->e[1][2] = v1->e[2] * v2->e[1];
-  dyad->e[2][2] = v1->e[2] * v2->e[2];
-  return dyad;
+  _zMat3DDyad( m, v1, v2 );
+  return m;
 }
 
-/* zVec3DOuterProdMat3D
- * - create a skew-symmetric outer-product matrix.
+/* zMat3DAddDyad
+ * - add a dyadic product to a 3x3 matrix.
  */
-zMat3D *zVec3DOuterProdMat3D(zVec3D *v, zMat3D *m)
+zMat3D *zMat3DAddDyad(zMat3D *m, zVec3D *v1, zVec3D *v2)
 {
-  m->e[0][0] = 0.0;      m->e[1][0] =-v->e[zZ]; m->e[2][0] = v->e[zY];
-  m->e[0][1] = v->e[zZ]; m->e[1][1] = 0.0;      m->e[2][1] =-v->e[zX];
-  m->e[0][2] =-v->e[zY]; m->e[1][2] = v->e[zX]; m->e[2][2] = 0.0;
+  _zMat3DAddDyad( m, v1, v2 );
+  return m;
+}
+
+/* zMat3DSubDyad
+ * - subtract a dyadic product from a 3x3 matrix.
+ */
+zMat3D *zMat3DSubDyad(zMat3D *m, zVec3D *v1, zVec3D *v2)
+{
+  _zMat3DSubDyad( m, v1, v2 );
   return m;
 }
 
 /* zVec3DOuterProd2Mat3D
+ * - create a skew-symmetric outer-product matrix.
+ */
+zMat3D *zVec3DOuterProd2Mat3D(zVec3D *v, zMat3D *m)
+{
+  _zVec3DOuterProd2Mat3D( v, m );
+  return m;
+}
+
+/* zVec3DTripleProd2Mat3D
  * - create a twice-outer-product matrix.
  */
-zMat3D *zVec3DOuterProd2Mat3D(zVec3D *v1, zVec3D *v2, zMat3D *m)
+zMat3D *zVec3DTripleProd2Mat3D(zVec3D *v1, zVec3D *v2, zMat3D *m)
 {
-  m->e[0][0] =-v1->e[1]*v2->e[1] - v1->e[2]*v2->e[2];
-  m->e[1][1] =-v1->e[2]*v2->e[2] - v1->e[0]*v2->e[0];
-  m->e[2][2] =-v1->e[0]*v2->e[0] - v1->e[1]*v2->e[1];
-  m->e[1][0] = v1->e[1]*v2->e[0];
-  m->e[2][0] = v1->e[2]*v2->e[0];
-  m->e[0][1] = v1->e[0]*v2->e[1];
-  m->e[2][1] = v1->e[2]*v2->e[1];
-  m->e[0][2] = v1->e[0]*v2->e[2];
-  m->e[1][2] = v1->e[1]*v2->e[2];
+  _zVec3DTripleProd2Mat3D( v1, v2, m );
   return m;
 }
 
@@ -227,28 +189,22 @@ zMat3D *zVec3DOuterProd2Mat3D(zVec3D *v1, zVec3D *v2, zMat3D *m)
 /* inverse of a 3x3 matrix
  * ********************************************************** */
 
-static void _zMat3DInvRow(zMat3D *m, zMat3D *im, int i, int j, int k, double idet);
-
 /* zMat3DDet
  * - determinant of 3D matrix.
  */
 double zMat3DDet(zMat3D *m)
 {
-  return ( m->e[1][1]*m->e[2][2] - m->e[1][2]*m->e[2][1] ) * m->e[0][0]
-       + ( m->e[0][2]*m->e[2][1] - m->e[0][1]*m->e[2][2] ) * m->e[1][0]
-       + ( m->e[0][1]*m->e[1][2] - m->e[0][2]*m->e[1][1] ) * m->e[2][0];
+  return _zMat3DDet( m );
 }
 
-/* (static)
- * _zMat3DInvRow
+/* _zMat3DInvRow
  * - misc for real inverse of 3D matrix.
  */
-void _zMat3DInvRow(zMat3D *m, zMat3D *im, int i, int j, int k, double idet)
-{
-  im->e[i][i] = idet * ( m->e[j][j]*m->e[k][k] - m->e[k][j]*m->e[j][k] );
-  im->e[j][i] = idet * ( m->e[k][i]*m->e[j][k] - m->e[j][i]*m->e[k][k] );
-  im->e[k][i] = idet * ( m->e[j][i]*m->e[k][j] - m->e[k][i]*m->e[j][j] );
-}
+#define _zMat3DInvRow(m,im,i,j,k,idet) do{\
+  (im)->e[(i)][(i)] = (idet) * ( (m)->e[(j)][(j)]*(m)->e[(k)][(k)] - (m)->e[(k)][(j)]*(m)->e[(j)][(k)] );\
+  (im)->e[(j)][(i)] = (idet) * ( (m)->e[(k)][(i)]*(m)->e[(j)][(k)] - (m)->e[(j)][(i)]*(m)->e[(k)][(k)] );\
+  (im)->e[(k)][(i)] = (idet) * ( (m)->e[(j)][(i)]*(m)->e[(k)][(j)] - (m)->e[(k)][(i)]*(m)->e[(j)][(j)] );\
+} while(0)
 
 /* zMat3DInv
  * - inverse matrix of 3x3 matrix.
@@ -257,7 +213,8 @@ zMat3D *zMat3DInv(zMat3D *m, zMat3D *im)
 {
   double det, idet;
 
-  if( zIsTiny( ( det = zMat3DDet( m ) ) ) ){
+  det = _zMat3DDet( m );
+  if( zIsTiny( det ) ){
     ZRUNERROR( ZEO_ERR_SINGULARMAT );
     return NULL;
   }
@@ -275,42 +232,40 @@ zMat3D *zMat3DInv(zMat3D *m, zMat3D *im)
 static double _zMulInvMatVec3DRow(zMat3D *m, zVec3D *v, int i, int j, int k, double idet);
 static zVec3D *_zMulInvMatVec3D(zMat3D *m, zVec3D *v, zVec3D *miv, double idet);
 
-#define __zVec3DCreate(v,x,y,z) do{\
-  double __x, __y, __z;\
-  __x = x;\
-  __y = y;\
-  __z = z;\
-  (v)->e[zX] = __x;\
-  (v)->e[zY] = __y;\
-  (v)->e[zZ] = __z;\
-} while(0)
-
-#define __zMulMatVec3D(m,v,mv) __zVec3DCreate( mv,\
-  (m)->e[0][0]*(v)->e[0] + (m)->e[1][0]*(v)->e[1] + (m)->e[2][0]*(v)->e[2],\
-  (m)->e[0][1]*(v)->e[0] + (m)->e[1][1]*(v)->e[1] + (m)->e[2][1]*(v)->e[2],\
-  (m)->e[0][2]*(v)->e[0] + (m)->e[1][2]*(v)->e[1] + (m)->e[2][2]*(v)->e[2] )
-
-#define __zMulMatTVec3D(m,v,mv) __zVec3DCreate( mv,\
-  (m)->e[0][0]*(v)->e[0] + (m)->e[0][1]*(v)->e[1] + (m)->e[0][2]*(v)->e[2],\
-  (m)->e[1][0]*(v)->e[0] + (m)->e[1][1]*(v)->e[1] + (m)->e[1][2]*(v)->e[2],\
-  (m)->e[2][0]*(v)->e[0] + (m)->e[2][1]*(v)->e[1] + (m)->e[2][2]*(v)->e[2] )
-
 /* zMulMatVec3D
- * - multiply a 3D vector by 3D matrix.
+ * - multiply a 3D vector by a 3D matrix.
  */
 zVec3D *zMulMatVec3D(zMat3D *m, zVec3D *v, zVec3D *mv)
 {
-  __zMulMatVec3D( m, v, mv );
+  _zMulMatVec3D( m, v, mv );
   return mv;
 }
 
 /* zMulMatTVec3D
- * - multiply a 3D vector by a transpose matrix.
+ * - multiply a 3D vector by transpose of a 3D matrix.
  */
 zVec3D *zMulMatTVec3D(zMat3D *m, zVec3D *v, zVec3D *mv)
 {
-  __zMulMatTVec3D( m, v, mv );
+  _zMulMatTVec3D( m, v, mv );
   return mv;
+}
+
+/* zMulMatVec3DDRC
+ * - directly multiply a 3D vector by a 3D matrix.
+ */
+zVec3D *zMulMatVec3DDRC(zMat3D *m, zVec3D *v)
+{
+  _zMulMatVec3DDRC( m, v );
+  return v;
+}
+
+/* zMulMatTVec3DDRC
+ * - directly multiply a 3D vector by transpose of a 3D matrix.
+ */
+zVec3D *zMulMatTVec3DDRC(zMat3D *m, zVec3D *v)
+{
+  _zMulMatTVec3DDRC( m, v );
+  return v;
 }
 
 /* (static)
@@ -331,7 +286,7 @@ double _zMulInvMatVec3DRow(zMat3D *m, zVec3D *v, int i, int j, int k, double ide
  */
 zVec3D *_zMulInvMatVec3D(zMat3D *m, zVec3D *v, zVec3D *miv, double idet)
 {
-  __zVec3DCreate( miv,
+  _zVec3DCreate( miv,
     _zMulInvMatVec3DRow( m, v, 0, 1, 2, idet ),
     _zMulInvMatVec3DRow( m, v, 1, 2, 0, idet ),
     _zMulInvMatVec3DRow( m, v, 2, 0, 1, idet ) );
@@ -339,7 +294,7 @@ zVec3D *_zMulInvMatVec3D(zMat3D *m, zVec3D *v, zVec3D *miv, double idet)
 }
 
 /* zMulInvMatVec3D
- * - multiply a 3D vector by inverse matrix of 3x3 matrix.
+ * - multiply a 3D vector by inverse of a 3D matrix.
  */
 zVec3D *zMulInvMatVec3D(zMat3D *m, zVec3D *v, zVec3D *miv)
 {
@@ -359,9 +314,9 @@ double *zVec3DCatRatio(zVec3D *v1, zVec3D *v2, zVec3D *v3, zVec3D *v, double rat
 {
   zMat3D m, im;
 
-  zVec3DCopy( v1, &m.v[0] );
-  zVec3DCopy( v2, &m.v[1] );
-  zVec3DCopy( v3, &m.v[2] );
+  zVec3DCopy( v1, &m.b.x );
+  zVec3DCopy( v2, &m.b.y );
+  zVec3DCopy( v3, &m.b.z );
   zMat3DInv( &m, &im );
   zMulMatVec3D( &im, v, (zVec3D*)ratio );
   return ratio;
@@ -378,9 +333,9 @@ zMat3D *zMulMatMat3D(zMat3D *m1, zMat3D *m2, zMat3D *m)
 {
   zMat3D tmp;
 
-  __zMulMatVec3D( m1, &m2->v[0], &tmp.v[0] );
-  __zMulMatVec3D( m1, &m2->v[1], &tmp.v[1] );
-  __zMulMatVec3D( m1, &m2->v[2], &tmp.v[2] );
+  _zMulMatVec3D( m1, &m2->b.x, &tmp.b.x );
+  _zMulMatVec3D( m1, &m2->b.y, &tmp.b.y );
+  _zMulMatVec3D( m1, &m2->b.z, &tmp.b.z );
   return zMat3DCopy( &tmp, m );
 }
 
@@ -391,9 +346,9 @@ zMat3D *zMulMatTMat3D(zMat3D *m1, zMat3D *m2, zMat3D *m)
 {
   zMat3D tmp;
 
-  __zMulMatTVec3D( m1, &m2->v[0], &tmp.v[0] );
-  __zMulMatTVec3D( m1, &m2->v[1], &tmp.v[1] );
-  __zMulMatTVec3D( m1, &m2->v[2], &tmp.v[2] );
+  _zMulMatTVec3D( m1, &m2->b.x, &tmp.b.x );
+  _zMulMatTVec3D( m1, &m2->b.y, &tmp.b.y );
+  _zMulMatTVec3D( m1, &m2->b.z, &tmp.b.z );
   return zMat3DCopy( &tmp, m );
 }
 
@@ -430,9 +385,9 @@ zMat3D *zMulInvMatMat3D(zMat3D *m1, zMat3D *m2, zMat3D *m)
     return NULL;
   }
   idet = 1.0 /det;
-  _zMulInvMatVec3D( m1, &m2->v[0], &m->v[0], idet );
-  _zMulInvMatVec3D( m1, &m2->v[1], &m->v[1], idet );
-  _zMulInvMatVec3D( m1, &m2->v[2], &m->v[2], idet );
+  _zMulInvMatVec3D( m1, &m2->b.x, &m->b.x, idet );
+  _zMulInvMatVec3D( m1, &m2->b.y, &m->b.y, idet );
+  _zMulInvMatVec3D( m1, &m2->b.z, &m->b.z, idet );
   return m;
 }
 
@@ -445,8 +400,8 @@ zMat3D *zMulInvMatMat3D(zMat3D *m1, zMat3D *m2, zMat3D *m)
  */
 zVec6D *zMulMatVec6D(zMat3D *m, zVec6D *v, zVec6D *mv)
 {
-  __zMulMatVec3D( m, zVec6DLin(v), zVec6DLin(mv) );
-  __zMulMatVec3D( m, zVec6DAng(v), zVec6DAng(mv) );
+  _zMulMatVec3D( m, zVec6DLin(v), zVec6DLin(mv) );
+  _zMulMatVec3D( m, zVec6DAng(v), zVec6DAng(mv) );
   return mv;
 }
 
@@ -455,8 +410,8 @@ zVec6D *zMulMatVec6D(zMat3D *m, zVec6D *v, zVec6D *mv)
  */
 zVec6D *zMulMatTVec6D(zMat3D *m, zVec6D *v, zVec6D *mv)
 {
-  __zMulMatTVec3D( m, zVec6DLin(v), zVec6DLin(mv) );
-  __zMulMatTVec3D( m, zVec6DAng(v), zVec6DAng(mv) );
+  _zMulMatTVec3D( m, zVec6DLin(v), zVec6DLin(mv) );
+  _zMulMatTVec3D( m, zVec6DAng(v), zVec6DAng(mv) );
   return mv;
 }
 
@@ -515,7 +470,7 @@ zMat3D *zMat3DRotRollSC(zMat3D *m, double s, double c, zMat3D *rm){
 }
 zMat3D *zMat3DRotRoll(zMat3D *m, double theta, zMat3D *rm){
   double s, c;
-  zSinCos( theta, &s, &c );
+  _zSinCos( theta, &s, &c );
   return zMat3DRotRollSC( m, s, c, rm );
 }
 zMat3D *zMat3DRotRollSCDRC(zMat3D *m, double s, double c){
@@ -523,7 +478,7 @@ zMat3D *zMat3DRotRollSCDRC(zMat3D *m, double s, double c){
 }
 zMat3D *zMat3DRotRollDRC(zMat3D *m, double theta){
   double s, c;
-  zSinCos( theta, &s, &c );
+  _zSinCos( theta, &s, &c );
   return zMat3DRotRollSCDRC( m, s, c );
 }
 
@@ -535,7 +490,7 @@ zMat3D *zMat3DRotPitchSC(zMat3D *m, double s, double c, zMat3D *rm){
 }
 zMat3D *zMat3DRotPitch(zMat3D *m, double theta, zMat3D *rm){
   double s, c;
-  zSinCos( theta, &s, &c );
+  _zSinCos( theta, &s, &c );
   return zMat3DRotPitchSC( m, s, c, rm );
 }
 zMat3D *zMat3DRotPitchSCDRC(zMat3D *m, double s, double c){
@@ -543,7 +498,7 @@ zMat3D *zMat3DRotPitchSCDRC(zMat3D *m, double s, double c){
 }
 zMat3D *zMat3DRotPitchDRC(zMat3D *m, double theta){
   double s, c;
-  zSinCos( theta, &s, &c );
+  _zSinCos( theta, &s, &c );
   return zMat3DRotPitchSCDRC( m, s, c );
 }
 
@@ -555,7 +510,7 @@ zMat3D *zMat3DRotYawSC(zMat3D *m, double s, double c, zMat3D *rm){
 }
 zMat3D *zMat3DRotYaw(zMat3D *m, double theta, zMat3D *rm){
   double s, c;
-  zSinCos( theta, &s, &c );
+  _zSinCos( theta, &s, &c );
   return zMat3DRotYawSC( m, s, c, rm );
 }
 zMat3D *zMat3DRotYawSCDRC(zMat3D *m, double s, double c){
@@ -563,28 +518,29 @@ zMat3D *zMat3DRotYawSCDRC(zMat3D *m, double s, double c){
 }
 zMat3D *zMat3DRotYawDRC(zMat3D *m, double theta){
   double s, c;
-  zSinCos( theta, &s, &c );
+  _zSinCos( theta, &s, &c );
   return zMat3DRotYawSCDRC( m, s, c );
 }
 
-/* zMat3DZYXSC, zMat3DZYX
+/* zMat3DFromZYXSC, zMat3DFromZYX
  * - 3D attitude matrix expressed by z-y-x Eulerian angle.
  */
-zMat3D *zMat3DZYXSC(zMat3D *m, double sa, double ca, double se, double ce, double st, double ct)
+zMat3D *zMat3DFromZYXSC(zMat3D *m, double sa, double ca, double se, double ce, double st, double ct)
 {
-  return zMat3DCreate( m,
+  _zMat3DCreate( m,
     ce*ca, st*se*ca-ct*sa, ct*se*ca+st*sa,
     ce*sa, st*se*sa+ct*ca, ct*se*sa-st*ca,
    -se,    st*ce,          ct*ce );
+  return m;
 }
-zMat3D *zMat3DZYX(zMat3D *m, double azim, double elev, double tilt)
+zMat3D *zMat3DFromZYX(zMat3D *m, double azim, double elev, double tilt)
 {
   double sa, ca, se, ce, st, ct;
 
-  zSinCos( azim, &sa, &ca );
-  zSinCos( elev, &se, &ce );
-  zSinCos( tilt, &st, &ct );
-  return zMat3DZYXSC( m, sa, ca, se, ce, st, ct );
+  _zSinCos( azim, &sa, &ca );
+  _zSinCos( elev, &se, &ce );
+  _zSinCos( tilt, &st, &ct );
+  return zMat3DFromZYXSC( m, sa, ca, se, ce, st, ct );
 }
 
 /* zMat3DToZYX
@@ -595,32 +551,33 @@ zVec3D *zMat3DToZYX(zMat3D *m, zVec3D *angle)
 {
   double azim, ca, sa;
 
-  azim = atan2( m->e[0][1], m->e[0][0] );
-  zSinCos( azim, &sa, &ca );
-  angle->e[0] = azim;
-  angle->e[1] = atan2(-m->e[0][2], m->e[0][0]*ca+m->e[0][1]*sa );
-  angle->e[2] = atan2( m->e[2][0]*sa-m->e[2][1]*ca, -m->e[1][0]*sa+m->e[1][1]*ca );
+  azim = atan2( m->c.xy, m->c.xx );
+  _zSinCos( azim, &sa, &ca );
+  angle->c.x = azim;
+  angle->c.y = atan2(-m->c.xz, m->c.xx*ca+m->c.xy*sa );
+  angle->c.z = atan2( m->c.zx*sa-m->c.zy*ca, -m->c.yx*sa+m->c.yy*ca );
   return angle;
 }
 
-/* zMat3DZYZSC, zMat3DZYZ
+/* zMat3DFromZYZSC, zMat3DFromZYZ
  * - 3D attitude matrix expressed by z-y-z Eulerian angle.
  */
-zMat3D *zMat3DZYZSC(zMat3D *m, double sh, double ch, double sp, double cp, double sb, double cb)
+zMat3D *zMat3DFromZYZSC(zMat3D *m, double sh, double ch, double sp, double cp, double sb, double cb)
 {
-  return zMat3DCreate( m,
+  _zMat3DCreate( m,
     ch*cp*cb-sh*sb,-ch*cp*sb-sh*cb, ch*sp,
     sh*cp*cb+ch*sb,-sh*cp*sb+ch*cb, sh*sp,
       -sp*cb,          sp*sb,          cp );
+  return m;
 }
-zMat3D *zMat3DZYZ(zMat3D *m, double heading, double pitch, double bank)
+zMat3D *zMat3DFromZYZ(zMat3D *m, double heading, double pitch, double bank)
 {
   double sh, ch, sp, cp, sb, cb;
 
-  zSinCos( heading, &sh, &ch );
-  zSinCos( pitch, &sp, &cp );
-  zSinCos( bank, &sb, &cb );
-  return zMat3DZYZSC( m, sh, ch, sp, cp, sb, cb );
+  _zSinCos( heading, &sh, &ch );
+  _zSinCos( pitch, &sp, &cp );
+  _zSinCos( bank, &sb, &cb );
+  return zMat3DFromZYZSC( m, sh, ch, sp, cp, sb, cb );
 }
 
 /* zMat3DToZYZ
@@ -631,31 +588,31 @@ zVec3D *zMat3DToZYZ(zMat3D *m, zVec3D *angle)
 {
   double heading, sh, ch;
 
-  heading = atan2( m->e[2][1], m->e[2][0] );
-  zSinCos( heading, &sh, &ch );
-  angle->e[0] = heading;
-  angle->e[1] = atan2( m->e[2][0]*ch+m->e[2][1]*sh, m->e[2][2] );
-  angle->e[2] = atan2(-m->e[0][0]*sh+m->e[0][1]*ch,-m->e[1][0]*sh+m->e[1][1]*ch );
+  heading = atan2( m->c.zy, m->c.zx );
+  _zSinCos( heading, &sh, &ch );
+  angle->c.x = heading;
+  angle->c.y = atan2( m->c.zx*ch+m->c.zy*sh, m->c.zz );
+  angle->c.z = atan2(-m->c.xx*sh+m->c.xy*ch,-m->c.yx*sh+m->c.yy*ch );
   return angle;
 }
 
-/* zMat3DAA
+/* zMat3DFromAA
  * - 3D attitude matrix expressed by angle-axis vector.
  */
-zMat3D *zMat3DAA(zMat3D *m, zVec3D *aa)
+zMat3D *zMat3DFromAA(zMat3D *m, zVec3D *aa)
 {
   double l, c, s, r1, r2, r3;
   zVec3D n, nl;
 
-  if( zVec3DIsTiny( aa ) ) return zMat3DIdent( m );
-  l = zVec3DNorm( aa );
-  zSinCos( l, &s, &c );
+  if( _zVec3DIsTiny( aa ) ) return zMat3DIdent( m );
+  l = _zVec3DNorm( aa );
+  _zSinCos( l, &s, &c );
   zVec3DMul( aa, 1.0/l, &n );
   zVec3DMul( &n, 1-c, &nl );
-  zVec3DOuterProd2Mat3D( &n, &nl, m );
-  r1 = s * n.e[zX];
-  r2 = s * n.e[zY];
-  r3 = s * n.e[zZ];
+  _zVec3DTripleProd2Mat3D( &n, &nl, m );
+  r1 = s * n.c.x;
+  r2 = s * n.c.y;
+  r3 = s * n.c.z;
   m->e[0][0] += 1.0;
   m->e[1][0] -= r3;
   m->e[2][0] += r2;
@@ -675,24 +632,19 @@ zVec3D *zMat3DToAA(zMat3D *m, zVec3D *aa)
 {
   register int i;
   double l, a;
-	zVec3D evec[3];
-	double eval[3];
+  double eval[3];
+  zVec3D evec[3];
 
-  aa->e[0] = m->e[1][2]-m->e[2][1];
-  aa->e[1] = m->e[2][0]-m->e[0][2];
-  aa->e[2] = m->e[0][1]-m->e[1][0];
-  l = zVec3DNorm( aa );
-  a = atan2( l, m->e[0][0]+m->e[1][1]+m->e[2][2]-1 );
-	if( zIsTiny( l ) ){
-		zMat3DSymEig(m, eval, evec);
-		for( i=0; i<3; i++ ){
-			if( zIsTiny( eval[i] - 1.0 ) ){
-				zVec3DCopy(&evec[i], aa);
-				return zVec3DMulDRC( aa, a );
-			}
-		}
-	}
-  return zVec3DMulDRC( aa, a / zVec3DNorm(aa) );
+  _zVec3DCreate( aa, m->c.yz-m->c.zy, m->c.zx-m->c.xz, m->c.xy-m->c.yx );
+  l = _zVec3DNorm( aa );
+  a = atan2( l, m->c.xx+m->c.yy+m->c.zz-1 );
+  if( !zIsTiny( l ) ){ /* singular case */
+    zMat3DSymEig( m, eval, evec );
+    for( i=0; i<3; i++ )
+      if( zIsTiny( eval[i] - 1.0 ) )
+        return zVec3DMul( &evec[i], a, aa );
+  }
+  return zVec3DMulDRC( aa, a/l );
 }
 
 /* zRotMat3D
@@ -718,9 +670,9 @@ zMat3D *zRotMat3DInv(zMat3D *r, zMat3D *m, zMat3D *rm)
  */
 zMat3D *zMulVecOPMat3D(zVec3D *ohm, zMat3D *m, zMat3D *mv)
 {
-  zVec3DOuterProd( ohm, &m->v[0], &mv->v[0] );
-  zVec3DOuterProd( ohm, &m->v[1], &mv->v[1] );
-  zVec3DOuterProd( ohm, &m->v[2], &mv->v[2] );
+  zVec3DOuterProd( ohm, &m->b.x, &mv->b.x );
+  zVec3DOuterProd( ohm, &m->b.y, &mv->b.y );
+  zVec3DOuterProd( ohm, &m->b.z, &mv->b.z );
   return mv;
 }
 
@@ -731,7 +683,7 @@ zMat3D *zMat3DRot(zMat3D *m, zVec3D *aa, zMat3D *rm)
 {
   zMat3D ma;
 
-  zMat3DAA( &ma, aa );
+  zMat3DFromAA( &ma, aa );
   return zMulMatMat3D( &ma, m, rm );
 }
 
@@ -753,8 +705,8 @@ zVec3D *zAACascade(zVec3D *aa1, zVec3D *aa2, zVec3D *aa)
 {
   zMat3D m1, m2, m;
 
-  zMat3DAA( &m1, aa1 );
-  zMat3DAA( &m2, aa2 );
+  zMat3DFromAA( &m1, aa1 );
+  zMat3DFromAA( &m2, aa2 );
   zMulMatMat3D( &m2, &m1, &m );
   return zMat3DToAA( &m, aa );
 }
@@ -777,8 +729,8 @@ zVec3D *zAAError(zVec3D *a1, zVec3D *a2, zVec3D *err)
 {
   zMat3D m1, m2;
 
-  zMat3DAA( &m1, a1 );
-  zMat3DAA( &m2, a2 );
+  zMat3DFromAA( &m1, a1 );
+  zMat3DFromAA( &m2, a2 );
   return zMat3DError( &m1, &m2, err );
 }
 
@@ -889,9 +841,9 @@ void zMat3DFWrite(FILE *fp, zMat3D *m)
     fprintf( fp, "(null 3D matrix)\n" );
   else{
     fprintf( fp, "{\n" );
-    fprintf( fp, " %.10g, %.10g, %.10g\n", m->e[0][0], m->e[1][0], m->e[2][0] );
-    fprintf( fp, " %.10g, %.10g, %.10g\n", m->e[0][1], m->e[1][1], m->e[2][1] );
-    fprintf( fp, " %.10g, %.10g, %.10g\n", m->e[0][2], m->e[1][2], m->e[2][2] );
+    fprintf( fp, " %.10g, %.10g, %.10g\n", m->c.xx, m->c.yx, m->c.zx );
+    fprintf( fp, " %.10g, %.10g, %.10g\n", m->c.xy, m->c.yy, m->c.zy );
+    fprintf( fp, " %.10g, %.10g, %.10g\n", m->c.xz, m->c.yz, m->c.zz );
     fprintf( fp, "}\n" );
   }
 }
@@ -902,7 +854,7 @@ void zMat3DFWrite(FILE *fp, zMat3D *m)
  */
 void zMat3DFWriteXML(FILE *fp, zMat3D *m)
 {
-  fprintf( fp, "\"%.10g %.10g %.10g,\n", m->e[0][0], m->e[1][0], m->e[2][0] );
-  fprintf( fp, " %.10g %.10g %.10g,\n",  m->e[0][1], m->e[1][1], m->e[2][1] );
-  fprintf( fp, " %.10g %.10g %.10g\"",   m->e[0][2], m->e[1][2], m->e[2][2] );
+  fprintf( fp, "\"%.10g %.10g %.10g,\n", m->c.xx, m->c.yx, m->c.zx );
+  fprintf( fp, " %.10g %.10g %.10g,\n",  m->c.xy, m->c.yy, m->c.zy );
+  fprintf( fp, " %.10g %.10g %.10g\"",   m->c.xz, m->c.yz, m->c.zz );
 }

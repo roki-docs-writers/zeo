@@ -12,7 +12,7 @@ void vec_create_rand(zVec3DList *vl, int n, double x, double y, double z, double
     v.e[zX] += x;
     v.e[zY] += y;
     v.e[zZ] += z;
-    zVec3DListInsert( vl, &v, true );
+    zVec3DListInsert( vl, &v );
   }
 }
 
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
   vec_create_rand( &b, N, x, y, z, 0.2 );
   printf( "in collision? %s\n", zBoolExpr( zGJKPL( &a, &b, &ca, &cb ) ) );
   output( "a", &a, &b, &ca, &cb );
-  zVec3DListDestroy( &a, true );
-  zVec3DListDestroy( &b, true );
+  zVec3DListDestroy( &a );
+  zVec3DListDestroy( &b );
   return 0;
 }

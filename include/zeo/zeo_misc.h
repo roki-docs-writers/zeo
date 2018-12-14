@@ -7,7 +7,6 @@
 #ifndef __ZEO_MISC_H__
 #define __ZEO_MISC_H__
 
-#include <cure/cure.h>
 #include <zm/zm.h>
 
 #include <zeo/zeo_errmsg.h>

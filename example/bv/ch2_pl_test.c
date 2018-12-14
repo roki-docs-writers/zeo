@@ -1,33 +1,37 @@
 #include <zeo/zeo_bv.h>
 
 #define N 1000
-zVec3D v[N];
+
 int main(void)
 {
   register int i;
-  zVec3DList ch;
-  zVec3DListCell *vc;
+  zLoop3D ch;
+  zLoop3DCell *vc;
+  zVec3DList pl;
+  zVec3D v;
   FILE *fp;
 
   zRandInit();
+  zListInit( &pl );
   fp = fopen( "src", "w" );
   for( i=0; i<N; i++ ){
 #if 0
-    zVec3DCreate( &v[i], zRandF(-10,10), zRandF(-10,10), 0 );
+    zVec3DCreate( &v, zRandF(-10,10), zRandF(-10,10), 0 );
 #else
-    zVec3DCreatePolar( &v[i], zRandF(-10,10), 0.5*zPI, zRandF(-zPI,zPI) );
+    zVec3DCreatePolar( &v, zRandF(-10,10), 0.5*zPI, zRandF(-zPI,zPI) );
 #endif
-    zVec3DDataNLFWrite( fp, &v[i] );
+    zVec3DDataNLFWrite( fp, &v );
+    zVec3DListInsert( &pl, &v );
   }
   fclose( fp );
 
-  zCH2D( &ch, v, N );
+  zCH2DPL( &ch, &pl );
 
   fp = fopen( "dest", "w" );
   zListForEach( &ch, vc )
     zVec3DDataNLFWrite( fp, vc->data );
   zVec3DDataNLFWrite( fp, zListTail(&ch)->data );
   fclose( fp );
-  zVec3DListDestroy( &ch, false );
+  zLoop3DDestroy( &ch );
   return 0;
 }

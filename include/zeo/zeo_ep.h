@@ -26,18 +26,22 @@ typedef union{
 
 /*! \brief create and copy Euler parameter.
  *
- * zEPCreate() creates Euler parameter \a ep.
+ * zEPCreate() creates Euler parameter \a ep from four values. It is
+ * automatically normalized.
+ *
+ * zEPCreateAA() creates Euler parameter \a ep from a combination of angle and axis.
  *
  * zEPIdent() creates Euler parameter which is equivalent to the
  * identity transformation, namely, \a ep equals to [ 1, 0, 0, 0 ].
  *
  * zEPCopy() copies Euler parameter \a src to the other \a dest.
  * \return
- * zEPCreate() and zEPIdent() return a pointer \a ep.
+ * zEPCreate(), zEPCreateAA() and zEPIdent() return a pointer \a ep.
  * zEPCopy() returns a pointer \a dest.
  */
-__EXPORT zEP *zEPCreate(zEP *ep, double theta, zVec3D *axis);
-#define zEPIdent(e)  zEPCreate( e, 0, ZVEC3DZERO )
+__EXPORT zEP *zEPCreate(zEP *ep, double w, double x, double y, double z);
+__EXPORT zEP *zEPCreateAA(zEP *ep, double theta, zVec3D *axis);
+#define zEPIdent(e)  zEPCreate( e, 1, 0, 0, 0 );
 #define zEPCopy(s,d) zCopy( zEP, (s), (d) )
 
 __EXPORT bool zEPIsIdent(zEP *ep);
@@ -50,19 +54,20 @@ __EXPORT bool zEPIsIdent(zEP *ep);
  * zAA2EP() converts an angle-axis vector \a aa to the equivalent Euler
  * parameter \a ep.
  *
- * zMat3DEP() creates a 3x3 attitude matrix \a m from Euler parameter \a ep.
+ * zMat3DFromEP() converts Euler parameter \a ep to the equivalent a 3x3
+ * attitude matrix \a m.
  *
  * zMat3DToEP() converts a 3x3 attitude matrix \a m to the equivalent
  * Euler parameter \a ep.
  * \return
  * zAA2EP() returns a pointer \a ep.
  * zEP2AA() returns a pointer \a aa.
- * zMat3DEP() returns a pointer \a m.
+ * zMat3DFromEP() returns a pointer \a m.
  * zMat3DToEP() returns a pointer \a ep.
  */
 __EXPORT zVec3D *zEP2AA(zEP *ep, zVec3D *aa);
 __EXPORT zEP *zAA2EP(zVec3D *aa, zEP *ep);
-__EXPORT zMat3D *zMat3DEP(zMat3D *m, zEP *ep);
+__EXPORT zMat3D *zMat3DFromEP(zMat3D *m, zEP *ep);
 __EXPORT zEP *zMat3DToEP(zMat3D *m, zEP *ep);
 
 /*! \brief rotate a 3D vector by Euler parameter.
@@ -113,7 +118,7 @@ __EXPORT zEP *zAngVel2EPVel(zVec3D *angvel, zEP *ep, zEP *epvel);
  * zEPNormalize() directly normalizes Euler parameter \a ep.
  * \notes
  * Since Euler parameter is a class of unit quaternions, zEPNormalize() is
- * automatically called in zEPCreate() and some other functions.
+ * automatically called in zEPCreateAA() and some other functions.
  * \return
  * zEPRev(), zEPMul() and zEPCat() return a pointer \a ep.
  *

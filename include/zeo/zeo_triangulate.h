@@ -11,25 +11,15 @@
 
 __BEGIN_DECLS
 
-/* METHOD:
- * zTriangulate - trianglate a non-convex.
- * [SYNOPSIS]
- * int zTriangulate(zVec3D v[], int n, zTri3DList *tlist);
- * [DESCRIPTION]
- * 'zTriangulate()' triangulates a non-convex, namely,
- * divides a non-convex into triangle pieces.
- * The non-convex forms as a loop of vertices given
- * by an array of vertices 'v'. Namely:
- *  v[0]-v[1]-...-v[n-1]-v[0]
- * where 'n' is the number of vectors.
- * As the result, a triangle list 'tlist' is newly
- * created.
- * [NOTES]
- * When freeing 'tlist', give the true value for the
- * third argument of 'zTri3DListDestroy()'.
- * [RETURN VALUE]
- * 'zTriangulate()' returns the number of triangles
- * generated, which is up to 'n'-2.
+/*! \brief trianglate a looped series of vertices of a non-convex.
+ *
+ * zTriangulate() triangulates a looped series of vertices of a non-convex
+ * given by an array of 3D vectors \a v. Namely, it divides the non-convex
+ * into triangle pieces. \a n is the number of vertices.
+ * As the result, a triangle list \a tlist is newly created.
+ * \return
+ * zTriangulate() returns the number of the generated triangles, which
+ * is up to \a n -2.
  */
 __EXPORT int zTriangulate(zVec3D v[], int n, zTri3DList *tlist);
 

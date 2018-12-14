@@ -10,7 +10,7 @@ void usage(char *arg)
   exit( EXIT_SUCCESS );
 }
 
-void mshape2vlist(zMShape3D *ms, zVec3DList *vl)
+void mshape2vlist(zMShape3D *ms, zVec3DAddrList *vl)
 {
   register int i, j;
   zShape3D *s;
@@ -19,14 +19,14 @@ void mshape2vlist(zMShape3D *ms, zVec3DList *vl)
   for( i=0; i<zMShape3DShapeNum(ms); i++ ){
     s = zMShape3DShape(ms,i);
     for( j=0; j<zShape3DVertNum(s); j++ )
-      if( !zVec3DListInsert( vl, zShape3DVert(s,j), true ) ){
+      if( !zVec3DAddrListInsert( vl, zShape3DVert(s,j) ) ){
         ZALLOCERROR();
         exit( EXIT_FAILURE );
       }
   }
 }
 
-void read_vlist(char filename[], zVec3DList *vl)
+void read_vlist(char filename[], zVec3DAddrList *vl)
 {
   FILE *fp;
   zVec3D v;
@@ -46,7 +46,7 @@ void read_vlist(char filename[], zVec3DList *vl)
     if( !zFToken( fp, buf, BUFSIZ ) ) break;
     z = atof( buf );
     zVec3DCreate( &v, x, y, z );
-    zVec3DListInsert( vl, &v, true );
+    zVec3DAddrListInsert( vl, &v );
   } while( !feof( fp ) );
   fclose( fp );
 }
@@ -71,7 +71,7 @@ void output(zPH3D *ch)
 int main(int argc, char *argv[])
 {
   zMShape3D ms;
-  zVec3DList vl;
+  zVec3DAddrList vl;
   zPH3D ch;
   char *sfx;
 
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
   zCH3DPL( &ch, &vl );
   output( &ch );
   zPH3DDestroy( &ch );
-  zVec3DListDestroy( &vl, true );
+  zVec3DAddrListDestroy( &vl );
   zMShape3DDestroy( &ms );
   return 0;
 }

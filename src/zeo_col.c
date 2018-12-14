@@ -149,21 +149,3 @@ int zIntersectTri3D(zTri3D *t1, zTri3D *t2, zVec3D ip[])
   }
   return n;
 }
-
-/* zIntersectVecListPlane3D
- * - intersection between a loop of vertices and 3D plane.
- */
-int zIntersectVecListPlane3D(zVec3DList *vl, zPlane3D *p, zVec3D ip[])
-{
-  zEdge3D e;
-  zVec3DListCell *cp1, *cp2;
-  int n = 0;
-
-  cp1 = zListHead(vl);
-  zListForEach( vl, cp2 ){
-    zEdge3DCreate( &e, cp1->data, cp2->data );
-    if( zIntersectEdgePlane3D( &e, p, &ip[n] ) ) n++;
-    cp1 = cp2;
-  }
-  return n;
-}

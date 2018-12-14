@@ -12,9 +12,9 @@ void test_ph(zPH3D *a, zPH3D *b)
   zCH3D( a, v, N );
   for( i=0; i<N; i++ ){
     zVec3DCreatePolar( &v[i], zRandF(-0.2,0.2), zRandF(-zPI,zPI), zRandF(-0.5*zPI,0.5*zPI) );
-    v[i].e[zX] += 0.05;
-    v[i].e[zY] += 0.05;
-    v[i].e[zZ] += 0.05;
+    v[i].e[zX] += 0.2;
+    v[i].e[zY] += 0.2;
+    v[i].e[zZ] += 0.2;
   }
   zCH3D( b, v, N );
 }
@@ -26,7 +26,7 @@ void output_blue(FILE *fp)
   fprintf( fp, "ambient: 0.2 0.2 0.6\n" );
   fprintf( fp, "diffuse: 0.2 0.2 1.0\n" );
   fprintf( fp, "specular: 0.0 0.0 0.0\n" );
-  fprintf( fp, "alpha: 1.0\n" );
+  fprintf( fp, "alpha: 0.7\n" );
   fprintf( fp, "exp: 0.0\n\n" );
 }
 
@@ -37,7 +37,7 @@ void output_red(FILE *fp)
   fprintf( fp, "ambient: 0.6 0.2 0.2\n" );
   fprintf( fp, "diffuse: 1.0 0.2 0.2\n" );
   fprintf( fp, "specular: 0.0 0.0 0.0\n" );
-  fprintf( fp, "alpha: 1.0\n" );
+  fprintf( fp, "alpha: 0.7\n" );
   fprintf( fp, "exp: 0.0\n\n" );
 }
 

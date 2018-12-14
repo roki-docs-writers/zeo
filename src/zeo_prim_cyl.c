@@ -187,14 +187,14 @@ zMat3D *zCyl3DInertia(zCyl3D *cyl, zMat3D *inertia)
   vol = zCyl3DVolume( cyl );
   /* aligned inertia tensor */
   rr = 3 * zSqr(zCyl3DRadius(cyl)) * vol;
-  zCyl3DAxis( cyl, zMat3DVec(&att,zZ) );
-  hh = zVec3DSqrNorm(zMat3DVec(&att,zZ)) * vol;
+  zCyl3DAxis( cyl, &att.b.z );
+  hh = zVec3DSqrNorm(&att.b.z) * vol;
   zMat3DCreate( &i,
     (rr+hh)/12, 0, 0,
     0, (rr+hh)/12, 0,
     0, 0, rr/6 );
   /* rotate */
-  zVec3DOrthoSpace( zMat3DVec(&att,zZ), zMat3DVec(&att,zX), zMat3DVec(&att,zY) );
+  zVec3DOrthoSpace( &att.b.z, &att.b.x, &att.b.y );
   zMulMatMat3DDRC( &att, &i );
   return zMulMatMatT3D( &i, &att, inertia );
 }
@@ -220,10 +220,10 @@ zPH3D *zCyl3DToPH(zCyl3D *cyl, zPH3D *ph)
   }
   zVec3DNormalizeDRC( &d );
   /* one radial vector */
-  if( !zIsTiny( d.e[zX] ) && !zIsTiny( d.e[zY] ) )
-    zVec3DCreate( &s, d.e[zY],-d.e[zX], 0 );
+  if( !zIsTiny( d.c.x ) && !zIsTiny( d.c.y ) )
+    _zVec3DCreate( &s, d.c.y,-d.c.x, 0 );
   else
-    zVec3DCreate( &s, d.e[zY]-d.e[zZ], d.e[zZ]-d.e[zX], d.e[zX]-d.e[zY] );
+    _zVec3DCreate( &s, d.c.y-d.c.z, d.c.z-d.c.x, d.c.x-d.c.y );
   zVec3DNormalizeDRC( &s );
   zVec3DMulDRC( &s, zCyl3DRadius(cyl) );
   /* create vertices */

@@ -237,7 +237,7 @@ zMat3D *zPH3DInertia(zPH3D *ph, zMat3D *inertia)
   zMat3DClear( inertia );
   for( j=0; j<zPH3DFaceNum(ph); j++ ){
     zTri3DConeInertia( zPH3DFace(ph,j), &i );
-    zMat3DAddDRC( inertia, &i );
+    _zMat3DAddDRC( inertia, &i );
   }
   return inertia;
 }
@@ -250,10 +250,10 @@ void zPH3DBaryInertia(zPH3D *ph, zVec3D *c, zMat3D *i)
   zMat3D m;
 
   zPH3DBarycenter( ph, c );
-  zVec3DOuterProd2Mat3D( c, c, &m );
+  zVec3DTripleProd2Mat3D( c, c, &m );
   zMat3DMulDRC( &m, zPH3DVolume( ph ) );
   zPH3DInertia( ph, i );
-  zMat3DAddDRC( i, &m );
+  _zMat3DAddDRC( i, &m );
 }
 
 /* solid modeling */
@@ -281,7 +281,7 @@ int _zPH3DSweepBottom(zVec3D v[], int n, zTri3D f[], zVec3D *ref)
   nf = zTriangulate( v, n, &tlist );
   zTri3DListAlign( &tlist, ref );
   zTri3DListCopyArray( &tlist, f, nf );
-  zTri3DListDestroy( &tlist, true );
+  zTri3DListDestroy( &tlist );
   return nf;
 }
 

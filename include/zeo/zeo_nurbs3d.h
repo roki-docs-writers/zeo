@@ -7,10 +7,6 @@
 #ifndef __ZEO_NURBS3D_H__
 #define __ZEO_NURBS3D_H__
 
-#include <cure/cure_array.h>
-#include <cure/cure_list.h>
-#include <cure/cure_bfile.h>
-#include <zm/zm_vec.h>
 #include <zeo/zeo_vec3d.h>
 
 __BEGIN_DECLS

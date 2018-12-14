@@ -86,15 +86,14 @@ int main(void)
   fclose( fp );
 
   /* triangulation */
-  n = zTriangulate( v, sizeof(v)/sizeof(v[0]), &tlist );
+  n = zTriangulate( v, sizeof(v)/sizeof(zVec3D), &tlist );
   fp = fopen( "tri", "w" );
   zListForEach( &tlist, tp ){
     /* output for gnuplot visualization */
     zVec3DDataNLFWrite( fp, zTri3DVert(tp->data,0) );
     zVec3DDataNLFWrite( fp, zTri3DVert(tp->data,1) );
-    fprintf( fp, "\n" );
     zVec3DDataNLFWrite( fp, zTri3DVert(tp->data,2) );
-    zVec3DDataNLFWrite( fp, zTri3DVert(tp->data,2) );
+    zVec3DDataNLFWrite( fp, zTri3DVert(tp->data,0) );
     fprintf( fp, "\n\n" );
   }
   fclose( fp );

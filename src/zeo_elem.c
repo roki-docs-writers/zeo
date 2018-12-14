@@ -56,18 +56,16 @@ zPlane3D *zPlane3DMean(zPlane3D *pl, zVec3D *pc, zVec3D v[], int n)
   register int i;
   double eval[3];
   zVec3D p, evec[3];
-  zMat3D dm, m;
+  zMat3D m;
 
   zVec3DClear( &p );
   zMat3DClear( &m );
   for( i=0; i<n; i++ ){
     zVec3DAddDRC( &p, &v[i] );
-    zMat3DDyad( &v[i], &v[i], &dm );
-    zMat3DAddDRC( &m, &dm );
+    zMat3DAddDyad( &m, &v[i], &v[i] );
   }
   zVec3DDiv( &p, n, pc );
-  zMat3DDyad( &p, pc, &dm );
-  zMat3DSubDRC( &m, &dm );
+  zMat3DSubDyad( &m, &p, pc );
   zMat3DSymEig( &m, eval, evec );
 
   if( eval[0] < eval[1] )
@@ -292,8 +290,8 @@ zTri3D *zTri3DCreate(zTri3D *t, zVec3D *v1, zVec3D *v2, zVec3D *v3)
   return t;
 }
 
-/* zTri3DCreate
- * - create triangle in reversed order.
+/* zTri3DCreateRev
+ * - create triangle in the reversed order.
  */
 zTri3D *zTri3DCreateRev(zTri3D *t, zVec3D *v1, zVec3D *v2, zVec3D *v3)
 {
@@ -624,14 +622,14 @@ zMat3D *zTri3DConeInertia(zTri3D *t, zMat3D *i)
   for( j=0; j<3; j++ ){
     v1 = zTri3DVert(t,j);
     v2 = zTri3DVertNext(t,j);
-    zVec3DOuterProd2Mat3D( v1, v1, &m );
-    zMat3DSubDRC( i, &m );
-    zVec3DOuterProd2Mat3D( v1, v2, &m );
-    zMat3DMulDRC( &m, 0.5 );
-    zMat3DSubDRC( i, &m );
-    zVec3DOuterProd2Mat3D( v2, v1, &m );
-    zMat3DMulDRC( &m, 0.5 );
-    zMat3DSubDRC( i, &m );
+    _zVec3DTripleProd2Mat3D( v1, v1, &m );
+    _zMat3DSubDRC( i, &m );
+    _zVec3DTripleProd2Mat3D( v1, v2, &m );
+    _zMat3DMulDRC( &m, 0.5 );
+    _zMat3DSubDRC( i, &m );
+    _zVec3DTripleProd2Mat3D( v2, v1, &m );
+    _zMat3DMulDRC( &m, 0.5 );
+    _zMat3DSubDRC( i, &m );
   }
   zMat3DMulDRC( i, 0.1*zTri3DConeVolume( t, ZVEC3DZERO ) );
   return i;

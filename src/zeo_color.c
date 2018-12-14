@@ -37,6 +37,20 @@ zRGB *zRGBMul(zRGB *rgb1, zRGB *rgb2, zRGB *rgb)
   return zRGBSet( rgb, rgb1->r*rgb2->r, rgb1->g*rgb2->g, rgb1->b*rgb2->b );
 }
 
+/* zRGBBlend
+ * - blend a pair of RGB parameters at a given ratio.
+ */
+zRGB *zRGBBlend(zRGB *rgb1, zRGB *rgb2, double ratio, zRGB *rgb)
+{
+  double rn;
+
+  rn = 1 - ratio;
+  rgb->r = ratio * rgb1->r + rn * rgb2->r;
+  rgb->g = ratio * rgb1->g + rn * rgb2->g;
+  rgb->b = ratio * rgb1->b + rn * rgb2->b;
+  return rgb;
+}
+
 /* (static)
  * _zRGBRatio
  * - decode a string of sequential floating-point values to RGB.

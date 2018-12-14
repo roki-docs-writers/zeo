@@ -12,63 +12,60 @@
 __BEGIN_DECLS
 
 /* ********************************************************** */
+/* CLASS: zLoop3D
+ * loop of 3D vertices
+ * ********************************************************** */
+
+typedef zVec3DAddr zLoop3DCell;
+typedef zVec3DAddrList zLoop3D;
+
+#define zLoop3DInsert(l,c)       zVec3DAddrListInsert( l, c )
+#define zLoop3DFromArray(l,v,n)  zVec3DAddrListFromArray( l, v, n )
+#define zLoop3DDestroy(l)        zVec3DAddrListDestroy( l )
+
+/* ********************************************************** */
 /* CLASS: zTri3DList
  * 3D triangle list
  * ********************************************************** */
 
-zListClass( zTri3DList, zTri3DListCell, zTri3D* );
+zListClass( zTri3DList, zTri3DListCell, zTri3D );
 
-/* METHOD:
- * zTri3DListInsert, zTri3DListCreate, zTri3DListDestroy
- * - insert and destroy 3D triangle list.
- * [SYNOPSIS]
- * zTri3DListCell *zTri3DListInsert(zTri3DList *list, zTri3D *t, bool flag);
- * void zTri3DListDestroy(zTri3DList *list, bool flag);
- * [DESCRIPTION]
- * 'zTri3DListInsert()' inserts a new 3D triangle list
- * cell 't' at the head of a triangle list 'list'.
- * Each cell inserted will have a copy of 't' which is
- * newly allocated if 'flag' is the true value.
- * Otherwise, the cell has a pointer to 't'.
- * #
- * 'zTri3DListDestroy()' destroys 'list', freeing all
- * cells. If 'flag' is the true value, it also frees
- * the data held by each cell. Otherwise, only the cells
- * are freed.
- * [RETURN VALUE]
- * 'zTri3DListInsert()' returns a pointer to the cell
- * newly inserted.
- * 'zTri3DListDestroy()' returns no value.
+/*! insert a 3D triangle to a list of 3D triangles.
+ *
+ * zTri3DListInsert() inserts a new 3D triangle list cell \a t at
+ * the head of a triangle list \a list.
+ * Each cell inserted will have a copy of \a t.
+ * \return
+ * zTri3DListInsert() returns a pointer to the newly inserted cell.
  */
-__EXPORT zTri3DListCell *zTri3DListInsert(zTri3DList *list, zTri3D *t, bool flag);
-__EXPORT void zTri3DListDestroy(zTri3DList *list, bool flag);
+__EXPORT zTri3DListCell *zTri3DListInsert(zTri3DList *list, zTri3D *t);
 
-/* METHOD:
- * zTri3DListAlign
- * - align triangles to a direction referred by a vector.
- * [SYNOPSIS]
- * void zTri3DListAlign(zTri3DList *list, zVec3D *ref);
- * [DESCRIPTION]
- * 'zTri3DListAlign()' aligns directions of all triangle
- * contained by a triangle list 'list' to one referred
- * by a vector 'ref'. Namely, if the direction of a
- * triangle in 'list' is opposite to 'ref', the triangle
- * is flipped.
- * [RETURN VALUE]
- * 'zTri3DListAlign()' returns no value.
+/*! destroy a list of 3D triangles.
+ *
+ * zTri3DListDestroy() destroys a list of 3D triangles \a list.
+ * \return
+ * zTri3DListDestroy() returns no value.
+ */
+#define zTri3DListDestroy(l) zListDestroy( zTri3DListCell, l )
+
+/*! \brief align triangles to a direction referred by a vector.
+ *
+ * zTri3DListAlign() aligns directions of all triangles contained in a
+ * list of triangles \a list to one referred by a vector \a ref. Namely,
+ * if the direction of a triangle in \a list is opposite to \a ref, the
+ * triangle is flipped.
+ * \return
+ * zTri3DListAlign() returns no value.
  */
 __EXPORT void zTri3DListAlign(zTri3DList *list, zVec3D *ref);
 
-/* METHOD:
- * zTri3DListCopyArray - copy triangles in a list to array.
- * [SYNOPSIS]
- * void zTri3DListCopyArray(zTri3DList *list, zTri3D t[], int n);
- * [DESCRIPTION]
- * 'zTri3DListCopyArray()' copies triangles held by a
- * list 'list' to an array 't'. 'n' is the size of the
- * array.
- * [RETURN VALUE]
- * 'zTri3DListCopyArray()' returns no value.
+/*! \brief copy triangles of a list to an array.
+ *
+ * zTri3DListCopyArray() copies triangles held by a list \a list to an
+ * array \a t. \a n is the size of the array. If the size of \a list is
+ * larger than \a n, the leftovers are omitted.
+ * \return
+ * zTri3DListCopyArray() returns no value.
  */
 __EXPORT void zTri3DListCopyArray(zTri3DList *list, zTri3D t[], int n);
 

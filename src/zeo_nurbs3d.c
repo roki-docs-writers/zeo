@@ -5,8 +5,6 @@
  * contributer: 2018 Naoki Wakisaka
  */
 #include <zeo/zeo_nurbs3d.h>
-#include <cure/cure_string.h>
-#include <cure/cure_index.h>
 
 #define ZNURBS3D_ITER_MAX 100
 
@@ -64,7 +62,6 @@ void zNURBS3DDestroy(zNURBS3D *ns)
   zNURBS3DInit( ns );
 }
 
-
 /* ************************************************************************* */
 zNURBS3D *zNURBS3DCloneKnot(zNURBS3D *org, zNURBS3D *cln)
 {
@@ -99,7 +96,6 @@ zNURBS3D *zNURBS3DClone(zNURBS3D *org, zNURBS3D *cln)
     cln->dim[i]    = org->dim[i];
     cln->cpsize[i] = org->cpsize[i];
   }
-
   if( !zNURBS3DCloneKnot( org, cln ) || !zNURBS3DCloneCP( org, cln ) ){
     zNURBS3DDestroy( cln );
     return NULL;
@@ -116,11 +112,7 @@ zNURBS3D *zNURBS3DCopyNC(zNURBS3D *src, zNURBS3D *dest)
     dest->cpsize[i] = src->cpsize[i];
     zVecCopyNC( src->knot[i], dest->knot[i] );
   }
-
-  /* for( i=0; i<zArrayNum(&src->cparray); i++ ) */
-  /*   zArraySetElem( &dest->cparray, i, zArrayGetElem(&src->cparray,i) ); */
   memcpy( zArrayBuf(&dest->cparray), zArrayBuf(&src->cparray), sizeof(zNURBS3DCPCell)*zArrayNum(&src->cparray) );
-
   return dest;
 }
 
@@ -332,7 +324,7 @@ zVec3D *zNURBS3DDiff(zNURBS3D *ns, double t1, double t2, zVec3D *v, int diff1, i
     return NULL;
   }
 
-  zVec3DClear( v );
+  _zVec3DClear( v );
   t[0]=t1; t[1]=t2;
   den = 0.0;
   for( i=0; i<2; i++ ){
@@ -387,11 +379,10 @@ zVec3D *zNURBS3DNormVec(zNURBS3D *ns, double t1, double t2, zVec3D *v)
 
   if( !zNURBS3DDiff( ns, t1, t2, &v1, 1, 0 ) ||
       !zNURBS3DDiff( ns, t1, t2, &v2, 0, 1 ) ) return NULL;
-  zVec3DOuterProd( &v1, &v2, v );
+  _zVec3DOuterProd( &v1, &v2, v );
   zVec3DNormalizeDRC( v );
   return v;
 }
-
 
 /* ************************************************************************* */
 /* NOTE: only the cases that the position on the NURBS surface is unique
@@ -417,15 +408,15 @@ double zNURBS3DVecOnXYBD(zNURBS3D *ns, double x, double y, zVec3D *v, double *t1
     *t1 = (tmin[0] + tmax[0]) / 2.0;
     *t2 = (tmin[1] + tmax[1]) / 2.0;
     zNURBS3DVecBD( ns, *t1, *t2, v, bd );
-    err = zSqr( zVec3DElem(v,zX) - x ) + zSqr( zVec3DElem(v,zY) - y );
+    err = zSqr( v->e[zX] - x ) + zSqr( v->e[zY] - y );
     if( zIsTiny( tmin[0] - tmax[0] ) || zIsTiny( tmin[1] - tmax[1] ) || err < tol ) break;
 
-    if( x < zVec3DElem(v,zX) )
+    if( x < v->e[zX] )
       tmax[0] = *t1;
     else
       tmin[0] = *t1;
 
-    if( y < zVec3DElem(v,zY) )
+    if( y < v->e[zY] )
       tmax[1] = *t2;
     else
       tmin[1] = *t2;
@@ -449,12 +440,12 @@ zVec3D* zIntersectLineNURBS3D(zNURBS3D *ns, zVec3D *v, zVec3D *dir, zVec3D *cv, 
   const double PMCGAINMAG = 0.5;
 
   zVec3DCopy( v, cv );
-  zNURBS3DVecOnXY( ns, zVec3DElem(cv,zX), zVec3DElem(cv,zY), &vn, t1, t2, tol );
+  zNURBS3DVecOnXY( ns, cv->e[zX], cv->e[zY], &vn, t1, t2, tol );
   for( i=0; i<ZNURBS3D_ITER_MAX; i++ ){
-    zVec3DSub( cv, &vn, &vs );
-    l = zVec3DNorm( &vs );
+    _zVec3DSub( cv, &vn, &vs );
+    l = _zVec3DNorm( &vs );
     if( l < tol ) return cv;
-    if( zVec3DElem(cv,zZ) - zVec3DElem(&vn,zZ) > 0 ){
+    if( cv->e[zZ] - vn.e[zZ] > 0 ){
       if( !plas ){
         plas = true;
         pmcGain *= PMCGAINMAG;
@@ -467,9 +458,17 @@ zVec3D* zIntersectLineNURBS3D(zNURBS3D *ns, zVec3D *v, zVec3D *dir, zVec3D *cv, 
       }
       zVec3DCatDRC( cv, l*-(pmcGain*GAIN*(ZNURBS3D_ITER_MAX-i)), dir );
     }
-    zNURBS3DVecOnXY( ns, zVec3DElem(cv,zX), zVec3DElem(cv,zY), &vn, t1, t2, tol );
+    zNURBS3DVecOnXY( ns, cv->e[zX], cv->e[zY], &vn, t1, t2, tol );
   }
   return NULL;
+}
+
+static bool _zVec3DEqualTol(zVec3D *v1, zVec3D *v2, double tol)
+{
+  zVec3D d;
+
+  _zVec3DSub( v1, v2, &d );
+  return _zVec3DIsTol( &d, tol );
 }
 
 /* for debug */
@@ -486,12 +485,12 @@ zVec3D* zIntersectLineNURBS3D_v2(zNURBS3D *ns, zVec3D *v, zVec3D *dir, zVec3D *c
   zVec3DCopy( v, cv );
   zVec3DCopy( v, &pv );
   for( i=0; i<ZNURBS3D_ITER_MAX; i++ ){
-    zNURBS3DVecOnXY( ns, zVec3DElem(cv,zX), zVec3DElem(cv,zY), &vn, t1, t2, tol );
-    if( zVec3DEqualTol( cv, &vn, tol ) ) return cv;
+    zNURBS3DVecOnXY( ns, cv->e[zX], cv->e[zY], &vn, t1, t2, tol );
+    if( _zVec3DEqualTol( cv, &vn, tol ) ) return cv;
     /* cv <- cv + (dir^T(vn-cv))dir */
-    zVec3DSub( &vn, cv, &cvn );
-    zVec3DCatDRC( cv, zVec3DInnerProd( &norm, &cvn ), &norm );
-    if( zVec3DEqualTol( cv, &pv, tol ) ) return cv;
+    _zVec3DSub( &vn, cv, &cvn );
+    zVec3DCatDRC( cv, _zVec3DInnerProd( &norm, &cvn ), &norm );
+    if( _zVec3DEqualTol( cv, &pv, tol ) ) return cv;
     zVec3DCopy( cv, &pv );
   }
   return NULL;
@@ -516,18 +515,18 @@ zVec3D* zIntersectLineNURBS3D_v3(zNURBS3D *ns, zVec3D *v, zVec3D *dir, zVec3D *c
     *t1 = (tmin[0] + tmax[0]) / 2.0;
     *t2 = (tmin[1] + tmax[1]) / 2.0;
     zNURBS3DVec( ns, *t1, *t2, cv );
-    zVec3DSub( cv, v, &proj );
-    zVec3DCat( v, zVec3DInnerProd( &norm, &proj ), &norm, &proj );
-    zVec3DSubDRC( &proj, cv );
+    _zVec3DSub( cv, v, &proj );
+    zVec3DCat( v, _zVec3DInnerProd( &norm, &proj ), &norm, &proj );
+    _zVec3DSubDRC( &proj, cv );
     if( zIsTiny( tmin[0] - tmax[0] ) || zIsTiny( tmin[1] - tmax[1] ) || zVec3DNorm( &proj ) < tol )
       return cv;
 
-    if( zVec3DElem(&proj,zX) < 0 )
+    if( proj.e[zX] < 0 )
       tmax[0] = *t1;
     else
       tmin[0] = *t1;
 
-    if( zVec3DElem(&proj,zY) < 0 )
+    if( proj.e[zY] < 0 )
       tmax[1] = *t2;
     else
       tmin[1] = *t2;
@@ -535,7 +534,6 @@ zVec3D* zIntersectLineNURBS3D_v3(zNURBS3D *ns, zVec3D *v, zVec3D *dir, zVec3D *c
 
   return NULL;
 }
-
 
 /* ************************************************************************* */
 /* io */
@@ -556,17 +554,14 @@ bool zNURBS3DFRead(FILE *fp, zNURBS3D *ns)
     for( j=0; j<zVecSizeNC(ns->knot[i]); j++ )
       zVecElem(ns->knot[i],j) = zFDouble( fp );
   }
-
   zArrayAlloc( &ns->cparray, zNURBS3DCPCell, zNURBS3DCalcCPNum( ns ) );
   for( i=0; i<zNURBS3DCPNum(ns); i++ ){
     for( j=0; j<3; j++ )
-      zVec3DElem(zNURBS3DCPE(ns,i),j) = zFDouble( fp );
+      zNURBS3DCPE(ns,i)->e[j] = zFDouble( fp );
     zNURBS3DWeightE(ns,i) = zFDouble( fp );
   }
-
   return true;
 }
-
 
 bool zNURBS3DReadFile(zNURBS3D *ns, char filename[])
 {
@@ -753,7 +748,7 @@ void zNURBS3DSeqByteSwapKnotCP(zNURBS3DSeq *nseq){
         zByteSwapAllBufDRC( &zVecElem(cp->data.ns.knot[i],j), dsize, buf );
     for( i=0; i<zNURBS3DCPNum(&cp->data.ns); i++ )
       for( j=0; j<3; j++ )
-        zByteSwapAllBufDRC( &zVec3DElem(zNURBS3DCPE(&cp->data.ns,i),j), dsize, buf );
+        zByteSwapAllBufDRC( &zNURBS3DCPE(&cp->data.ns,i)->e[j], dsize, buf );
   }
 
   zFree( buf );
@@ -817,10 +812,10 @@ zNURBS3D *_zNURBS3DSeqBFReadKnot(FILE *fp, zNURBS3D *ns, zHeader *h)
 zNURBS3D *_zNURBS3DSeqBFReadCP(FILE *fp, zNURBS3D *ns, int i, int comp)
 {
   if( comp & ZNURBS3DSEQB_COMP_CPXYWNC ){
-    if( fread( &zVec3DElem(zNURBS3DCPE(ns,i),zZ), sizeof(double), 1, fp ) != 1 )
+    if( fread( &zNURBS3DCPE(ns,i)->e[zZ], sizeof(double), 1, fp ) != 1 )
       return NULL;
   } else {
-    if( fread( &zVec3DElem(zNURBS3DCPE(ns,i),zX), sizeof(double), 3, fp ) != 3 ||
+    if( fread( &zNURBS3DCPE(ns,i)->e[zX], sizeof(double), 3, fp ) != 3 ||
         fread( &zNURBS3DWeightE(ns,i), sizeof(double), 1, fp ) != 1 )
       return NULL;
   }
@@ -960,13 +955,13 @@ int _zNURBS3DSeqBFWriteCompType(zNURBS3D *ns, zNURBS3D *pns, zIndex idx, int *co
   cnt = 0;
   xywchanged = false;
   for( i=0; i<zNURBS3DCPNum(ns); i++ ){
-    if( !zIsTiny( zVec3DElem(zNURBS3DCPE(ns,i),zX) - zVec3DElem(zNURBS3DCPE(pns,i),zX) ) ||
-        !zIsTiny( zVec3DElem(zNURBS3DCPE(ns,i),zY) - zVec3DElem(zNURBS3DCPE(pns,i),zY) ) ||
+    if( !zIsTiny( zNURBS3DCPE(ns,i)->e[zX] - zNURBS3DCPE(pns,i)->e[zX] ) ||
+        !zIsTiny( zNURBS3DCPE(ns,i)->e[zY] - zNURBS3DCPE(pns,i)->e[zY] ) ||
         !zIsTiny( zNURBS3DWeightE(ns,i) - zNURBS3DWeightE(pns,i) ) ){
       xywchanged = true;
       zIndexElem(idx,cnt) = i;
       cnt++;
-    } else if( !zIsTiny( zVec3DElem(zNURBS3DCPE(ns,i),zZ) - zVec3DElem(zNURBS3DCPE(pns,i),zZ) ) ){
+    } else if( !zIsTiny( zNURBS3DCPE(ns,i)->e[zZ] - zNURBS3DCPE(pns,i)->e[zZ] ) ){
       zIndexElem(idx,cnt) = i;
       cnt++;
     }
@@ -983,9 +978,9 @@ int _zNURBS3DSeqBFWriteCompType(zNURBS3D *ns, zNURBS3D *pns, zIndex idx, int *co
 void _zNURBS3DSeqBCellDataFWriteCP(FILE *fp, zNURBS3D *ns, int i, int comp)
 {
   if( comp & ZNURBS3DSEQB_COMP_CPXYWNC )
-    fwrite( &zVec3DElem(zNURBS3DCPE(ns,i),zZ), sizeof(double), 1, fp );
+    fwrite( &zNURBS3DCPE(ns,i)->e[zZ], sizeof(double), 1, fp );
   else {
-    fwrite( &zVec3DElem(zNURBS3DCPE(ns,i),zX), sizeof(double), 3, fp );
+    fwrite( &zNURBS3DCPE(ns,i)->e[zX], sizeof(double), 3, fp );
     fwrite( &zNURBS3DWeightE(ns,i), sizeof(double), 1, fp );
   }
 }
@@ -1053,7 +1048,6 @@ bool zNURBS3DSeqBFWrite(FILE *fp, zNURBS3DSeq *nseq)
   zNURBS3DSeqBGetHeaderDefault( &h );
   return zNURBS3DSeqBFWriteHeader( fp, nseq, &h );
 }
-
 
 bool zNURBS3DSeqBWriteFileHeader(zNURBS3DSeq *nseq, char filename[], zHeader *header)
 {
