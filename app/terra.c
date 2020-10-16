@@ -46,7 +46,7 @@ bool terraCommandArgs(int argc, char *argv[], FILE **fp)
     ZOPENERROR( opt[TERRA_OUTFILE].arg );
     ret = false;
   }
-  zStrListDestroy( &arglist );
+  zStrListDestroy( &arglist, false );
   return ret;
 }
 
