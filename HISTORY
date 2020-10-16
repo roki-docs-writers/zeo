@@ -1,3 +1,4 @@
+2015. 7.21. Debugged zMat3DT thanks to Naoki Wakisaka. [zeo_mat3d]
 2015. 7.14. Accelerated basic arithmetics of 3D vectors and matrices thanks to Naoki Wakisaka. [zeo_vec3d, zeo_mat3d]
 2015. 7.14. Added _zIntersectPH3DPointIsInside and modified _zIntersectPH3D to find the base point with an ad-hoc modulation by Ken'ya Tanaka. [zeo_col_ph]
 2015. 7.14. Added zGJKDepth and other internal methods by Ken'ya Tanaka. [zeo_col_gjk]
