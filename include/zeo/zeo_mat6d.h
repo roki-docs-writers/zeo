@@ -33,6 +33,18 @@ __EXPORT zMat6D *zMat6DClear(zMat6D *m);
 
 /*! \brief transpose of a 6x6 matrix. */
 __EXPORT zMat6D *zMat6DT(zMat6D *m, zMat6D *mout);
+/*! \brief abstract row/column vectors from a 6x6 matrix.
+ *
+ * zMat6DRow() abstracts the \a i'th row from a 6x6 matrix \a m and puts
+ * it into \a v.
+ *
+ * zMat6DCol() abstracts the \a i'th column from a 6x6 matrix \a m and
+ * puts it into \a v.
+ * \return
+ * zMat6DRow() and zMat6DCol() return a pointer \a v.
+ */
+__EXPORT zVec6D *zMat6DRow(zMat6D *m, int i, zVec6D *v);
+__EXPORT zVec6D *zMat6DCol(zMat6D *m, int i, zVec6D *v);
 
 /*! \brief multiply a 6x1 vector by a 6x6 matrix from the left side.
  * \a vout = \a m \a vin

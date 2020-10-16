@@ -52,19 +52,84 @@ zMat6D *zMat6DT(zMat6D *m, zMat6D *mout)
   return mout;
 }
 
+/* zMat6DRow
+ * - abstract row vector from 6D matrix.
+ */
+zVec6D *zMat6DRow(zMat6D *m, int i, zVec6D *v)
+{
+  int a, b;
+  a = (i/3)*2;
+  b = i%3;
+  v->e[0] = m->m[a  ].e[0][b];
+  v->e[1] = m->m[a  ].e[1][b];
+  v->e[2] = m->m[a  ].e[2][b];
+  v->e[3] = m->m[a+1].e[0][b];
+  v->e[4] = m->m[a+1].e[1][b];
+  v->e[5] = m->m[a+1].e[2][b];
+  return v;
+}
+
+/* zMat6DCol
+ * - abstract column vector from 6D matrix.
+ */
+zVec6D *zMat6DCol(zMat6D *m, int i, zVec6D *v)
+{
+  int a, b;
+  a = i/3;
+  b = i%3;
+  v->e[0] = m->m[  a].e[b][0];
+  v->e[1] = m->m[  a].e[b][1];
+  v->e[2] = m->m[  a].e[b][2];
+  v->e[3] = m->m[2+a].e[b][0];
+  v->e[4] = m->m[2+a].e[b][1];
+  v->e[5] = m->m[2+a].e[b][2];
+  return v;
+}
+
+#define __zVec6DCreate(v,x,y,z,xa,ya,za) do{\
+    double __x, __xa, __y, __ya, __z, __za; \
+  __x = x;\
+  __y = y;\
+  __z = z;\
+  __xa = xa;\
+  __ya = ya;\
+  __za = za;\
+  (v)->e[zX] = __x;\
+  (v)->e[zY] = __y;\
+  (v)->e[zZ] = __z;\
+  (v)->e[zXA] = __xa;\
+  (v)->e[zYA] = __ya;\
+  (v)->e[zZA] = __za;\
+} while(0)
+
+#define __zMulMat6DVec6D(m,v,mv) __zVec6DCreate( mv,\
+  (m)->m[0].e[0][0]*(v)->e[0] + (m)->m[0].e[1][0]*(v)->e[1] + (m)->m[0].e[2][0]*(v)->e[2] + (m)->m[1].e[0][0]*(v)->e[3] + (m)->m[1].e[1][0]*(v)->e[4] + (m)->m[1].e[2][0]*(v)->e[5],\
+  (m)->m[0].e[0][1]*(v)->e[0] + (m)->m[0].e[1][1]*(v)->e[1] + (m)->m[0].e[2][1]*(v)->e[2] + (m)->m[1].e[0][1]*(v)->e[3] + (m)->m[1].e[1][1]*(v)->e[4] + (m)->m[1].e[2][1]*(v)->e[5],\
+  (m)->m[0].e[0][2]*(v)->e[0] + (m)->m[0].e[1][2]*(v)->e[1] + (m)->m[0].e[2][2]*(v)->e[2] + (m)->m[1].e[0][2]*(v)->e[3] + (m)->m[1].e[1][2]*(v)->e[4] + (m)->m[1].e[2][2]*(v)->e[5],\
+  (m)->m[2].e[0][0]*(v)->e[0] + (m)->m[2].e[1][0]*(v)->e[1] + (m)->m[2].e[2][0]*(v)->e[2] + (m)->m[3].e[0][0]*(v)->e[3] + (m)->m[3].e[1][0]*(v)->e[4] + (m)->m[3].e[2][0]*(v)->e[5],\
+  (m)->m[2].e[0][1]*(v)->e[0] + (m)->m[2].e[1][1]*(v)->e[1] + (m)->m[2].e[2][1]*(v)->e[2] + (m)->m[3].e[0][1]*(v)->e[3] + (m)->m[3].e[1][1]*(v)->e[4] + (m)->m[3].e[2][1]*(v)->e[5],\
+  (m)->m[2].e[0][2]*(v)->e[0] + (m)->m[2].e[1][2]*(v)->e[1] + (m)->m[2].e[2][2]*(v)->e[2] + (m)->m[3].e[0][2]*(v)->e[3] + (m)->m[3].e[1][2]*(v)->e[4] + (m)->m[3].e[2][2]*(v)->e[5])
+
+#define __zMulMat6DTVec6D(m,v,mv) __zVec6DCreate( mv,\
+  (m)->m[0].e[0][0]*(v)->e[0] + (m)->m[0].e[0][1]*(v)->e[1] + (m)->m[0].e[0][2]*(v)->e[2] + (m)->m[2].e[0][0]*(v)->e[0] + (m)->m[2].e[0][1]*(v)->e[1] + (m)->m[2].e[0][2]*(v)->e[2],\
+  (m)->m[0].e[1][0]*(v)->e[0] + (m)->m[0].e[1][1]*(v)->e[1] + (m)->m[0].e[1][2]*(v)->e[2] + (m)->m[2].e[1][0]*(v)->e[0] + (m)->m[2].e[1][1]*(v)->e[1] + (m)->m[2].e[1][2]*(v)->e[2],\
+  (m)->m[0].e[2][0]*(v)->e[0] + (m)->m[0].e[2][1]*(v)->e[1] + (m)->m[0].e[2][2]*(v)->e[2] + (m)->m[2].e[2][0]*(v)->e[0] + (m)->m[2].e[2][1]*(v)->e[1] + (m)->m[2].e[2][2]*(v)->e[2],\
+  (m)->m[1].e[0][0]*(v)->e[0] + (m)->m[1].e[0][1]*(v)->e[1] + (m)->m[1].e[0][2]*(v)->e[2] + (m)->m[3].e[0][0]*(v)->e[0] + (m)->m[3].e[0][1]*(v)->e[1] + (m)->m[3].e[0][2]*(v)->e[2],\
+  (m)->m[1].e[1][0]*(v)->e[0] + (m)->m[1].e[1][1]*(v)->e[1] + (m)->m[1].e[1][2]*(v)->e[2] + (m)->m[3].e[1][0]*(v)->e[0] + (m)->m[3].e[1][1]*(v)->e[1] + (m)->m[3].e[1][2]*(v)->e[2],\
+  (m)->m[1].e[2][0]*(v)->e[0] + (m)->m[1].e[2][1]*(v)->e[1] + (m)->m[1].e[2][2]*(v)->e[2] + (m)->m[3].e[2][0]*(v)->e[0] + (m)->m[3].e[2][1]*(v)->e[1] + (m)->m[3].e[2][2]*(v)->e[2])
 /* zMulMat6DVec6D
  * - multiply a 6x1 vector by a 6x6 matrix from the left side.
  */
 zVec6D *zMulMat6DVec6D(zMat6D *m, zVec6D *vin, zVec6D *vout)
 {
-  zVec3D v1, v2;
-
-  zMulMatVec3D( &m->m[0], zVec6DLin(vin), &v1 );
-  zMulMatVec3D( &m->m[1], zVec6DAng(vin), &v2 );
-  zVec3DAdd( &v1, &v2, zVec6DLin(vout) );
-  zMulMatVec3D( &m->m[2], zVec6DLin(vin), &v1 );
-  zMulMatVec3D( &m->m[3], zVec6DAng(vin), &v2 );
-  zVec3DAdd( &v1, &v2, zVec6DAng(vout) );
+  __zMulMat6DVec6D(m, vin, vout);
+  /* zVec3D v1, v2; */
+  /* zMulMatVec3D( &m->m[0], zVec6DLin(vin), &v1 ); */
+  /* zMulMatVec3D( &m->m[1], zVec6DAng(vin), &v2 ); */
+  /* zVec3DAdd( &v1, &v2, zVec6DLin(vout) ); */
+  /* zMulMatVec3D( &m->m[2], zVec6DLin(vin), &v1 ); */
+  /* zMulMatVec3D( &m->m[3], zVec6DAng(vin), &v2 ); */
+  /* zVec3DAdd( &v1, &v2, zVec6DAng(vout) ); */
   return vout;
 }
 
@@ -73,14 +138,14 @@ zVec6D *zMulMat6DVec6D(zMat6D *m, zVec6D *vin, zVec6D *vout)
  */
 zVec6D *zMulMat6DTVec6D(zMat6D *m, zVec6D *vin, zVec6D *vout)
 {
-  zVec3D v1, v2;
-
-  zMulMatTVec3D( &m->m[0], zVec6DLin(vin), &v1 );
-  zMulMatTVec3D( &m->m[2], zVec6DAng(vin), &v2 );
-  zVec3DAdd( &v1, &v2, zVec6DLin(vout) );
-  zMulMatTVec3D( &m->m[1], zVec6DLin(vin), &v1 );
-  zMulMatTVec3D( &m->m[3], zVec6DAng(vin), &v2 );
-  zVec3DAdd( &v1, &v2, zVec6DAng(vout) );
+  __zMulMat6DTVec6D(m, vin, vout);
+  /* zVec3D v1, v2; */
+  /* zMulMatTVec3D( &m->m[0], zVec6DLin(vin), &v1 ); */
+  /* zMulMatTVec3D( &m->m[2], zVec6DAng(vin), &v2 ); */
+  /* zVec3DAdd( &v1, &v2, zVec6DLin(vout) ); */
+  /* zMulMatTVec3D( &m->m[1], zVec6DLin(vin), &v1 ); */
+  /* zMulMatTVec3D( &m->m[3], zVec6DAng(vin), &v2 ); */
+  /* zVec3DAdd( &v1, &v2, zVec6DAng(vout) ); */
   return vout;
 }
 
@@ -89,10 +154,50 @@ zVec6D *zMulMat6DTVec6D(zMat6D *m, zVec6D *vin, zVec6D *vout)
  */
 zMat6D *zMat6DAdd(zMat6D *m1, zMat6D *m2, zMat6D *mout)
 {
-  zMat3DAdd( &m1->m[0], &m2->m[0], &mout->m[0] );
-  zMat3DAdd( &m1->m[1], &m2->m[1], &mout->m[1] );
-  zMat3DAdd( &m1->m[2], &m2->m[2], &mout->m[2] );
-  zMat3DAdd( &m1->m[3], &m2->m[3], &mout->m[3] );
+  mout->m[0].e[0][0] = m1->m[0].e[0][0] + m2->m[0].e[0][0];
+  mout->m[0].e[1][0] = m1->m[0].e[1][0] + m2->m[0].e[1][0];
+  mout->m[0].e[2][0] = m1->m[0].e[2][0] + m2->m[0].e[2][0];
+  mout->m[0].e[0][1] = m1->m[0].e[0][1] + m2->m[0].e[0][1];
+  mout->m[0].e[1][1] = m1->m[0].e[1][1] + m2->m[0].e[1][1];
+  mout->m[0].e[2][1] = m1->m[0].e[2][1] + m2->m[0].e[2][1];
+  mout->m[0].e[0][2] = m1->m[0].e[0][2] + m2->m[0].e[0][2];
+  mout->m[0].e[1][2] = m1->m[0].e[1][2] + m2->m[0].e[1][2];
+  mout->m[0].e[2][2] = m1->m[0].e[2][2] + m2->m[0].e[2][2];
+
+  mout->m[1].e[0][0] = m1->m[1].e[0][0] + m2->m[1].e[0][0];
+  mout->m[1].e[1][0] = m1->m[1].e[1][0] + m2->m[1].e[1][0];
+  mout->m[1].e[2][0] = m1->m[1].e[2][0] + m2->m[1].e[2][0];
+  mout->m[1].e[0][1] = m1->m[1].e[0][1] + m2->m[1].e[0][1];
+  mout->m[1].e[1][1] = m1->m[1].e[1][1] + m2->m[1].e[1][1];
+  mout->m[1].e[2][1] = m1->m[1].e[2][1] + m2->m[1].e[2][1];
+  mout->m[1].e[0][2] = m1->m[1].e[0][2] + m2->m[1].e[0][2];
+  mout->m[1].e[1][2] = m1->m[1].e[1][2] + m2->m[1].e[1][2];
+  mout->m[1].e[2][2] = m1->m[1].e[2][2] + m2->m[1].e[2][2];
+
+  mout->m[2].e[0][0] = m1->m[2].e[0][0] + m2->m[2].e[0][0];
+  mout->m[2].e[1][0] = m1->m[2].e[1][0] + m2->m[2].e[1][0];
+  mout->m[2].e[2][0] = m1->m[2].e[2][0] + m2->m[2].e[2][0];
+  mout->m[2].e[0][1] = m1->m[2].e[0][1] + m2->m[2].e[0][1];
+  mout->m[2].e[1][1] = m1->m[2].e[1][1] + m2->m[2].e[1][1];
+  mout->m[2].e[2][1] = m1->m[2].e[2][1] + m2->m[2].e[2][1];
+  mout->m[2].e[0][2] = m1->m[2].e[0][2] + m2->m[2].e[0][2];
+  mout->m[2].e[1][2] = m1->m[2].e[1][2] + m2->m[2].e[1][2];
+  mout->m[2].e[2][2] = m1->m[2].e[2][2] + m2->m[2].e[2][2];
+
+  mout->m[3].e[0][0] = m1->m[3].e[0][0] + m2->m[3].e[0][0];
+  mout->m[3].e[1][0] = m1->m[3].e[1][0] + m2->m[3].e[1][0];
+  mout->m[3].e[2][0] = m1->m[3].e[2][0] + m2->m[3].e[2][0];
+  mout->m[3].e[0][1] = m1->m[3].e[0][1] + m2->m[3].e[0][1];
+  mout->m[3].e[1][1] = m1->m[3].e[1][1] + m2->m[3].e[1][1];
+  mout->m[3].e[2][1] = m1->m[3].e[2][1] + m2->m[3].e[2][1];
+  mout->m[3].e[0][2] = m1->m[3].e[0][2] + m2->m[3].e[0][2];
+  mout->m[3].e[1][2] = m1->m[3].e[1][2] + m2->m[3].e[1][2];
+  mout->m[3].e[2][2] = m1->m[3].e[2][2] + m2->m[3].e[2][2];
+
+  /* zMat3DAdd( &m1->m[0], &m2->m[0], &mout->m[0] ); */
+  /* zMat3DAdd( &m1->m[1], &m2->m[1], &mout->m[1] ); */
+  /* zMat3DAdd( &m1->m[2], &m2->m[2], &mout->m[2] ); */
+  /* zMat3DAdd( &m1->m[3], &m2->m[3], &mout->m[3] ); */
   return mout;
 }
 

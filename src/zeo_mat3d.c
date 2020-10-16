@@ -37,17 +37,11 @@ zMat3D *zMat3DCreate(zMat3D *m,
  */
 zMat3D *zMat3DT(zMat3D *m, zMat3D *tm)
 {
-  double tmp;
-
-  if( tm == m ){
-    tmp = tm->e[1][0]; tm->e[1][0] = m->e[0][1]; m->e[0][1] = tmp;
-    tmp = tm->e[2][0]; tm->e[2][0] = m->e[0][2]; m->e[0][2] = tmp;
-    tmp = tm->e[2][1]; tm->e[2][1] = m->e[1][2]; m->e[1][2] = tmp;
-  } else{
-    tm->e[0][0] = m->e[0][0]; tm->e[1][0] = m->e[0][1]; tm->e[2][0] = m->e[0][2];
-    tm->e[0][1] = m->e[1][0]; tm->e[1][1] = m->e[1][1]; tm->e[2][1] = m->e[1][2];
-    tm->e[0][2] = m->e[2][0]; tm->e[1][2] = m->e[2][1]; tm->e[2][2] = m->e[2][2];
-  }
+	zMat3D tmp;
+  tmp.e[0][0] = m->e[0][0]; tmp.e[1][0] = m->e[0][1]; tmp.e[2][0] = m->e[0][2];
+  tmp.e[0][1] = m->e[1][0]; tmp.e[1][1] = m->e[1][1]; tmp.e[2][1] = m->e[1][2];
+  tmp.e[0][2] = m->e[2][0]; tmp.e[1][2] = m->e[2][1]; tmp.e[2][2] = m->e[2][2];
+	zMat3DCopy( &tmp, tm );
   return tm;
 }
 
@@ -681,18 +675,23 @@ zVec3D *zMat3DToAA(zMat3D *m, zVec3D *aa)
 {
   register int i;
   double l, a;
+	zVec3D evec[3];
+	double eval[3];
 
   aa->e[0] = m->e[1][2]-m->e[2][1];
   aa->e[1] = m->e[2][0]-m->e[0][2];
   aa->e[2] = m->e[0][1]-m->e[1][0];
   l = zVec3DNorm( aa );
   a = atan2( l, m->e[0][0]+m->e[1][1]+m->e[2][2]-1 );
-  if( zIsTiny( l ) )
-    for( i=0; i<3; i++ ){
-      zMat3DCol( m, i, aa );
-      aa->e[i] += 1.0;
-      if( !zVec3DIsTiny( aa ) ) break;
-    }
+	if( zIsTiny( l ) ){
+		zMat3DSymEig(m, eval, evec);
+		for( i=0; i<3; i++ ){
+			if( zIsTiny( eval[i] - 1.0 ) ){
+				zVec3DCopy(&evec[i], aa);
+				return zVec3DMulDRC( aa, a );
+			}
+		}
+	}
   return zVec3DMulDRC( aa, a / zVec3DNorm(aa) );
 }
 
