@@ -1,3 +1,4 @@
+2018. 7.17. Modified zeo_nurbs3d.c. (by Naoki Wakisaka)
 2018. 7. 9. Added NURBS surface class. [zeo_nurbs3d] (by Naoki Wakisaka)
 2018. 7. 9. Debugged zeo_bv_qhull.c. (by Naoki Wakisaka)
 2018. 7. 9. Accelerated zeo_prim_box.c. (by Naoki Wakisaka)

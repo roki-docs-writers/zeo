@@ -63,6 +63,16 @@ bool zVec3DEqual(zVec3D *v1, zVec3D *v2)
          zIsTiny( v1->e[zZ] - v2->e[zZ] );
 }
 
+/* zVec3DEqualTol
+ * - check if two 3D vectors are equal.
+ */
+bool zVec3DEqualTol(zVec3D *v1, zVec3D *v2, double tol)
+{
+  return zIsTol( v1->e[zX] - v2->e[zX], tol ) &&
+         zIsTol( v1->e[zY] - v2->e[zY], tol ) &&
+         zIsTol( v1->e[zZ] - v2->e[zZ], tol );
+}
+
 /* zVec3DIsTol
  * - check if a 3D vector is tiny enough.
  */

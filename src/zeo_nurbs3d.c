@@ -480,16 +480,19 @@ zVec3D* zIntersectLineNURBS3D(zNURBS3D *ns, zVec3D *v, zVec3D *dir, zVec3D *cv, 
 zVec3D* zIntersectLineNURBS3D_v2(zNURBS3D *ns, zVec3D *v, zVec3D *dir, zVec3D *cv, double *t1, double *t2, double tol)
 {
   register int i;
-  zVec3D vn, cvn, norm;
+  zVec3D vn, cvn, norm, pv;
 
   if( zIsTiny( zVec3DNormalize( dir, &norm ) ) ) return NULL;
   zVec3DCopy( v, cv );
+  zVec3DCopy( v, &pv );
   for( i=0; i<ZNURBS3D_ITER_MAX; i++ ){
     zNURBS3DVecOnXY( ns, zVec3DElem(cv,zX), zVec3DElem(cv,zY), &vn, t1, t2, tol );
-    if( zVec3DEqual( cv, &vn ) ) return cv;
+    if( zVec3DEqualTol( cv, &vn, tol ) ) return cv;
     /* cv <- cv + (dir^T(vn-cv))dir */
     zVec3DSub( &vn, cv, &cvn );
     zVec3DCatDRC( cv, zVec3DInnerProd( &norm, &cvn ), &norm );
+    if( zVec3DEqualTol( cv, &pv, tol ) ) return cv;
+    zVec3DCopy( cv, &pv );
   }
   return NULL;
 }

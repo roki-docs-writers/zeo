@@ -75,6 +75,7 @@ __EXPORT zVec3D *zVec3DCreatePolar(zVec3D *v, double r, double theta, double phi
  */
 __EXPORT bool zVec3DMatch(zVec3D *v1, zVec3D *v2);
 __EXPORT bool zVec3DEqual(zVec3D *v1, zVec3D *v2);
+__EXPORT bool zVec3DEqualTol(zVec3D *v1, zVec3D *v2, double tol);
 
 /*! \brief check if 3D vector is tiny.
  *
