@@ -25,9 +25,9 @@ const zVec3D zvec3Dz    = { { 0, 0, 1 } };
  */
 zVec3D *zVec3DCreate(zVec3D *v, double x, double y, double z)
 {
-  zVec3DSetElem( v, zX, x );
-  zVec3DSetElem( v, zY, y );
-  zVec3DSetElem( v, zZ, z );
+  v->e[zX] = x;
+  v->e[zY] = y;
+  v->e[zZ] = z;
   return v;
 }
 
@@ -48,9 +48,7 @@ zVec3D *zVec3DCreatePolar(zVec3D *v, double r, double theta, double phi)
  */
 bool zVec3DMatch(zVec3D *v1, zVec3D *v2)
 {
-  return zVec3DElem(v1,zX) == zVec3DElem(v2,zX) &&
-         zVec3DElem(v1,zY) == zVec3DElem(v2,zY) &&
-         zVec3DElem(v1,zZ) == zVec3DElem(v2,zZ);
+  return v1->e[zX] == v2->e[zX] && v1->e[zY] == v2->e[zY] && v1->e[zZ] == v2->e[zZ];
 }
 
 /* zVec3DEqual
@@ -68,9 +66,9 @@ bool zVec3DEqual(zVec3D *v1, zVec3D *v2)
  */
 bool zVec3DIsTol(zVec3D *v, double tol)
 {
-  return zIsTol( zVec3DElem(v,zX), tol ) &&
-         zIsTol( zVec3DElem(v,zY), tol ) &&
-         zIsTol( zVec3DElem(v,zZ), tol );
+  return zIsTol( v->e[zX], tol ) &&
+         zIsTol( v->e[zY], tol ) &&
+         zIsTol( v->e[zZ], tol );
 }
 
 /* zVec3DIsNan
@@ -78,9 +76,9 @@ bool zVec3DIsTol(zVec3D *v, double tol)
  */
 bool zVec3DIsNan(zVec3D *v)
 {
-  return zIsNan( zVec3DElem(v,zX) ) || zIsInf( zVec3DElem(v,zX) ) ||
-         zIsNan( zVec3DElem(v,zY) ) || zIsInf( zVec3DElem(v,zY) ) ||
-         zIsNan( zVec3DElem(v,zZ) ) || zIsInf( zVec3DElem(v,zZ) );
+  return zIsNan( v->e[zX] ) || zIsInf( v->e[zX] ) ||
+         zIsNan( v->e[zY] ) || zIsInf( v->e[zY] ) ||
+         zIsNan( v->e[zZ] ) || zIsInf( v->e[zZ] );
 }
 
 /* ********************************************************** */
@@ -93,9 +91,7 @@ bool zVec3DIsNan(zVec3D *v)
 zVec3D *zVec3DAdd(zVec3D *v1, zVec3D *v2, zVec3D *v)
 {
   return zVec3DCreate( v,
-    zVec3DElem(v1,zX) + zVec3DElem(v2,zX),
-    zVec3DElem(v1,zY) + zVec3DElem(v2,zY),
-    zVec3DElem(v1,zZ) + zVec3DElem(v2,zZ) );
+    v1->e[zX] + v2->e[zX], v1->e[zY] + v2->e[zY], v1->e[zZ] + v2->e[zZ] );
 }
 
 /* zVec3DSub
@@ -104,9 +100,7 @@ zVec3D *zVec3DAdd(zVec3D *v1, zVec3D *v2, zVec3D *v)
 zVec3D *zVec3DSub(zVec3D *v1, zVec3D *v2, zVec3D *v)
 {
   return zVec3DCreate( v,
-    zVec3DElem(v1,zX) - zVec3DElem(v2,zX),
-    zVec3DElem(v1,zY) - zVec3DElem(v2,zY),
-    zVec3DElem(v1,zZ) - zVec3DElem(v2,zZ) );
+    v1->e[zX] - v2->e[zX], v1->e[zY] - v2->e[zY], v1->e[zZ] - v2->e[zZ] );
 }
 
 /* zVec3DRev
@@ -114,8 +108,7 @@ zVec3D *zVec3DSub(zVec3D *v1, zVec3D *v2, zVec3D *v)
  */
 zVec3D *zVec3DRev(zVec3D *v, zVec3D *rv)
 {
-  return zVec3DCreate( rv,
-    -zVec3DElem(v,zX), -zVec3DElem(v,zY), -zVec3DElem(v,zZ) );
+  return zVec3DCreate( rv, -v->e[zX], -v->e[zY], -v->e[zZ] );
 }
 
 /* zVec3DMul
@@ -123,8 +116,7 @@ zVec3D *zVec3DRev(zVec3D *v, zVec3D *rv)
  */
 zVec3D *zVec3DMul(zVec3D *v, double k, zVec3D *mv)
 {
-  return zVec3DCreate( mv,
-    zVec3DElem(v,zX) * k, zVec3DElem(v,zY) * k, zVec3DElem(v,zZ) * k );
+  return zVec3DCreate( mv, v->e[zX]*k, v->e[zY]*k, v->e[zZ]*k );
 }
 
 /* zVec3DDiv
@@ -132,11 +124,9 @@ zVec3D *zVec3DMul(zVec3D *v, double k, zVec3D *mv)
  */
 zVec3D *zVec3DDiv(zVec3D *v, double k, zVec3D *dv)
 {
-  if( k == 0 ){
-    ZRUNWARN( ZEO_ERR_ZERODIV );
-    return NULL;
-  }
-  return zVec3DMul( v, 1.0/k, dv );
+  if( k != 0 ) return zVec3DMul( v, 1.0/k, dv );
+  ZRUNWARN( ZEO_ERR_ZERODIV );
+  return NULL;
 }
 
 /* zVec3DAmp
@@ -145,9 +135,7 @@ zVec3D *zVec3DDiv(zVec3D *v, double k, zVec3D *dv)
 zVec3D *zVec3DAmp(zVec3D *v, zVec3D *a, zVec3D *av)
 {
   return zVec3DCreate( av,
-    zVec3DElem(v,zX) * zVec3DElem(a,zX),
-    zVec3DElem(v,zY) * zVec3DElem(a,zY),
-    zVec3DElem(v,zZ) * zVec3DElem(a,zZ) );
+    v->e[zX] * a->e[zX], v->e[zY] * a->e[zY], v->e[zZ] * a->e[zZ] );
 }
 
 /* zVec3DCat
@@ -156,9 +144,7 @@ zVec3D *zVec3DAmp(zVec3D *v, zVec3D *a, zVec3D *av)
 zVec3D *zVec3DCat(zVec3D *v1, double k, zVec3D *v2, zVec3D *v)
 {
   return zVec3DCreate( v,
-    zVec3DElem(v1,zX) + zVec3DElem(v2,zX) * k,
-    zVec3DElem(v1,zY) + zVec3DElem(v2,zY) * k,
-    zVec3DElem(v1,zZ) + zVec3DElem(v2,zZ) * k );
+    v1->e[zX] + v2->e[zX]*k, v1->e[zY] + v2->e[zY]*k, v1->e[zZ] + v2->e[zZ]*k );
 }
 
 /* zVec3DSqrNorm
@@ -174,9 +160,7 @@ double zVec3DSqrNorm(zVec3D *v)
  */
 double zVec3DWSqrNorm(zVec3D *v, zVec3D *w)
 {
-  return zSqr(zVec3DElem(v,zX)) * zVec3DElem(w,zX)
-       + zSqr(zVec3DElem(v,zY)) * zVec3DElem(w,zY)
-       + zSqr(zVec3DElem(v,zZ)) * zVec3DElem(w,zZ);
+  return zSqr(v->e[zX]) * w->e[zX] + zSqr(v->e[zY]) * w->e[zY] + zSqr(v->e[zZ]) * w->e[zZ];
 }
 
 /* zVec3DSqrDist
@@ -196,8 +180,7 @@ double zVec3DNormalizeNC(zVec3D *v, zVec3D *nv)
 {
   double l;
 
-  l = zVec3DNorm(v);
-  zVec3DDiv( v, l, nv );
+  zVec3DDiv( v, ( l = zVec3DNorm(v) ), nv );
   return l;
 }
 
@@ -218,9 +201,7 @@ double zVec3DNormalize(zVec3D *v, zVec3D *nv)
  */
 double zVec3DInnerProd(zVec3D *v1, zVec3D *v2)
 {
-  return zVec3DElem(v1,zX) * zVec3DElem(v2,zX)
-       + zVec3DElem(v1,zY) * zVec3DElem(v2,zY)
-       + zVec3DElem(v1,zZ) * zVec3DElem(v2,zZ);
+  return v1->e[zX] * v2->e[zX] + v1->e[zY] * v2->e[zY] + v1->e[zZ] * v2->e[zZ];
 }
 
 /* zVec3DOuterProd
@@ -229,12 +210,9 @@ double zVec3DInnerProd(zVec3D *v1, zVec3D *v2)
 zVec3D *zVec3DOuterProd(zVec3D *v1, zVec3D *v2, zVec3D *v)
 {
   return zVec3DCreate( v,
-    zVec3DElem(v1,zY) * zVec3DElem(v2,zZ)
-      - zVec3DElem(v1,zZ) * zVec3DElem(v2,zY),
-    zVec3DElem(v1,zZ) * zVec3DElem(v2,zX)
-      - zVec3DElem(v1,zX) * zVec3DElem(v2,zZ),
-    zVec3DElem(v1,zX) * zVec3DElem(v2,zY)
-      - zVec3DElem(v1,zY) * zVec3DElem(v2,zX) );
+    v1->e[zY] * v2->e[zZ] - v1->e[zZ] * v2->e[zY],
+    v1->e[zZ] * v2->e[zX] - v1->e[zX] * v2->e[zZ],
+    v1->e[zX] * v2->e[zY] - v1->e[zY] * v2->e[zX] );
 }
 
 /* zVec3DOuterProdNorm
@@ -248,7 +226,7 @@ double zVec3DOuterProdNorm(zVec3D *v1, zVec3D *v2)
 }
 
 /* zVec3DGrassmannProd
- * - scalar triple product of 3 3D vectors.
+ * - scalar triple product of three 3D vectors.
  */
 double zVec3DGrassmannProd(zVec3D *v1, zVec3D *v2, zVec3D *v3)
 {
@@ -258,7 +236,7 @@ double zVec3DGrassmannProd(zVec3D *v1, zVec3D *v2, zVec3D *v3)
 }
 
 /* zVec3DTripleProd
- * - vector triple product of 3 3D vectors.
+ * - vector triple product of three 3D vectors.
  */
 zVec3D *zVec3DTripleProd(zVec3D *v1, zVec3D *v2, zVec3D *v3, zVec3D *v)
 {
@@ -330,10 +308,10 @@ zVec3D *zVec3DOrthogonalize(zVec3D *v, zVec3D *n, zVec3D *ov)
 bool zVec3DOrthoSpace(zVec3D *v, zVec3D *sv1, zVec3D *sv2)
 {
   zVec3DCopy( v, sv1 );
-  if( zVec3DElem(v,zY) != 0 || zVec3DElem(v,zZ) != 0 )
-    zVec3DElem( sv1, zX ) += 1.0;
+  if( v->e[zY] != 0 || v->e[zZ] != 0 )
+    sv1->e[zX] += 1.0;
   else
-    zVec3DElem( sv1, zY ) = 1.0;
+    sv1->e[zY] = 1.0;
   if( !zVec3DOrthogonalize( sv1, v, sv1 ) ) return false;
   zVec3DOuterProd( v, sv1, sv2 );
   return true;
@@ -379,8 +357,8 @@ zVec3D *zVec3DZYXVel2AngVel(zVec3D *zyxvel, zVec3D *zyx, zVec3D *angvel)
 {
   double sa, ca, sb, cb;
 
-  zSinCos( zVec3DElem(zyx,0), &sa, &ca );
-  zSinCos( zVec3DElem(zyx,1), &sb, &cb );
+  zSinCos( zyx->e[0], &sa, &ca );
+  zSinCos( zyx->e[1], &sb, &cb );
   return zVec3DZYXVel2AngVelSC( zyxvel, sa, ca, sb, cb, angvel );
 }
 
@@ -391,9 +369,9 @@ zVec3D *zVec3DZYXVel2AngVel(zVec3D *zyxvel, zVec3D *zyx, zVec3D *angvel)
 zVec3D *zVec3DZYXVel2AngVelSC(zVec3D *zyxvel, double sa, double ca, double sb, double cb, zVec3D *angvel)
 {
   return zVec3DCreate( angvel,
-   -sa*zVec3DElem(zyxvel,zY) + ca*cb*zVec3DElem(zyxvel,zZ),
-    ca*zVec3DElem(zyxvel,zY) + sa*cb*zVec3DElem(zyxvel,zZ),
-       zVec3DElem(zyxvel,zX) -    sb*zVec3DElem(zyxvel,zZ) );
+   -sa*zyxvel->e[zY] + ca*cb*zyxvel->e[zZ],
+    ca*zyxvel->e[zY] + sa*cb*zyxvel->e[zZ],
+       zyxvel->e[zX] -    sb*zyxvel->e[zZ] );
 }
 
 /* zVec3DAngVel2ZYXVel
@@ -403,8 +381,8 @@ zVec3D *zVec3DAngVel2ZYXVel(zVec3D *angvel, zVec3D *zyx, zVec3D *zyxvel)
 {
   double sa, ca, sb, cb;
 
-  zSinCos( zVec3DElem(zyx,0), &sa, &ca );
-  zSinCos( zVec3DElem(zyx,1), &sb, &cb );
+  zSinCos( zyx->e[0], &sa, &ca );
+  zSinCos( zyx->e[1], &sb, &cb );
   return zVec3DAngVel2ZYXVelSC( angvel, sa, ca, sb, cb, zyxvel );
 }
 
@@ -416,10 +394,9 @@ zVec3D *zVec3DAngVel2ZYXVelSC(zVec3D *angvel, double sa, double ca, double sb, d
 {
   /* at the singular point, 'zyxvel' remains the same value. */
   if( zIsTiny(cb) ) return zyxvel;
-  zVec3DSetElem( zyxvel, zZ,
-    ca/cb*zVec3DElem(angvel,zX)+sa/cb*zVec3DElem(angvel,zY) );
-  zVec3DSetElem( zyxvel, zX, zVec3DElem(zyxvel,zZ)*sb+zVec3DElem(angvel,zZ) );
-  zVec3DSetElem( zyxvel, zY, -sa*zVec3DElem(angvel,zX)+ca*zVec3DElem(angvel,zY) );
+  zyxvel->e[zZ] = ca/cb*angvel->e[zX]+sa/cb*angvel->e[zY];
+  zyxvel->e[zX] = sb*zyxvel->e[zZ]+angvel->e[zZ];
+  zyxvel->e[zY] =-sa*angvel->e[zX]+ca*angvel->e[zY];
   return zyxvel;
 }
 
@@ -430,8 +407,8 @@ zVec3D *zVec3DZYZVel2AngVel(zVec3D *zyzvel, zVec3D *zyz, zVec3D *angvel)
 {
   double sa, ca, sb, cb;
 
-  zSinCos( zVec3DElem(zyz,0), &sa, &ca );
-  zSinCos( zVec3DElem(zyz,1), &sb, &cb );
+  zSinCos( zyz->e[0], &sa, &ca );
+  zSinCos( zyz->e[1], &sb, &cb );
   return zVec3DZYZVel2AngVelSC( zyzvel, sa, ca, sb, cb, angvel );
 }
 
@@ -442,9 +419,9 @@ zVec3D *zVec3DZYZVel2AngVel(zVec3D *zyzvel, zVec3D *zyz, zVec3D *angvel)
 zVec3D *zVec3DZYZVel2AngVelSC(zVec3D *zyzvel, double sa, double ca, double sb, double cb, zVec3D *angvel)
 {
   return zVec3DCreate( angvel,
-   -sa*zVec3DElem(zyzvel,zY) + ca*sb*zVec3DElem(zyzvel,zZ),
-    ca*zVec3DElem(zyzvel,zY) + sa*sb*zVec3DElem(zyzvel,zZ),
-       zVec3DElem(zyzvel,zX) +    cb*zVec3DElem(zyzvel,zZ) );
+   -sa*zyzvel->e[zY] + ca*sb*zyzvel->e[zZ],
+    ca*zyzvel->e[zY] + sa*sb*zyzvel->e[zZ],
+       zyzvel->e[zX] +    cb*zyzvel->e[zZ] );
 }
 
 /* zVec3DAngVel2ZYZVel
@@ -454,8 +431,8 @@ zVec3D *zVec3DAngVel2ZYZVel(zVec3D *angvel, zVec3D *zyz, zVec3D *zyzvel)
 {
   double sa, ca, sb, cb;
 
-  zSinCos( zVec3DElem(zyz,0), &sa, &ca );
-  zSinCos( zVec3DElem(zyz,1), &sb, &cb );
+  zSinCos( zyz->e[0], &sa, &ca );
+  zSinCos( zyz->e[1], &sb, &cb );
   return zVec3DAngVel2ZYZVelSC( angvel, sa, ca, sb, cb, zyzvel );
 }
 
@@ -467,10 +444,9 @@ zVec3D *zVec3DAngVel2ZYZVelSC(zVec3D *angvel, double sa, double ca, double sb, d
 {
   /* at the singular point, 'zyzvel' remains the same value. */
   if( zIsTiny(sb) ) return zyzvel;
-  zVec3DSetElem( zyzvel, zZ,
-    ca/sb*zVec3DElem(angvel,zX)+sa/sb*zVec3DElem(angvel,zY) );
-  zVec3DSetElem( zyzvel, zX, -zVec3DElem(zyzvel,zZ)*cb+zVec3DElem(angvel,zZ) );
-  zVec3DSetElem( zyzvel, zY, -sa*zVec3DElem(angvel,zX)+ca*zVec3DElem(angvel,zY) );
+  zyzvel->e[zZ] = ca/sb*angvel->e[zX]+sa/sb*angvel->e[zY];
+  zyzvel->e[zX] =-cb*zyzvel->e[zZ]+angvel->e[zZ];
+  zyzvel->e[zY] =-sa*angvel->e[zX]+ca*angvel->e[zY];
   return zyzvel;
 }
 
@@ -479,36 +455,48 @@ zVec3D *zVec3DAngVel2ZYZVelSC(zVec3D *angvel, double sa, double ca, double sb, d
  * ********************************************************** */
 
 /* zVec3DFRead
- * - input of 3D vector from file.
+ * - input a 3D vector from file.
  */
 zVec3D *zVec3DFRead(FILE *fp, zVec3D *v)
 {
-  zVec3DSetElem( v, zX, zFDouble( fp ) );
-  zVec3DSetElem( v, zY, zFDouble( fp ) );
-  zVec3DSetElem( v, zZ, zFDouble( fp ) );
+  v->e[zX] = zFDouble( fp );
+  v->e[zY] = zFDouble( fp );
+  v->e[zZ] = zFDouble( fp );
+  return v;
+}
+
+/* zVec3DDataFWrite
+ * - output a 3D vector to file.
+ */
+zVec3D *zVec3DDataFWrite(FILE *fp, zVec3D *v)
+{
+  if( !v ) return NULL;
+  fprintf( fp, " %.10g %.10g %.10g", v->e[zX], v->e[zY], v->e[zZ] );
+  return v;
+}
+
+/* zVec3DDataNLFWrite
+ * - output a 3D vector to file with the new line.
+ */
+zVec3D *zVec3DDataNLFWrite(FILE *fp, zVec3D *v)
+{
+  if( !zVec3DDataFWrite( fp, v ) ) return NULL;
+  fprintf( fp, "\n" );
   return v;
 }
 
 /* zVec3DFWrite
  * - output of 3D vector to file.
  */
-void zVec3DFWrite(FILE *fp, zVec3D *v)
+zVec3D *zVec3DFWrite(FILE *fp, zVec3D *v)
 {
+  fprintf( fp, "(" );
   if( !v )
-    fprintf( fp, "(null 3D vector)\n" );
+    fprintf( fp, "null 3D vector" );
   else
-    fprintf( fp, "{ %.10g, %.10g, %.10g }\n",
-      zVec3DElem(v,zX), zVec3DElem(v,zY), zVec3DElem(v,zZ) );
-}
-
-/* zVec3DDataFWrite
- * - output of 3D vector data to file.
- */
-void zVec3DDataFWrite(FILE *fp, zVec3D *v)
-{
-  if( !v ) return;
-  fprintf( fp, "%.10g %.10g %.10g\n",
-    zVec3DElem(v,zX), zVec3DElem(v,zY), zVec3DElem(v,zZ) );
+    zVec3DDataFWrite( fp, v );
+  fprintf( fp, ")\n" );
+  return v;
 }
 
 /* METHOD:
@@ -517,6 +505,7 @@ void zVec3DDataFWrite(FILE *fp, zVec3D *v)
  */
 void zVec3DFWriteXML(FILE *fp, zVec3D *v)
 {
-  fprintf( fp, "\"%.10g %.10g %.10g\"",
-    zVec3DElem(v,zX), zVec3DElem(v,zY), zVec3DElem(v,zZ) );
+  fprintf( fp, "\"" );
+  zVec3DDataFWrite( fp, v );
+  fprintf( fp, "\"" );
 }

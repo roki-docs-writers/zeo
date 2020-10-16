@@ -49,8 +49,8 @@ zCyl3D *zCyl3DCopy(zCyl3D *src, zCyl3D *dest)
 zCyl3D *zCyl3DMirror(zCyl3D *src, zCyl3D *dest, zAxis axis)
 {
   zCyl3DCopy( src, dest );
-  zVec3DElem(zCyl3DCenter(dest,0),axis) *= -1;
-  zVec3DElem(zCyl3DCenter(dest,1),axis) *= -1;
+  zCyl3DCenter(dest,0)->e[axis] *= -1;
+  zCyl3DCenter(dest,1)->e[axis] *= -1;
   return dest;
 }
 
@@ -220,13 +220,10 @@ zPH3D *zCyl3DToPH(zCyl3D *cyl, zPH3D *ph)
   }
   zVec3DNormalizeDRC( &d );
   /* one radial vector */
-  if( !zIsTiny( zVec3DElem(&d,zX) ) && !zIsTiny( zVec3DElem(&d,zY) ) )
-    zVec3DCreate( &s, zVec3DElem(&d,zY),-zVec3DElem(&d,zX), 0 );
+  if( !zIsTiny( d.e[zX] ) && !zIsTiny( d.e[zY] ) )
+    zVec3DCreate( &s, d.e[zY],-d.e[zX], 0 );
   else
-    zVec3DCreate( &s,
-      zVec3DElem(&d,zY)-zVec3DElem(&d,zZ),
-      zVec3DElem(&d,zZ)-zVec3DElem(&d,zX),
-      zVec3DElem(&d,zX)-zVec3DElem(&d,zY) );
+    zVec3DCreate( &s, d.e[zY]-d.e[zZ], d.e[zZ]-d.e[zX], d.e[zX]-d.e[zY] );
   zVec3DNormalizeDRC( &s );
   zVec3DMulDRC( &s, zCyl3DRadius(cyl) );
   /* create vertices */

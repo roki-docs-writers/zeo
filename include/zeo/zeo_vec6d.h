@@ -21,19 +21,16 @@ typedef union {
   zVec3D v[2];
 } zVec6D;
 
-#define zVec6DArray(u)       ( (u)->e )
-#define zVec6DElem(u,i)      ( zVec6DArray(u)[i] )
+/* for backward compatibility */
+#define zVec6DElem(u,i)      ( (u)->e[i] )
 #define zVec6DSetElem(u,i,e) ( zVec6DElem(u,i) = (e) )
+
 #define zVec6DLin(u)         ( &(u)->v[0] )
 #define zVec6DAng(u)         ( &(u)->v[1] )
 #define zVec6DSetLin(u,l)    zVec3DCopy( l, zVec6DLin(u) )
 #define zVec6DSetAng(u,r)    zVec3DCopy( r, zVec6DAng(u) )
 
-/* OBJECT:
- * zvec6Dzero, zvec6Dlinx, zvec6Dliny, zvec6Dlinz
- * zvec6Dangx, zvec6Dangy, zvec6Dangz
- * - 6D zero vector and unit vectors along (x,y,z) axis.
- */
+/*! \brief 6D zero vector and unit vectors */
 extern const zVec6D zvec6Dzero;
 extern const zVec6D zvec6Dlinx;
 extern const zVec6D zvec6Dliny;
@@ -49,76 +46,56 @@ extern const zVec6D zvec6Dangz;
 #define ZVEC6DANGY ( (zVec6D *)&zvec6Dangy )
 #define ZVEC6DANGZ ( (zVec6D *)&zvec6Dangz )
 
-/* METHOD:
- * zVec6DCreate, zVec3DToVec6D,
- * zVec6DCopy, zVec6DClear
- * - creation, copy and cleanup of 6D vector.
+/*! \brief create, copy and cleanup a 6D vector.
  *
- * 'zVec6DCreate()' creates a 6D vector 'v' which consists
- * of 'x', 'y', 'z', 'xa', 'ya', and 'za'.
+ * zVec6DCreate() creates a 6D vector \a v which consists of \a x, \a y,
+ * \a z, \a xa, \a ya and \a za.
  *
- * 'zVec3DToVec6D()' creates a 6D vector 'v' from two 3D
- * vectors, 'vlin' and 'vang'.
+ * zVec3DToVec6D() creates a 6D vector \a v from two 3D vectors \a vlin
+ * and \a vang.
  *
- * 'zVec6DCopy()' copies 'src' to 'dest'.
+ * zVec6DCopy() copies a 6D vector \a src to the other \a dest.
  *
- * 'zVec6DClear()' clears 'v', or sets all factors for 0.
- * [RETURN VALUE]
- * 'zVec6DCreate()', zVec3DToVec6D and
- * 'zVec6DClear()' return a pointer to 'v'.
+ * zVec6DClear() sets all the components of a 6D vector \a v for zero.
+ * \return
+ * zVec6DCreate(), zVec3DToVec6D() and zVec6DClear() return a pointer \a v.
  *
- * 'zVec6DCopy()' returns no value.
- * [NOTES]
- * It is also possible to write simply *dest = *src instead of
- * 'zVec6DCopy()'. Actually, 'zVec6DCopy()' is defined
- * as macro(see "zeo_vec_vec6d.h").
- *
- * 'zVec6DClear()' is a macro for
- * zVec6DCreate( v, 0, 0, 0, 0, 0, 0 ).
+ * zVec6DCopy() returns a pointer \a dest.
  */
 __EXPORT zVec6D *zVec6DCreate(zVec6D *v, double x, double y, double z, double xa, double ya, double za);
 __EXPORT zVec6D *zVec3DToVec6D(zVec6D *v, zVec3D *v1, zVec3D *v2);
-#define zVec6DCopy(src,dest) ( *(dest) = *(src) )
-#define zVec6DClear(v)       zVec6DCreate( v, 0, 0, 0, 0, 0, 0 )
+#define zVec6DCopy(s,d) zCopy( zVec6D, s, d )
+#define zVec6DClear(v)  zVec6DCopy( ZVEC6DZERO, v )
 
-/* METHOD:
- * zVec6DMatch, zVec6DEqual
- * - check if the two 6D vectors are equal.
+/*! \brief check if the two 6D vectors are equal.
  *
- * 'zVec6DMatch()' and 'zVec6DEqual()' check if the two
- * 6D vectors, 'v1' and 'v2', are equal. They return
- * a boolean value as a result.
+ * zVec6DMatch() and zVec6DEqual() check if two 6D vectors \a v1 and \a v2
+ * are equal. They return a boolean value as a result.
  *
- * 'zVec6DMatch()' strictly compares the two vectors,
- * while 'zVec6DEqual()' checks if the error between
- * 'v1' and 'v2' are sufficiently small.
- * [RETURN VALUE]
- * 'zVec6DMatch()' and 'zVec6DEqual()' return the true
- * value if 'v1' and 'v2' are equal, or false otherwise.
- * [NOTES]
- * It is also possible to write just *v1 == *v2, instead
- * of calling 'zVec6DMatch( v1, v2 )'.
+ * zVec6DMatch() strictly compares two vectors \a v1 and \a v2 while
+ * zVec6DEqual() checks if the error between \a v1 and \a v2 are
+ * sufficiently small.
+ * \return
+ * zVec6DMatch() and zVec6DEqual() return the true value if \a v1 and \a v2
+ * are equal. Otherwise, the false value is returned.
  */
 __EXPORT bool zVec6DMatch(zVec6D *v1, zVec6D *v2);
 __EXPORT bool zVec6DEqual(zVec6D *v1, zVec6D *v2);
 
-/* METHOD:
- * zVec6DIsTol, zVec6DIsTiny
- * - check if 6D vector is tiny.
+/*! \brief check if a 6D vector is tiny.
  *
- * 'zVec6DIsTol()' checks if the absolute values of every
- * components of 6D vector 'v' are smaller than 'tol'.
+ * zVec6DIsTol() checks if the absolute values of every components of
+ * a 6D vector \a v are smaller than \a tol.
  *
- * 'zVec6DIsTiny()' applies zTOL (defined in "zeo_misc.h")
- * to the tolerance of 'zVec6DIsTol()'.
- * [RETURN VALUE]
- * 'zVec6DIsTol()' and 'zVec6DIsTiny()' return the
- * true value when the absolute values of every components
- * of 'v' are smaller than 'tol' and zTOL, respectively,
- * or the false value, otherwise.
- * [NOTES]
- * 'tol' must be positive.
- * [SEE ALSO]
+ * zVec6DIsTiny() applies zTOL (defined in "zeo_misc.h") to the tolerance
+ * of zVec6DIsTol().
+ * \return
+ * zVec6DIsTol() and zVec6DIsTiny() return the true value when the absolute
+ * values of every components of \a v are smaller than \a tol and zTOL,
+ * respectively. Otherwise, the false value is returned.
+ * \notes
+ * \a tol must be positive.
+ * \sa
  * zIsTol, zIsTiny
  */
 __EXPORT bool zVec6DIsTol(zVec6D *v, double tol);
@@ -128,48 +105,39 @@ __EXPORT bool zVec6DIsTol(zVec6D *v, double tol);
 /* arithmetics
  * ********************************************************** */
 
-/* METHOD:
- * zVec6DAdd, zVec6DSub, zVec6DRev, zVec6DMul,
- * zVec6DDiv, zVec6DCat,
- * zVec6DAddDRC, zVec6DSubDRC, zVec6DRevDRC,
- * zVec6DMulDRC, zVec6DDivDRC, zVec6DCatDRC
- * - four rules of the arithmetics for 6D vector.
+/*! \brief the four rules of the arithmetics for 6D vector.
  *
- * 'zVec6DAdd()' adds the two 6D vectors, 'v1' and 'v2'.
- * The result is put into 'v'.
+ * zVec6DAdd() adds two 6D vectors \a v1 and \a v2 and puts it into \a v.
  *
- * 'zVec6DSub()' subtracts the 6D vector 'v2' from
- * the other 'v1'. The result is put into 'v'.
+ * zVec6DSub() subtracts a 6D vector \a v2 from the other \a v1 and puts
+ * it into \a v.
  *
- * 'zVec6DRev()' reverses the 6D vector 'v'. The result is
- * put into 'rv'.
+ * zVec6DRev() reverses a 6D vector \a v and puts it into \a rv.
  *
- * 'zVec6DMul()' multiplies the 6D vector 'v' by value
- * 'k'. The result is put into 'mv'.
+ * zVec6DMul() multiplies a 6D vector \a v by a scalar value \a k and
+ * puts it into \a mv.
  *
- * 'zVec6DDiv()' divides the 6D vector 'v' by 'k'.
- * The result is put into 'dv'.
+ * zVec6DDiv() divides a 6D vector \a v by a scalar value \a k and puts
+ * it into \a dv.
  *
- * 'zVec6DCat()' concatenates the 6D vector 'v2' to 'v1',
- * multiplied by a scalar value 'k'. The result is put into 'v'.
+ * zVec6DCat() multiplies a 6D vector \a v2 by a scalar value \a k,
+ * concatenates it to the other \a v1 and puts it into \a v.
  *
- * 'zVec6DAddDRC()' directly adds 'v2' to 'v1'.
+ * zVec6DAddDRC() directly adds \a v2 to \a v1.
  *
- * 'zVec6DSubDRC()' directly subtracts 'v2' from 'v1'.
+ * zVec6DSubDRC() directly subtracts \a v2 from \a v1.
  *
- * 'zVec6DRevDRC()' directly reverses 'v'.
+ * zVec6DRevDRC() directly reverses \a v.
  *
- * 'zVec6DMulDRC()' directly multiplies 'v' by 'k'.
+ * zVec6DMulDRC() directly multiplies \a v by \a k.
  *
- * 'zVec6DDivDRC()' directly divides 'v' by 'k'.
+ * zVec6DDivDRC() directly divides \a v by \a k.
  *
- * 'zVec6DCat()' directly concatenates 'v2' multiplied 'v2'
- * by 'k' to 'v1'.
- * [RETURN VALUE]
- * Each function returns a pointer to the resultant vector.
+ * zVec6DCat() directly concatenates \a v2 multiplied \a v2 by \a k to \a v1.
+ * \return
+ * Each function returns a pointer to the result vector.
  *
- * And, 'zVec6DDiv()' and 'zVec6DDivDRC()' return the
- * NULL pointer if the given scalar value is 0.
+ * zVec6DDiv() and zVec6DDivDRC() return the null pointer if \a k is zero.
  */
 __EXPORT zVec6D *zVec6DAdd(zVec6D *v1, zVec6D *v2, zVec6D *v);
 __EXPORT zVec6D *zVec6DSub(zVec6D *v1, zVec6D *v2, zVec6D *v);
@@ -193,37 +161,32 @@ __EXPORT zVec6D *zVec6DCat(zVec6D *v1, double k, zVec6D *v2, zVec6D *v);
  */
 __EXPORT double zVec6DInnerProd(zVec6D *v1, zVec6D *v2);
 
-/* METHOD:
- * zVec6DLinShift, zVec6DLinShiftDRC,
- * zVec6DAngShift, zVec6DAngShiftDRC
- * - shift 6D vector in 3D space.
+/*! \brief shift a 6D vector in 3D space.
  *
- * 'zVec6DLinShift()' shifts the velocity type of 6D vector
- * 'src' at the original point to the equivalent 6D vector
- * 'dest' at the point 'pos', namely:
- *  v1 = v0 + w0 x 'pos'
+ * zVec6DLinShift() shifts the velocity type of a 6D vector \a src at
+ * the original point to the equivalent 6D vector \a dest at the point
+ * \a pos, namely:
+ *  v1 = v0 + w0 x \a pos
  *  w1 = w0
- * where 'src'=[v0 w0]^T and 'dest'=[v1 w1]^T.
+ * where \a src=[v0 w0]^T and \a dest=[v1 w1]^T.
  *
- * 'zVec6DLinShiftDRC()' directly shifts the velocity
- * type of 6D vector 'vec' at the original point to the
- * equivalent 6D vector at the point 'pos'.
+ * zVec6DLinShiftDRC() directly shifts the velocity type of a 6D vector
+ * \a vec at the original point to the equivalent 6D vector at the point
+ * \a pos.
  *
- * 'zVec6DAngShift()' shifts the force type of 6D vector
- * 'src' which works at 'pos' to the equivalent 6D vector
- * 'dest' which works at the original point, namely:
+ * zVec6DAngShift() shifts the force type of a 6D vector \a src which
+ * works at \a pos to the equivalent 6D vector \a dest which works at
+ * the original point, namely:
  *  f1 = f0
- *  n1 = n0 + 'pos' x f0
- * where 'src'=[f0 n0]^T and 'dest'=[f1 n1]^T.
+ *  n1 = n0 + \a pos x f0
+ * where \a src=[f0 n0]^T and \a dest=[f1 n1]^T.
  *
- * 'zVec6DAngShiftDRC()' directly shifts the force type of
- * 6D vector 'vec' which works at 'pos' to the equivalent 6D
- * vector which works at the original point.
- * [RETURN VALUE]
- * 'zVec6DLinShift()' and 'zVec6DAngShift()' return
- * pointers to 'dest'.
- * 'zVec6DLinShiftDRC()' and 'zVec6DAngShift()'
- * return pointers to 'vec'.
+ * zVec6DAngShiftDRC() directly shifts the force type of a 6D vector \a vec
+ * which works at \a pos to the equivalent 6D vector which works at the
+ * original point.
+ * \return
+ * zVec6DLinShift() and zVec6DAngShift() return a pointer \a dest.
+ * zVec6DLinShiftDRC() and zVec6DAngShift() return a pointer \a vec.
  */
 __EXPORT zVec6D *zVec6DLinShift(zVec6D *src, zVec3D *pos, zVec6D *dest);
 __EXPORT zVec6D *zVec6DLinShiftDRC(zVec6D *vec, zVec3D *pos);
@@ -240,45 +203,43 @@ __EXPORT zVec6D *zVec6DDif(zVec6D *v, zVec6D *vnew, double dt, zVec6D *vel);
 /* I/O
  * ********************************************************** */
 
-/* METHOD:
- * zVec6DFRead, zVec6DRead, zVec6DFWrite, zVec6DWrite,
- * zVec6DDataFWrite, zVec6DDataWrite
- * - input/output of 6D vector.
+/*! \brief input and output of a 6D vector.
  *
- * 'zVec6DFRead()' reads 6 values from the current position
- * of the file 'fp', and creates a 6D vector 'v' from them.
- * 'zVec6DRead()' simply reads 6 values from the standard
- * input.
+ * zVec6DFRead() reads six values from the current position of a file
+ * \a fp and creates a 6D vector \a v from them.
+ * zVec6DRead() reads six values from the standard input.
  *
- * 'zVec6DFWrite()' writes the 6D vector 'v' to the current
- * position of the file 'fp' in the following style.
+ * zVec6DFWrite() outputs a 6D vector \a v to the current position of
+ * a file \a fp in the following format:
  *  ( x, y, z, xa, ya, za )
- * When the NULL pointer is given, it writes the following string.
+ * When the null pointer is given, it outputs the following string.
  *  (null 6D vector)
- * 'zVec6DWrite()' simply writes 'v' to the standard out.
+ * zVec6DWrite() outputs \a v to the standard output.
  *
- * 'zVec6DDataFWrite()' writes the 6D vector 'v' to the current
- * position of the file 'fp' in the following style.
+ * zVec6DDataFWrite() outputs a 6D vector \a v to the current position
+ * of a file \a fp in the following format:
  *  x y z xa ya za
- * When the NULL pointer is given, it writes nothing.
- * 'zVec6DDataWrite()' simply writes 'v' to the standard out
- * in the same style with 'zVec6DDataFWrite()'.
- * [RETURN VALUE]
- * 'zVec6DFRead()' and 'zVec6DRead()' return a pointer to 'v'.
+ * When the null pointer is given, it outputs nothing.
+ * zVec6DDataWrite() outputs \a v to the standard output in the same
+ * format with zVec6DDataFWrite().
+ * \return
+ * zVec6DFRead() and zVec6DRead() return a pointer \a v.
  *
- * 'zVec6DFWrite()', 'zVec6DWrite()', 'zVec6DDataFWrite()'
- * and 'zVec6DDataWrite()' return no value.
+ * zVec6DFWrite(), zVec6DWrite(), zVec6DDataFWrite() and zVec6DDataWrite()
+ * return no value.
  */
 __EXPORT zVec6D *zVec6DFRead(FILE *fp, zVec6D *v);
 #define zVec6DRead(v) zVec6DFRead( stdin, (v) )
-__EXPORT void zVec6DFWrite(FILE *fp, zVec6D *v);
-#define zVec6DWrite(v) zVec6DFWrite( stdout, (v) )
-__EXPORT void zVec6DDataFWrite(FILE *fp, zVec6D *v);
+__EXPORT zVec6D *zVec6DDataFWrite(FILE *fp, zVec6D *v);
 #define zVec6DDataWrite(v) zVec6DDataFWrite( stdout, (v) )
+__EXPORT zVec6D *zVec6DDataNLFWrite(FILE *fp, zVec6D *v);
+#define zVec6DDataNLWrite(v) zVec6DDataNLFWrite( stdout, (v) )
+__EXPORT zVec6D *zVec6DFWrite(FILE *fp, zVec6D *v);
+#define zVec6DWrite(v) zVec6DFWrite( stdout, (v) )
 
 /* METHOD:
  * zVec6DFWriteXML - xml output.
- * ... yet testing.
+ * ... still testing.
  */
 __EXPORT void zVec6DFWriteXML(FILE *fp, zVec6D *v);
 

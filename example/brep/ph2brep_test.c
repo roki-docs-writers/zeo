@@ -43,8 +43,8 @@ void brep_output(zBREP *brep)
   zBREPEdgeListCell *cp;
 
   zListForEach( &brep->elist, cp ){
-    zVec3DDataWrite( &cp->data.v[0]->data.p );
-    zVec3DDataWrite( &cp->data.v[1]->data.p );
+    zVec3DDataNLWrite( &cp->data.v[0]->data.p );
+    zVec3DDataNLWrite( &cp->data.v[1]->data.p );
   }
 }
 

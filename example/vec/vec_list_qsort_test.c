@@ -24,12 +24,12 @@ int cmp(void *a, void *b, void *dummy)
 
   v1 = ((zVec3DListCell*)a)->data;
   v2 = ((zVec3DListCell*)b)->data;
-  if( zVec3DElem(v1,zX) > zVec3DElem(v2,zX) ) return 1;
-  if( zVec3DElem(v1,zX) < zVec3DElem(v2,zX) ) return -1;
-  if( zVec3DElem(v1,zY) > zVec3DElem(v2,zY) ) return 1;
-  if( zVec3DElem(v1,zY) < zVec3DElem(v2,zY) ) return -1;
-  if( zVec3DElem(v1,zZ) > zVec3DElem(v2,zZ) ) return 1;
-  if( zVec3DElem(v1,zZ) < zVec3DElem(v2,zZ) ) return -1;
+  if( v1->e[zX] > v2->e[zX] ) return 1;
+  if( v1->e[zX] < v2->e[zX] ) return -1;
+  if( v1->e[zY] > v2->e[zY] ) return 1;
+  if( v1->e[zY] < v2->e[zY] ) return -1;
+  if( v1->e[zZ] > v2->e[zZ] ) return 1;
+  if( v1->e[zZ] < v2->e[zZ] ) return -1;
   return 0;
 }
 

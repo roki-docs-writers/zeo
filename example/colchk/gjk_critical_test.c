@@ -49,20 +49,20 @@ void output(char filename[], zVec3D p1[], int n1, zVec3D p2[], int n2, zVec3D *c
   fprintf( fp, "name: p1\n" );
   fprintf( fp, "type: sphere\n" );
   fprintf( fp, "optic: yellow\n" );
-  fprintf( fp, "center: " ); zVec3DDataFWrite( fp, c1 );
+  fprintf( fp, "center: " ); zVec3DDataNLFWrite( fp, c1 );
   fprintf( fp, "radius: 0.01\n" );
   fprintf( fp, "[shape]\n" );
   fprintf( fp, "name: p2\n" );
   fprintf( fp, "type: sphere\n" );
   fprintf( fp, "optic: yellow\n" );
-  fprintf( fp, "center: " ); zVec3DDataFWrite( fp, c2 );
+  fprintf( fp, "center: " ); zVec3DDataNLFWrite( fp, c2 );
   fprintf( fp, "radius: 0.01\n" );
   fprintf( fp, "[shape]\n" );
   fprintf( fp, "name: rod\n" );
   fprintf( fp, "type: cylinder\n" );
   fprintf( fp, "optic: yellow\n" );
-  fprintf( fp, "center: " ); zVec3DDataFWrite( fp, c1 );
-  fprintf( fp, "center: " ); zVec3DDataFWrite( fp, c2 );
+  fprintf( fp, "center: " ); zVec3DDataNLFWrite( fp, c1 );
+  fprintf( fp, "center: " ); zVec3DDataNLFWrite( fp, c2 );
   fprintf( fp, "radius: 0.005\n" );
   /* convex set 1 */
   zCH3D( &ch, p1, n1 );

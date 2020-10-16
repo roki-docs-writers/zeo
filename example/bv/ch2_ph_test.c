@@ -15,14 +15,14 @@ int main(void)
   for( i=0; i<N; i++ ){
     r = zRandF(-0.1,0.1);
     zVec3DCreate( &v[i], r*0.75, zRandF(-0.1,0.1), r*0.25 );
-    zVec3DDataFWrite( fp, &v[i] );
+    zVec3DDataNLFWrite( fp, &v[i] );
   }
   fclose( fp );
   zCH2D2PH( &ch, v, N );
   fp = fopen( "ch", "w" );
   for( i=0; i<zPH3DVertNum(&ch); i++ )
-    zVec3DDataFWrite( fp, zPH3DVert(&ch,i) );
-  zVec3DDataFWrite( fp, zPH3DVert(&ch,0) );
+    zVec3DDataNLFWrite( fp, zPH3DVert(&ch,i) );
+  zVec3DDataNLFWrite( fp, zPH3DVert(&ch,0) );
   fclose( fp );
 
   /* for visualization */

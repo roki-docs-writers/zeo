@@ -17,7 +17,8 @@ int main(void)
     zAngVel2EPVel( &av1, &ep, &epvel );
     zEPVel2AngVel( &epvel, &ep, &av2 );
     zVec3DSub( &av1, &av2, &err );
-    printf( "%.10f %.10f %.10f %s\n", zVec3DElem(&err,0), zVec3DElem(&err,1), zVec3DElem(&err,2), zBoolExpr( zVec3DIsTiny( &err ) ) );
+    printf( "%.10f %.10f %.10f %s\n", err.e[zX], err.e[zY], err.e[zZ],
+      zBoolExpr( zVec3DIsTiny( &err ) ) );
   }
   return 0;
 }

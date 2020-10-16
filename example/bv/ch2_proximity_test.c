@@ -14,7 +14,7 @@ int main(void)
   fp = fopen( "src", "w" );
   for( i=0; i<N; i++ ){
     zVec3DCreatePolar( &v[i], zRandF(-10,10), 0.5*zPI, zRandF(-zPI,zPI) );
-    zVec3DDataFWrite( fp, &v[i] );
+    zVec3DDataNLFWrite( fp, &v[i] );
   }
   fclose( fp );
 
@@ -22,15 +22,15 @@ int main(void)
 
   fp = fopen( "dest", "w" );
   zListForEach( &ch, vc )
-    zVec3DDataFWrite( fp, vc->data );
-  zVec3DDataFWrite( fp, zListTail(&ch)->data );
+    zVec3DDataNLFWrite( fp, vc->data );
+  zVec3DDataNLFWrite( fp, zListTail(&ch)->data );
   fclose( fp );
 
   zVec3DCreate( &p, zRandF(-12,12), zRandF(-12,12), 0 );
   zCH2DClosest( &ch, &p, &cp );
   fp = fopen( "cp", "w" );
-  zVec3DDataFWrite( fp, &p );
-  zVec3DDataFWrite( fp, &cp );
+  zVec3DDataNLFWrite( fp, &p );
+  zVec3DDataNLFWrite( fp, &cp );
   fclose( fp );
 
   zVec3DListDestroy( &ch, false );

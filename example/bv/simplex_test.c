@@ -7,14 +7,14 @@ int zTetra(zVec3D p[], int n, zVec3D *v[])
   double d, d_max, d_min;
   register int i;
 
-  d_max = d_min = zVec3DElem(&p[0],zX);
+  d_max = d_min = p[0].e[zX];
   for( i=0; i<n; i++ ){
-    if( zVec3DElem(&p[i],zX) > d_max ){
-      d_max = zVec3DElem(&p[i],zX);
+    if( p[i].e[zX] > d_max ){
+      d_max = p[i].e[zX];
       v[0] = &p[i];
     }
-    if( zVec3DElem(&p[i],zX) < d_min ){
-      d_min = zVec3DElem(&p[i],zX);
+    if( p[i].e[zX] < d_min ){
+      d_min = p[i].e[zX];
       v[1] = &p[i];
     }
   }
@@ -60,18 +60,18 @@ void test_point(void)
   zRandInit();
   for( i=0; i<N; i++ ){
     zVec3DCreate( &p[i], zRandF(-1,1), zRandF(-1,1), zRandF(-1,1) );
-    zVec3DDataFWrite( fp, &p[i] );
+    zVec3DDataNLFWrite( fp, &p[i] );
   }
   fclose( fp );
 }
 
 void output_face(FILE *fp, zVec3D *v[], int i1, int i2, int i3)
 {
-  zVec3DDataFWrite( fp, v[i1] );
-  zVec3DDataFWrite( fp, v[i2] );
+  zVec3DDataNLFWrite( fp, v[i1] );
+  zVec3DDataNLFWrite( fp, v[i2] );
   fprintf( fp, "\n" );
-  zVec3DDataFWrite( fp, v[i3] );
-  zVec3DDataFWrite( fp, v[i3] );
+  zVec3DDataNLFWrite( fp, v[i3] );
+  zVec3DDataNLFWrite( fp, v[i3] );
   fprintf( fp, "\n\n" );
 }
 

@@ -19,12 +19,12 @@ int main(void)
   zMat3DToEP( &m2, &ep2 );
   for( i=0; i<=N; i++ ){
     t = (double)i / N;
-    zEPInnerDiv( &ep1, &ep2, t, &ep );
+    zEPInterDiv( &ep1, &ep2, t, &ep );
     zMat3DEP( &m, &ep );
     zMat3DToZYX( &m, &e );
-    printf( "%f %f %f ", zVec3DElem(&e1,zX), zVec3DElem(&e2,zX), zVec3DElem(&e,zX) );
-    printf( "%f %f %f ", zVec3DElem(&e1,zY), zVec3DElem(&e2,zY), zVec3DElem(&e,zY) );
-    printf( "%f %f %f\n", zVec3DElem(&e1,zZ), zVec3DElem(&e2,zZ), zVec3DElem(&e,zZ) );
+    printf( "%f %f %f ", e1.e[zX], e2.e[zX], e.e[zX] );
+    printf( "%f %f %f ", e1.e[zY], e2.e[zY], e.e[zY] );
+    printf( "%f %f %f\n", e1.e[zZ], e2.e[zZ], e.e[zZ] );
   }
   return 0;
 }

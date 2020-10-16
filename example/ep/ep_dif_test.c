@@ -23,7 +23,9 @@ int main(void)
     zEPVel2AngVel( &epvel, &ep0, &we );
     /* compare */
     zVec3DSub( &we, &w, &err );
-    printf( "%.16f %.16f %.16f %.16f %.16f %.16f %.16f %.16f %.16f\n", zVec3DElem(&w,0), zVec3DElem(&w,1), zVec3DElem(&w,2), zVec3DElem(&we,0), zVec3DElem(&we,1), zVec3DElem(&we,2), zVec3DElem(&err,0), zVec3DElem(&err,1), zVec3DElem(&err,2) );
+    printf( "%.16f %.16f %.16f %.16f %.16f %.16f %.16f %.16f %.16f\n",
+      w.e[0], w.e[1], w.e[2], we.e[0], we.e[1], we.e[2],
+      err.e[0], err.e[1], err.e[2] );
     /* update */
     zMat3DCopy( &m1, &m0 );
   }

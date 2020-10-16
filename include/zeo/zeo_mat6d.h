@@ -24,7 +24,7 @@ typedef struct{
 /*! \brief create a 6x6 matrix. */
 __EXPORT zMat6D *zMat6DCreate(zMat6D *m, zMat3D *m1, zMat3D *m2, zMat3D *m3, zMat3D *m4);
 /*! \brief copy a 6x6 matrix to another */
-#define zMat6DCopy(src,dest) ( *(dest) = *(src) )
+#define zMat6DCopy(s,d) zCopy( zMat6D, s, d )
 /*! \brief put a sub 3x3 matrix into a 6x6 matrix. */
 __EXPORT zMat6D *zMat6DPutMat3D(zMat6D *m6d, int i, int j, zMat3D *m3d);
 /*! \brief clear a 6x6 matrix to be zero. */

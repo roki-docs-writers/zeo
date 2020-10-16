@@ -9,7 +9,7 @@ void vec_create_rand(FILE *fp)
   zRandInit();
   for( i=0; i<N; i++ ){
     zVec3DCreate( &v[i], zRandF(-0.1,0.1), zRandF(-0.1,0.1), 0 );
-    zVec3DDataFWrite( fp, &v[i] );
+    zVec3DDataNLFWrite( fp, &v[i] );
   }
 }
 
@@ -18,7 +18,7 @@ void output(zPH3D *ph, FILE *fp)
   register int i;
 
   for( i=0; i<zPH3DVertNum(ph); i++ )
-    zVec3DDataFWrite( fp, zPH3DVert(ph,i) );
+    zVec3DDataNLFWrite( fp, zPH3DVert(ph,i) );
 
   /* for visualization */
   printf( "[optic]\n" );

@@ -20,11 +20,11 @@ zVec3D *_zTriangulateNorm(zVec3DList *vlist, zVec3D *norm)
   zVec3D e1, e2;
 
   /* find x-extreme */
-  x_min = zVec3DElem( ( st = zListTail(vlist) )->data,zX);
+  x_min = ( st = zListTail(vlist) )->data->e[zX];
   zListForEach( vlist, vp )
-    if( zVec3DElem(vp->data,zX) < x_min ){
+    if( vp->data->e[zX] < x_min ){
       st = vp;
-      x_min = zVec3DElem(vp->data,zX);
+      x_min = vp->data->e[zX];
     }
   /* compute normal vector */
   pre = st == zListTail(vlist) ? zListHead(vlist) : zListCellPrev(st);

@@ -17,7 +17,7 @@ int main(void)
   for( i=0; i<N; i++ ){
     zVec3DCreate( &p, zRandF(-0.2,0.2), zRandF(-0.2,0.2), zRandF(-0.2,0.2) );
     if( zECyl3DPointIsInside( &ecyl, &p, true ) )
-      zVec3DDataWrite( &p );
+      zVec3DDataNLWrite( &p );
   }
   return 0;
 }

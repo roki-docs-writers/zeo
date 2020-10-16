@@ -27,6 +27,14 @@ double *zMat2DCreate(zMat2D m, double a11, double a12, double a21, double a22)
   return m;
 }
 
+/* zMat2DCopy
+ * - copy a 2D matrix to the other.
+ */
+double *zMat2DCopy(zMat2D src, zMat2D dest)
+{
+  return (double *)memcpy( dest, src, sizeof(zMat2D) );
+}
+
 /* zMat2DT
  * - transpose a 2D matrix.
  */

@@ -24,8 +24,19 @@ const zVec2D zvec2Dy    = { 0, 1 };
  */
 double *zVec2DCreate(zVec2D v, double x, double y)
 {
-  v[0] = x; v[1] = y;
+  v[zX] = x;
+  v[zY] = y;
   return v;
+}
+
+/* zVec2DCopy
+ * - copy a 2D vector.
+ */
+double *zVec2DCopy(zVec2D src, zVec2D dest)
+{
+  dest[zX] = src[zX];
+  dest[zY] = src[zY];
+  return dest;
 }
 
 /* zVec2DCreatePolar
@@ -42,7 +53,7 @@ double *zVec2DCreatePolar(zVec2D v, double r, double theta)
  */
 bool zVec2DEqual(zVec2D v1, zVec2D v2)
 {
-  return v1[0] == v2[0] && v1[1] == v2[1];
+  return v1[zX] == v2[zX] && v1[zY] == v2[zY];
 }
 
 /* zVec2DIsTol
@@ -50,7 +61,7 @@ bool zVec2DEqual(zVec2D v1, zVec2D v2)
  */
 bool zVec2DIsTol(zVec2D v, double tol)
 {
-  return zIsTol( v[0], tol ) && zIsTol( v[1], tol );
+  return zIsTol( v[zX], tol ) && zIsTol( v[zY], tol );
 }
 
 /* ********************************************************** */
@@ -62,7 +73,7 @@ bool zVec2DIsTol(zVec2D v, double tol)
  */
 double *zVec2DAdd(zVec2D v1, zVec2D v2, zVec2D v)
 {
-  return zVec2DCreate( v, v1[0] + v2[0], v1[1] + v2[1] );
+  return zVec2DCreate( v, v1[zX] + v2[zX], v1[zY] + v2[zY] );
 }
 
 /* zVec2DSub
@@ -70,7 +81,7 @@ double *zVec2DAdd(zVec2D v1, zVec2D v2, zVec2D v)
  */
 double *zVec2DSub(zVec2D v1, zVec2D v2, zVec2D v)
 {
-  return zVec2DCreate( v, v1[0] - v2[0], v1[1] - v2[1] );
+  return zVec2DCreate( v, v1[zX] - v2[zX], v1[zY] - v2[zY] );
 }
 
 /* zVec2DRev
@@ -78,7 +89,7 @@ double *zVec2DSub(zVec2D v1, zVec2D v2, zVec2D v)
  */
 double *zVec2DRev(zVec2D v, zVec2D rv)
 {
-  return zVec2DCreate( rv, -v[0], -v[1] );
+  return zVec2DCreate( rv, -v[zX], -v[zY] );
 }
 
 /* zVec2DMul
@@ -86,7 +97,7 @@ double *zVec2DRev(zVec2D v, zVec2D rv)
  */
 double *zVec2DMul(zVec2D v, double k, zVec2D mv)
 {
-  return zVec2DCreate( mv, v[0]*k, v[1]*k );
+  return zVec2DCreate( mv, v[zX]*k, v[zY]*k );
 }
 
 /* zVec2DDiv
@@ -98,7 +109,7 @@ double *zVec2DDiv(zVec2D v, double k, zVec2D dv)
     ZRUNERROR( ZEO_ERR_ZERODIV );
     return NULL;
   }
-  return zVec2DCreate( dv, v[0]/k, v[1]/k );
+  return zVec2DCreate( dv, v[zX]/k, v[zY]/k );
 }
 
 /* zVec2DCat
@@ -106,7 +117,7 @@ double *zVec2DDiv(zVec2D v, double k, zVec2D dv)
  */
 double *zVec2DCat(zVec2D v1, double k, zVec2D v2, zVec2D v)
 {
-  return zVec2DCreate( v, v1[0]+v2[0]*k, v1[1]+v2[1]*k );
+  return zVec2DCreate( v, v1[zX]+v2[zX]*k, v1[zY]+v2[zY]*k );
 }
 
 /* zVec2DSqrNorm
@@ -144,7 +155,7 @@ double *zVec2DNormalize(zVec2D v, zVec2D nv)
  */
 double zVec2DInnerProd(zVec2D v1, zVec2D v2)
 {
-  return v1[0]*v2[0] + v1[1]*v2[1];
+  return v1[zX]*v2[zX] + v1[zY]*v2[zY];
 }
 
 /* zVec2DOuterProd
@@ -152,7 +163,7 @@ double zVec2DInnerProd(zVec2D v1, zVec2D v2)
  */
 double zVec2DOuterProd(zVec2D v1, zVec2D v2)
 {
-  return v1[0]*v2[1] - v1[1]*v2[0];
+  return v1[zX]*v2[zY] - v1[zY]*v2[zX];
 }
 
 /* ********************************************************** */
@@ -203,7 +214,7 @@ double *zVec2DRot(zVec2D v, double angle, zVec2D rv)
   double s, c;
 
   zSinCos( angle, &s, &c );
-  return zVec2DCreate( rv, c*v[0]-s*v[1], s*v[0]+c*v[1] );
+  return zVec2DCreate( rv, c*v[zX]-s*v[zY], s*v[zX]+c*v[zY] );
 }
 
 /* ********************************************************** */
@@ -211,31 +222,43 @@ double *zVec2DRot(zVec2D v, double angle, zVec2D rv)
  * ********************************************************** */
 
 /* zVec2DFRead
- * - input of 2D vector from file.
+ * - input a 2D vector from file.
  */
 double *zVec2DFRead(FILE *fp, zVec2D v)
 {
-  v[0] = zFDouble( fp );
-  v[1] = zFDouble( fp );
+  v[zX] = zFDouble( fp );
+  v[zY] = zFDouble( fp );
   return v;
 }
 
-/* zVec2DFWrite
- * - output of 2D vector to file.
- */
-void zVec2DFWrite(FILE *fp, zVec2D v)
-{
-  if( !v )
-    fprintf( fp, "(null 2D vector)\n" );
-  else
-    fprintf( fp, "{ %.10g, %.10g }\n", v[0], v[1] );
-}
-
 /* zVec2DDataFWrite
- * - output of 2D vector data to file.
+ * - output a 2D vector data to file.
  */
 void zVec2DDataFWrite(FILE *fp, zVec2D v)
 {
   if( !v ) return;
-  fprintf( fp, "%.10g %.10g\n", v[0], v[1] );
+  fprintf( fp, " %.10g %.10g", v[zX], v[zY] );
+}
+
+/* zVec2DDataNLFWrite
+ * - output a 2D vector data with the new line to file.
+ */
+void zVec2DDataNLFWrite(FILE *fp, zVec2D v)
+{
+  if( !v ) return;
+  zVec2DDataFWrite( fp, v );
+  fprintf( fp, "\n" );
+}
+
+/* zVec2DFWrite
+ * - output a 2D vector to file.
+ */
+void zVec2DFWrite(FILE *fp, zVec2D v)
+{
+  fprintf( fp, "(" );
+  if( !v )
+    fprintf( fp, "null 2D vector\n" );
+  else
+    fprintf( fp, " %.10g, %.10g ", v[zX], v[zY] );
+  fprintf( fp, ")\n" );
 }

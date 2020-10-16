@@ -66,7 +66,7 @@ zVecTree3D *_zVecTree3DCreateLeaf(zAxis split, zVec3D *v)
  */
 int _zVecTree3DChooseBranch(zVecTree3D *node, zVec3D *v)
 {
-  return zVec3DElem(v,node->split) >= zVec3DElem(&node->v,node->split) ? 0 : 1;
+  return v->e[node->split] >= node->v.e[node->split] ? 0 : 1;
 }
 
 /* (static)
@@ -86,9 +86,9 @@ zVecTree3D *_zVecTree3DAdd(zVecTree3D *node, zVec3D *v)
   zVec3DCopy( &node->vmin, &leaf->vmin );
   zVec3DCopy( &node->vmax, &leaf->vmax );
   if( b == 0 )
-    zVec3DElem(&leaf->vmin,node->split) = zVec3DElem(&node->v,node->split);
+    leaf->vmin.e[node->split] = node->v.e[node->split];
   else /* b == 1 */
-    zVec3DElem(&leaf->vmax,node->split) = zVec3DElem(&node->v,node->split);
+    leaf->vmax.e[node->split] = node->v.e[node->split];
   return leaf;
 }
 
@@ -129,11 +129,11 @@ bool _zVecTree3DIsOverlap(zVecTree3D *node, zVec3D *c, double r)
   double d, vd;
 
   for( d=0, i=zX; i<=zZ; i++ ){
-    vd = zVec3DElem(c,i);
-    if( vd < zVec3DElem(&node->vmin,i) )
-      d += zSqr( vd - zVec3DElem(&node->vmin,i) );
-    if( vd > zVec3DElem(&node->vmax,i) )
-      d += zSqr( vd - zVec3DElem(&node->vmax,i) );
+    vd = c->e[i];
+    if( vd < node->vmin.e[i] )
+      d += zSqr( vd - node->vmin.e[i] );
+    if( vd > node->vmax.e[i] )
+      d += zSqr( vd - node->vmax.e[i] );
   }
   return d <= r*r+zTOL ? true : false;
 }

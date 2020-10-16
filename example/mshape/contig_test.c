@@ -16,10 +16,10 @@ int main(int argc, char *argv[])
   for( i=0; i<N; i++ ){
     zVec3DCreate( &p, zRandF(-0.2,0.2), zRandF(-0.2,0.2), zRandF(-0.2,0.2) );
     cp = zMShape3DContigVert( &ms, &p, NULL );
-    zVec3DDataFWrite( fp1, &p );
-    zVec3DDataFWrite( fp1, cp );
+    zVec3DDataNLFWrite( fp1, &p );
+    zVec3DDataNLFWrite( fp1, cp );
     fprintf( fp1, "\n\n" );
-    zVec3DDataFWrite( fp2, cp );
+    zVec3DDataNLFWrite( fp2, cp );
   }
   fclose( fp1 );
   fclose( fp2 );

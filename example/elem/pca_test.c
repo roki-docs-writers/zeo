@@ -13,9 +13,9 @@ void test_vert(double x, double y, double z, double a, double b, double c, doubl
     zVec3DCreate( &vert[i],
       zRandF(-wx,wx), zRandF(-wy,wy), zRandF(-wz,wz) );
     zMulMatVec3DDRC( &ori, &vert[i] );
-    zVec3DElem(&vert[i],zX) += x;
-    zVec3DElem(&vert[i],zY) += y;
-    zVec3DElem(&vert[i],zZ) += z;
+    vert[i].e[zX] += x;
+    vert[i].e[zY] += y;
+    vert[i].e[zZ] += z;
   }
 }
 
@@ -28,29 +28,29 @@ void output_vert(void)
 
   fp = fopen( "a", "w" );
   for( i=0; i<N; i++ )
-    zVec3DDataFWrite( fp, &vert[i] );
+    zVec3DDataNLFWrite( fp, &vert[i] );
   fclose( fp );
 
   zVec3DPCA( vert, N, d );
   fp = fopen( "b", "w" );
-  zPlane3DCreate( &pl, Z_ZEROVEC3D, &d[0] );
+  zPlane3DCreate( &pl, ZVEC3DZERO, &d[0] );
   for( i=0; i<N; i++ ){
     zPlane3DProj( &pl, &vert[i], &v );
-    zVec3DDataFWrite( fp, &v );
+    zVec3DDataNLFWrite( fp, &v );
   }
   fclose( fp );
   fp = fopen( "c", "w" );
-  zPlane3DCreate( &pl, Z_ZEROVEC3D, &d[1] );
+  zPlane3DCreate( &pl, ZVEC3DZERO, &d[1] );
   for( i=0; i<N; i++ ){
     zPlane3DProj( &pl, &vert[i], &v );
-    zVec3DDataFWrite( fp, &v );
+    zVec3DDataNLFWrite( fp, &v );
   }
   fclose( fp );
   fp = fopen( "d", "w" );
-  zPlane3DCreate( &pl, Z_ZEROVEC3D, &d[2] );
+  zPlane3DCreate( &pl, ZVEC3DZERO, &d[2] );
   for( i=0; i<N; i++ ){
     zPlane3DProj( &pl, &vert[i], &v );
-    zVec3DDataFWrite( fp, &v );
+    zVec3DDataNLFWrite( fp, &v );
   }
   fclose( fp );
 
@@ -59,21 +59,21 @@ void output_vert(void)
   zPlane3DCreate( &pl, &c, &d[0] );
   for( i=0; i<N; i++ ){
     zPlane3DProj( &pl, &vert[i], &v );
-    zVec3DDataFWrite( fp, &v );
+    zVec3DDataNLFWrite( fp, &v );
   }
   fclose( fp );
   fp = fopen( "f", "w" );
   zPlane3DCreate( &pl, &c, &d[1] );
   for( i=0; i<N; i++ ){
     zPlane3DProj( &pl, &vert[i], &v );
-    zVec3DDataFWrite( fp, &v );
+    zVec3DDataNLFWrite( fp, &v );
   }
   fclose( fp );
   fp = fopen( "g", "w" );
   zPlane3DCreate( &pl, &c, &d[2] );
   for( i=0; i<N; i++ ){
     zPlane3DProj( &pl, &vert[i], &v );
-    zVec3DDataFWrite( fp, &v );
+    zVec3DDataNLFWrite( fp, &v );
   }
   fclose( fp );
 }

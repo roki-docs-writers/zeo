@@ -9,9 +9,9 @@ void vec_create_rand(zVec3DList *vl, int n, double x, double y, double z, double
   zListInit( vl );
   for( i=0; i<n; i++ ){
     zVec3DCreatePolar( &v, zRandF(0,r), zRandF(-zPI,zPI), zRandF(-0.5*zPI,0.5*zPI) );
-    zVec3DElem(&v,zX) += x;
-    zVec3DElem(&v,zY) += y;
-    zVec3DElem(&v,zZ) += z;
+    v.e[zX] += x;
+    v.e[zY] += y;
+    v.e[zZ] += z;
     zVec3DListInsert( vl, &v, true );
   }
 }
@@ -49,20 +49,20 @@ void output(char filename[], zVec3DList *pl1, zVec3DList *pl2, zVec3D *c1, zVec3
   fprintf( fp, "name: p1\n" );
   fprintf( fp, "type: sphere\n" );
   fprintf( fp, "optic: yellow\n" );
-  fprintf( fp, "center: " ); zVec3DDataFWrite( fp, c1 );
+  fprintf( fp, "center: " ); zVec3DDataNLFWrite( fp, c1 );
   fprintf( fp, "radius: 0.01\n" );
   fprintf( fp, "[shape]\n" );
   fprintf( fp, "name: p2\n" );
   fprintf( fp, "type: sphere\n" );
   fprintf( fp, "optic: yellow\n" );
-  fprintf( fp, "center: " ); zVec3DDataFWrite( fp, c2 );
+  fprintf( fp, "center: " ); zVec3DDataNLFWrite( fp, c2 );
   fprintf( fp, "radius: 0.01\n" );
   fprintf( fp, "[shape]\n" );
   fprintf( fp, "name: rod\n" );
   fprintf( fp, "type: cylinder\n" );
   fprintf( fp, "optic: yellow\n" );
-  fprintf( fp, "center: " ); zVec3DDataFWrite( fp, c1 );
-  fprintf( fp, "center: " ); zVec3DDataFWrite( fp, c2 );
+  fprintf( fp, "center: " ); zVec3DDataNLFWrite( fp, c1 );
+  fprintf( fp, "center: " ); zVec3DDataNLFWrite( fp, c2 );
   fprintf( fp, "radius: 0.005\n" );
   /* convex set 1 */
   zCH3DPL( &ch, pl1 );
@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
   z = argc > 3 ? atof(argv[3]) : zRandF(0.1,0.3);
   vec_create_rand( &a, N, 0, 0, 0, 0.2 );
   vec_create_rand( &b, N, x, y, z, 0.2 );
-  printf( "in collision? %s\n", zBoolExpr( zIsTiny( zGJKPL( &a, &b, &ca, &cb ) ) ) );
+  printf( "in collision? %s\n", zBoolExpr( zGJKPL( &a, &b, &ca, &cb ) ) );
   output( "a", &a, &b, &ca, &cb );
   zVec3DListDestroy( &a, true );
   zVec3DListDestroy( &b, true );

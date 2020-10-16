@@ -18,16 +18,16 @@ int _zIntersectPlaneAABox3DEdge(zPlane3D *p, zAxis axis, double w1min, double w1
   zAxis a2, a3;
   double w1;
 
-  if( zIsTiny( zVec3DElem(zPlane3DNorm(p),axis) ) ) return 0;
+  if( zIsTiny( zPlane3DNorm(p)->e[axis] ) ) return 0;
   a2 = ( axis + 1 ) % 3;
   a3 = ( axis + 2 ) % 3;
   w1 = ( zVec3DInnerProd(zPlane3DNorm(p),zPlane3DVert(p))
-       - zVec3DElem(zPlane3DNorm(p),a2)*w2
-       - zVec3DElem(zPlane3DNorm(p),a3)*w3 ) / zVec3DElem(zPlane3DNorm(p),axis);
+       - zPlane3DNorm(p)->e[a2]*w2
+       - zPlane3DNorm(p)->e[a3]*w3 ) / zPlane3DNorm(p)->e[axis];
   if( w1 > w1min && w1 < w1max ){
-    zVec3DElem(ip,axis) = w1;
-    zVec3DElem(ip,a2) = w2;
-    zVec3DElem(ip,a3) = w3;
+    ip->e[axis] = w1;
+    ip->e[a2] = w2;
+    ip->e[a3] = w3;
     return 1;
   }
   return 0;
@@ -42,12 +42,12 @@ bool zColChkPlaneAABox3D(zPlane3D *p, zAABox3D *box)
   double x1, y1, z1, x2, y2, z2;
   zVec3D ip;
 
-  x1 = zVec3DElem(&box->pmin,zX);
-  y1 = zVec3DElem(&box->pmin,zY);
-  z1 = zVec3DElem(&box->pmin,zZ);
-  x2 = zVec3DElem(&box->pmax,zX);
-  y2 = zVec3DElem(&box->pmax,zY);
-  z2 = zVec3DElem(&box->pmax,zZ);
+  x1 = box->pmin.e[zX];
+  y1 = box->pmin.e[zY];
+  z1 = box->pmin.e[zZ];
+  x2 = box->pmax.e[zX];
+  y2 = box->pmax.e[zY];
+  z2 = box->pmax.e[zZ];
   return _zIntersectPlaneAABox3DEdge( p, zX, x1, x2, y1, z1, &ip ) > 0 ||
          _zIntersectPlaneAABox3DEdge( p, zX, x1, x2, y2, z1, &ip ) > 0 ||
          _zIntersectPlaneAABox3DEdge( p, zX, x1, x2, y2, z2, &ip ) > 0 ||
@@ -72,12 +72,12 @@ int zIntersectPlaneAABox3D(zPlane3D *p, zAABox3D *box, zVec3D ip[])
   int n = 0;
   double x1, y1, z1, x2, y2, z2;
 
-  x1 = zVec3DElem(&box->pmin,zX);
-  y1 = zVec3DElem(&box->pmin,zY);
-  z1 = zVec3DElem(&box->pmin,zZ);
-  x2 = zVec3DElem(&box->pmax,zX);
-  y2 = zVec3DElem(&box->pmax,zY);
-  z2 = zVec3DElem(&box->pmax,zZ);
+  x1 = box->pmin.e[zX];
+  y1 = box->pmin.e[zY];
+  z1 = box->pmin.e[zZ];
+  x2 = box->pmax.e[zX];
+  y2 = box->pmax.e[zY];
+  z2 = box->pmax.e[zZ];
   n += _zIntersectPlaneAABox3DEdge( p, zX, x1, x2, y1, z1, &ip[n] );
   n += _zIntersectPlaneAABox3DEdge( p, zX, x1, x2, y2, z1, &ip[n] );
   n += _zIntersectPlaneAABox3DEdge( p, zX, x1, x2, y2, z2, &ip[n] );
@@ -111,19 +111,19 @@ bool _zColChkTriAABox3DEdgeAxOne(zVec3D *v1, zVec3D *v2, zAxis axis, zVec3D *p, 
   double d1, d2, s1, s2;
   int a1, a2;
 
-  d1 = zVec3DElem(v1,axis) - zVec3DElem(p,axis);
-  d2 = zVec3DElem(v2,axis) - zVec3DElem(p,axis);
+  d1 = v1->e[axis] - p->e[axis];
+  d2 = v2->e[axis] - p->e[axis];
   if( ( d1 > 0 && d2 > 0 ) || ( d1 < 0 && d2 < 0 ) ) return false;
   a1 = ( axis + 1 ) % 3;
-  s1 = zVec3DElem(v1,a1) - ( zVec3DElem(v2,a1) - zVec3DElem(v1,a1) ) * d1 / ( d2 - d1 );
+  s1 = v1->e[a1] - ( v2->e[a1] - v1->e[a1] ) * d1 / ( d2 - d1 );
   a2 = ( axis + 2 ) % 3;
-  s2 = zVec3DElem(v1,a2) - ( zVec3DElem(v2,a2) - zVec3DElem(v1,a2) ) * d1 / ( d2 - d1 );
-  if( s1 > zVec3DElem(&box->pmin,a1) && s1 < zVec3DElem(&box->pmax,a1) &&
-      s2 > zVec3DElem(&box->pmin,a2) && s2 < zVec3DElem(&box->pmax,a2) ){
+  s2 = v1->e[a2] - ( v2->e[a2] - v1->e[a2] ) * d1 / ( d2 - d1 );
+  if( s1 > box->pmin.e[a1] && s1 < box->pmax.e[a1] &&
+      s2 > box->pmin.e[a2] && s2 < box->pmax.e[a2] ){
     if( ip ){
-      zVec3DElem(ip,axis) = zVec3DElem(p,axis);
-      zVec3DElem(ip,a1) = s1;
-      zVec3DElem(ip,a2) = s2;
+      ip->e[axis] = p->e[axis];
+      ip->e[a1] = s1;
+      ip->e[a2] = s2;
     }
     return true;
   }
@@ -255,12 +255,12 @@ int zIntersectTriAABox3D(zTri3D *t, zAABox3D *box, zVec3D ip[])
  */
 bool zColChkAABox3D(zAABox3D *b1, zAABox3D *b2)
 {
-  return zVec3DElem(&b1->pmin,zX) < zVec3DElem(&b2->pmax,zX) &&
-         zVec3DElem(&b2->pmin,zX) < zVec3DElem(&b1->pmax,zX) &&
-         zVec3DElem(&b1->pmin,zY) < zVec3DElem(&b2->pmax,zY) &&
-         zVec3DElem(&b2->pmin,zY) < zVec3DElem(&b1->pmax,zY) &&
-         zVec3DElem(&b1->pmin,zZ) < zVec3DElem(&b2->pmax,zZ) &&
-         zVec3DElem(&b2->pmin,zZ) < zVec3DElem(&b1->pmax,zZ) ?
+  return b1->pmin.e[zX] < b2->pmax.e[zX] &&
+         b2->pmin.e[zX] < b1->pmax.e[zX] &&
+         b1->pmin.e[zY] < b2->pmax.e[zY] &&
+         b2->pmin.e[zY] < b1->pmax.e[zY] &&
+         b1->pmin.e[zZ] < b2->pmax.e[zZ] &&
+         b2->pmin.e[zZ] < b1->pmax.e[zZ] ?
     true : false;
 }
 
@@ -271,12 +271,12 @@ zAABox3D *zIntersectAABox3D(zAABox3D *dst, zAABox3D *src1, zAABox3D *src2)
 {
   if( !zColChkAABox3D( src1, src2 ) ) return NULL;
   return zAABox3DCreate( dst,
-    zMax( zVec3DElem(&src1->pmin,zX), zVec3DElem(&src2->pmin,zX) ),
-    zMax( zVec3DElem(&src1->pmin,zY), zVec3DElem(&src2->pmin,zY) ),
-    zMax( zVec3DElem(&src1->pmin,zZ), zVec3DElem(&src2->pmin,zZ) ),
-    zMin( zVec3DElem(&src1->pmax,zX), zVec3DElem(&src2->pmax,zX) ),
-    zMin( zVec3DElem(&src1->pmax,zY), zVec3DElem(&src2->pmax,zY) ),
-    zMin( zVec3DElem(&src1->pmax,zZ), zVec3DElem(&src2->pmax,zZ) ) );
+    zMax( src1->pmin.e[zX], src2->pmin.e[zX] ),
+    zMax( src1->pmin.e[zY], src2->pmin.e[zY] ),
+    zMax( src1->pmin.e[zZ], src2->pmin.e[zZ] ),
+    zMin( src1->pmax.e[zX], src2->pmax.e[zX] ),
+    zMin( src1->pmax.e[zY], src2->pmax.e[zY] ),
+    zMin( src1->pmax.e[zZ], src2->pmax.e[zZ] ) );
 }
 
 /* zIntersectPH3DBox

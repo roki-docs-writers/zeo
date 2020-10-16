@@ -25,10 +25,10 @@ int main(int argc, char *argv[])
   zBox3DToAABox3D( &box, &aabox );
 
   fp = fopen( "b", "w" );
-  zBox3DDataFWrite( fp, &box );
+  zBox3DDataNLFWrite( fp, &box );
   fclose( fp );
   fp = fopen( "a", "w" );
-  zAABox3DDataFWrite( fp, &aabox );
+  zAABox3DDataNLFWrite( fp, &aabox );
   fclose( fp );
   return 0;
 }

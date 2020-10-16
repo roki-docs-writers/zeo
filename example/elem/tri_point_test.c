@@ -5,8 +5,7 @@
 void write_arrow(FILE *fp, zVec3D *p1, zVec3D *p2)
 {
   fprintf( fp, "set arrow from %.10g, %.10g, %.10g to %.10g, %.10g, %.10g\n",
-    zVec3DElem(p1,zX), zVec3DElem(p1,zY), zVec3DElem(p1,zZ),
-    zVec3DElem(p2,zX), zVec3DElem(p2,zY), zVec3DElem(p2,zZ) );
+    p1->e[zX], p1->e[zY], p1->e[zZ], p2->e[zX], p2->e[zY], p2->e[zZ] );
 }
 
 int main(void)
@@ -22,18 +21,18 @@ int main(void)
   zVec3DCreate( &v3, zRandF(0,1), zRandF(0,1), 0 );
   zTri3DCreate( &t, &v1, &v2, &v3 );
   fp[0] = fopen( "t", "w" );
-  zVec3DDataFWrite( fp[0], &v1 );
-  zVec3DDataFWrite( fp[0], &v2 );
-  zVec3DDataFWrite( fp[0], &v3 );
-  zVec3DDataFWrite( fp[0], &v1 );
+  zVec3DDataNLFWrite( fp[0], &v1 );
+  zVec3DDataNLFWrite( fp[0], &v2 );
+  zVec3DDataNLFWrite( fp[0], &v3 );
+  zVec3DDataNLFWrite( fp[0], &v1 );
   fclose( fp[0] );
 
   fp[0] = fopen( "d", "w" );
   fp[1] = fopen( "a", "w" );
   for( i=0; i<N; i++ ){
     zVec3DCreate( &p,  zRandF(0,1), zRandF(0,1), 0 );
-    zVec3DElem(&p,zZ) = zTri3DClosest( &t, &p, &v );
-    zVec3DDataFWrite( fp[0], &p );
+    p.e[zZ] = zTri3DClosest( &t, &p, &v );
+    zVec3DDataNLFWrite( fp[0], &p );
     write_arrow( fp[1], &p, &v );
   }
   fclose( fp[0] );

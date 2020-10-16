@@ -686,7 +686,7 @@ void _zQHPointListWrite(zQHPointList *pl, char filename[])
 
   fp = fopen( filename, "w" );
   zListForEach( pl, pc )
-    zVec3DDataFWrite( fp, pc->data.v );
+    zVec3DDataNLFWrite( fp, pc->data.v );
   fclose( fp );
 }
 
@@ -697,11 +697,11 @@ void _zQHFacetListWrite(zQHFacetList *fl, char filename[])
 
   fp = fopen( filename, "w" );
   zListForEach( fl, fc ){
-    zVec3DDataFWrite( fp, fc->data.p[1]->v );
-    zVec3DDataFWrite( fp, fc->data.p[2]->v );
+    zVec3DDataNLFWrite( fp, fc->data.p[1]->v );
+    zVec3DDataNLFWrite( fp, fc->data.p[2]->v );
     fprintf( fp, "\n" );
-    zVec3DDataFWrite( fp, fc->data.p[0]->v );
-    zVec3DDataFWrite( fp, fc->data.p[0]->v );
+    zVec3DDataNLFWrite( fp, fc->data.p[0]->v );
+    zVec3DDataNLFWrite( fp, fc->data.p[0]->v );
     fprintf( fp, "\n\n" );
   }
   fclose(fp);
@@ -718,7 +718,7 @@ void _zQHWrite(zQH *qh)
   fp = fopen( "op", "w" );
   zListForEach( &qh->fl, fc )
     zListForEach( &fc->data.op, pc )
-      zVec3DDataFWrite( fp, pc->data.v );
+      zVec3DDataNLFWrite( fp, pc->data.v );
   fclose( fp );
 }
 
@@ -736,7 +736,7 @@ void _zQHWrite2(zQH *qh)
     sprintf( filename, "op%03d", i );
     fp = fopen( filename, "w" );
     zListForEach( &fc->data.op, pc )
-      zVec3DDataFWrite( fp, pc->data.v );
+      zVec3DDataNLFWrite( fp, pc->data.v );
     fclose( fp );
     i++;
   }

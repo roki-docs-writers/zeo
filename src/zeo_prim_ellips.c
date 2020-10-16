@@ -54,10 +54,10 @@ zEllips3D *zEllips3DCopy(zEllips3D *src, zEllips3D *dest)
 zEllips3D *zEllips3DMirror(zEllips3D *src, zEllips3D *dest, zAxis axis)
 {
   zEllips3DCopy( src, dest );
-  zVec3DElem(zEllips3DCenter(dest),axis) *= -1;
-  zVec3DElem(zEllips3DAxis(dest,0),axis) *= -1;
-  zVec3DElem(zEllips3DAxis(dest,1),axis) *= -1;
-  zVec3DElem(zEllips3DAxis(dest,2),axis) *= -1;
+  zEllips3DCenter(dest)->e[axis] *= -1;
+  zEllips3DAxis(dest,0)->e[axis] *= -1;
+  zEllips3DAxis(dest,1)->e[axis] *= -1;
+  zEllips3DAxis(dest,2)->e[axis] *= -1;
   return dest;
 }
 
@@ -104,9 +104,9 @@ zVec3D *_zEllips3DClosest(double rx, double ry, double rz, zVec3D *v, zVec3D *cp
   zComplex ans[6];
   int i;
 
-  a = zSqr( zVec3DElem(v,zX) / rx );
-  b = zSqr( zVec3DElem(v,zY) / ry );
-  c = zSqr( zVec3DElem(v,zZ) / rz );
+  a = zSqr( v->e[zX] / rx );
+  b = zSqr( v->e[zY] / ry );
+  c = zSqr( v->e[zZ] / rz );
   p = rx * rx; p2 = p * p;
   q = ry * ry; q2 = q * q;
   r = rz * rz; r2 = r * r; pqr = p * q * r;
@@ -130,8 +130,7 @@ zVec3D *_zEllips3DClosest(double rx, double ry, double rz, zVec3D *v, zVec3D *cp
     ZRUNERROR( ZEO_ERR_FATAL );
     return NULL;
   }
-  zVec3DCreate( cp,
-    zVec3DElem(v,zX)/(1+l/p), zVec3DElem(v,zY)/(1+l/q), zVec3DElem(v,zZ)/(1+l/r) );
+  zVec3DCreate( cp, v->e[zX]/(1+l/p), v->e[zY]/(1+l/q), v->e[zZ]/(1+l/r) );
   return cp;
 }
 
@@ -171,9 +170,9 @@ bool zEllips3DPointIsInside(zEllips3D *ellips, zVec3D *p, bool rim)
   double l;
 
   zXfer3DInv( &ellips->f, p, &_p );
-  l = zSqr(zVec3DElem(&_p,zX)/zEllips3DRadiusX(ellips))
-    + zSqr(zVec3DElem(&_p,zY)/zEllips3DRadiusY(ellips))
-    + zSqr(zVec3DElem(&_p,zZ)/zEllips3DRadiusZ(ellips));
+  l = zSqr(_p.e[zX]/zEllips3DRadiusX(ellips))
+    + zSqr(_p.e[zY]/zEllips3DRadiusY(ellips))
+    + zSqr(_p.e[zZ]/zEllips3DRadiusZ(ellips));
   if( rim ) l += zTOL;
   return l < 1.0 ? true : false;
 }
@@ -231,9 +230,9 @@ zPH3D* zEllips3DToPH(zEllips3D *ellips, zPH3D *ph)
     for( j=0; j<zEllips3DDiv(ellips); j++, n++ ){
       theta = zPIx2 * j / zEllips3DDiv(ellips);
       zVec3DCreatePolar( &tmp, 1.0, zPI * i / zEllips3DDiv(ellips), theta );
-      zVec3DElem(&tmp,zX) *= zEllips3DRadiusX(ellips);
-      zVec3DElem(&tmp,zY) *= zEllips3DRadiusY(ellips);
-      zVec3DElem(&tmp,zZ) *= zEllips3DRadiusZ(ellips);
+      tmp.e[zX] *= zEllips3DRadiusX(ellips);
+      tmp.e[zY] *= zEllips3DRadiusY(ellips);
+      tmp.e[zZ] *= zEllips3DRadiusZ(ellips);
       zXfer3D( &ellips->f, &tmp, &vert[n] );
     }
   /* south pole */

@@ -18,13 +18,13 @@ int main(void)
     zVec3DZYZVel2AngVel( &zyzvel, &zyz, &angvel );
     /* z-y-x Eulerian angle -> matrix */
     zVec3DAddDRC( &zyz, &zyzvel );
-    zMat3DZYZ( &m1, zVec3DElem(&zyz,zX), zVec3DElem(&zyz,zY), zVec3DElem(&zyz,zZ) );
+    zMat3DZYZ( &m1, zyz.e[zX], zyz.e[zY], zyz.e[zZ] );
     /* angular velocity vector -> matrix */
     zMat3DCopy( &m2, &tmp );
     zMat3DRot( &tmp, &angvel, &m2 );
     /* error */
     zMat3DError( &m1, &m2, &err );
-    zVec3DDataWrite( &err );
+    zVec3DDataNLWrite( &err );
   }
   return 0;
 }

@@ -81,8 +81,8 @@ int main(void)
   fp = fopen( "org", "w" );
   n = sizeof(v)/sizeof(v[0]);
   for( i=0; i<n; i++ )
-    zVec3DDataFWrite( fp, &v[i] );
-  zVec3DDataFWrite( fp, &v[0] );
+    zVec3DDataNLFWrite( fp, &v[i] );
+  zVec3DDataNLFWrite( fp, &v[0] );
   fclose( fp );
 
   /* triangulation */
@@ -90,11 +90,11 @@ int main(void)
   fp = fopen( "tri", "w" );
   zListForEach( &tlist, tp ){
     /* output for gnuplot visualization */
-    zVec3DDataFWrite( fp, zTri3DVert(tp->data,0) );
-    zVec3DDataFWrite( fp, zTri3DVert(tp->data,1) );
+    zVec3DDataNLFWrite( fp, zTri3DVert(tp->data,0) );
+    zVec3DDataNLFWrite( fp, zTri3DVert(tp->data,1) );
     fprintf( fp, "\n" );
-    zVec3DDataFWrite( fp, zTri3DVert(tp->data,2) );
-    zVec3DDataFWrite( fp, zTri3DVert(tp->data,2) );
+    zVec3DDataNLFWrite( fp, zTri3DVert(tp->data,2) );
+    zVec3DDataNLFWrite( fp, zTri3DVert(tp->data,2) );
     fprintf( fp, "\n\n" );
   }
   fclose( fp );

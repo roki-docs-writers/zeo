@@ -211,32 +211,43 @@ zVec6D *zVec6DFRead(FILE *fp, zVec6D *v)
   register int i;
 
   for( i=zX; i<=zZA; i++ )
-    zVec6DSetElem( v, i, zFDouble( fp ) );
+    v->e[i] = zFDouble( fp );
+  return v;
+}
+
+/* zVec6DDataFWrite
+ * - output of 6D vector data to file.
+ */
+zVec6D *zVec6DDataFWrite(FILE *fp, zVec6D *v)
+{
+  if( !v ) return NULL;
+  fprintf( fp, "%.10g %.10g %.10g %.10g %.10g %.10g\n",
+    v->e[zX], v->e[zY], v->e[zZ], v->e[zXA], v->e[zYA], v->e[zZA] );
+  return v;
+}
+
+/* zVec6DDataNLFWrite
+ * - output of 6D vector data with the new line to file.
+ */
+zVec6D *zVec6DDataNLFWrite(FILE *fp, zVec6D *v)
+{
+  if( !zVec6DDataFWrite( fp, v ) ) return NULL;
+  fprintf( fp, "\n" );
   return v;
 }
 
 /* zVec6DFWrite
  * - output of 6D vector to file.
  */
-void zVec6DFWrite(FILE *fp, zVec6D *v)
+zVec6D *zVec6DFWrite(FILE *fp, zVec6D *v)
 {
-  if( !v )
+  if( !v ){
     fprintf( fp, "(null 6D vector)\n" );
-  else{
-    zVec3DFWrite( fp, zVec6DLin(v) );
-    zVec3DFWrite( fp, zVec6DAng(v) );
+    return NULL;
   }
-}
-
-/* zVec6DDataFWrite
- * - output of 6D vector data to file.
- */
-void zVec6DDataFWrite(FILE *fp, zVec6D *v)
-{
-  if( !v ) return;
-  fprintf( fp, "%.10g %.10g %.10g %.10g %.10g %.10g\n",
-    zVec6DElem(v,zX), zVec3DElem(v,zY), zVec3DElem(v,zZ),
-    zVec6DElem(v,zXA), zVec6DElem(v,zYA), zVec6DElem(v,zZA) );
+  zVec3DFWrite( fp, zVec6DLin(v) );
+  zVec3DFWrite( fp, zVec6DAng(v) );
+  return v;
 }
 
 /* METHOD:
@@ -245,7 +256,7 @@ void zVec6DDataFWrite(FILE *fp, zVec6D *v)
  */
 void zVec6DFWriteXML(FILE *fp, zVec6D *v)
 {
-  fprintf( fp, "\"%.10g %.10g %.10g, %.10g %.10g %.10g\"",
-    zVec6DElem(v,zX), zVec6DElem(v,zY), zVec6DElem(v,zZ),
-    zVec6DElem(v,zXA), zVec6DElem(v,zYA), zVec6DElem(v,zZA) );
+  fprintf( fp, "\"" );
+  zVec6DDataFWrite( fp, v );
+  fprintf( fp, "\"" );
 }

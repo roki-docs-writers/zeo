@@ -67,9 +67,9 @@ void test_ph(zPH3D *a, zPH3D *b, int n)
 
   for( i=0; i<n; i++ ){
     zVec3DCreatePolar( &v[i], zRandF(-0.1,0.1), zRandF(-zPI,zPI), zRandF(-0.5*zPI,0.5*zPI) );
-    zVec3DElem(&v[i],zX) += 0.08;
-    zVec3DElem(&v[i],zY) += 0.08;
-    zVec3DElem(&v[i],zZ) += 0.08;
+    v[i].e[zX] += 0.08;
+    v[i].e[zY] += 0.08;
+    v[i].e[zZ] += 0.08;
   }
   zCH3D( b, v, n );
 }

@@ -225,24 +225,24 @@ void zMat6DFWrite(FILE *fp, zMat6D *m)
   else{
     fprintf( fp, "{\n" );
     fprintf( fp, " %.10g, %.10g, %.10g | %.10g, %.10g, %.10g\n", 
-      zMat3DElem(&m->m[0],0,0), zMat3DElem(&m->m[0],0,1), zMat3DElem(&m->m[0],0,2),
-      zMat3DElem(&m->m[1],0,0), zMat3DElem(&m->m[1],0,1), zMat3DElem(&m->m[1],0,2));
+      m->m[0].e[0][0], m->m[0].e[1][0], m->m[0].e[2][0],
+      m->m[1].e[0][0], m->m[1].e[1][0], m->m[1].e[2][0] );
     fprintf( fp, " %.10g, %.10g, %.10g | %.10g, %.10g, %.10g\n", 
-      zMat3DElem(&m->m[0],1,0), zMat3DElem(&m->m[0],1,1), zMat3DElem(&m->m[0],1,2),
-      zMat3DElem(&m->m[1],1,0), zMat3DElem(&m->m[1],1,1), zMat3DElem(&m->m[1],1,2));
+      m->m[0].e[0][1], m->m[0].e[1][1], m->m[0].e[2][1],
+      m->m[1].e[0][1], m->m[1].e[1][1], m->m[1].e[2][1] );
     fprintf( fp, " %.10g, %.10g, %.10g | %.10g, %.10g, %.10g\n", 
-      zMat3DElem(&m->m[0],2,0), zMat3DElem(&m->m[0],2,1), zMat3DElem(&m->m[0],2,2),
-      zMat3DElem(&m->m[1],2,0), zMat3DElem(&m->m[1],2,1), zMat3DElem(&m->m[1],2,2));
+      m->m[0].e[0][2], m->m[0].e[1][2], m->m[0].e[2][2],
+      m->m[1].e[0][2], m->m[1].e[1][1], m->m[1].e[2][2] );
     fprintf( fp, "------------------------------------------\n" );
     fprintf( fp, " %.10g, %.10g, %.10g | %.10g, %.10g, %.10g\n", 
-      zMat3DElem(&m->m[2],0,0), zMat3DElem(&m->m[2],0,1), zMat3DElem(&m->m[2],0,2),
-      zMat3DElem(&m->m[3],0,0), zMat3DElem(&m->m[3],0,1), zMat3DElem(&m->m[3],0,2));
+      m->m[2].e[0][0], m->m[2].e[1][0], m->m[2].e[2][0],
+      m->m[3].e[0][0], m->m[3].e[1][0], m->m[3].e[2][0] );
     fprintf( fp, " %.10g, %.10g, %.10g | %.10g, %.10g, %.10g\n", 
-      zMat3DElem(&m->m[2],1,0), zMat3DElem(&m->m[2],1,1), zMat3DElem(&m->m[2],1,2),
-      zMat3DElem(&m->m[3],1,0), zMat3DElem(&m->m[3],1,1), zMat3DElem(&m->m[3],1,2));
+      m->m[2].e[0][1], m->m[2].e[1][1], m->m[2].e[2][1],
+      m->m[3].e[0][1], m->m[3].e[1][1], m->m[3].e[2][1] );
     fprintf( fp, " %.10g, %.10g, %.10g | %.10g, %.10g, %.10g\n", 
-      zMat3DElem(&m->m[2],2,0), zMat3DElem(&m->m[2],2,1), zMat3DElem(&m->m[2],2,2),
-      zMat3DElem(&m->m[3],2,0), zMat3DElem(&m->m[3],2,1), zMat3DElem(&m->m[3],2,2));
+      m->m[2].e[0][2], m->m[2].e[1][2], m->m[2].e[2][2],
+      m->m[3].e[0][2], m->m[3].e[1][1], m->m[3].e[2][2] );
     fprintf( fp, "}\n" );
   }
 }

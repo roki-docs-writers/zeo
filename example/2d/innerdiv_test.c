@@ -13,7 +13,7 @@ int main(void)
 
   for( i=0; i<=N; i++ ){
     zVec2DInnerDiv( v1, v2, (double)i/N, v );
-    zVec2DDataWrite( v );
+    zVec2DDataNLWrite( v );
   }
   return 0;
 }

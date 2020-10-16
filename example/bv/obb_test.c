@@ -42,14 +42,14 @@ int main(void)
 
   fp = fopen( "a", "w" );
   for( i=0; i<N; i++ )
-    zVec3DDataFWrite( fp, &vert[i] );
+    zVec3DDataNLFWrite( fp, &vert[i] );
   fclose( fp );
 
   fp = fopen( "b", "w" );
-  zVec3DDataFWrite( fp, zBox3DCenter(&obb) );
+  zVec3DDataNLFWrite( fp, zBox3DCenter(&obb) );
   for( i=0; i<8; i++ ){
     zBox3DVert( &obb, i, &p );
-    zVec3DDataFWrite( fp, &p );
+    zVec3DDataNLFWrite( fp, &p );
   }
   fclose( fp );
   return 0;

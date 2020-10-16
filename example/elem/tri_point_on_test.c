@@ -15,10 +15,10 @@ int main(void)
   zVec3DCreate( &v3, zRandF(0,1), zRandF(0,1), zRandF(0,1) );
   zTri3DCreate( &t, &v1, &v2, &v3 );
   fp[0] = fopen( "t", "w" );
-  zVec3DDataFWrite( fp[0], &v1 );
-  zVec3DDataFWrite( fp[0], &v2 );
-  zVec3DDataFWrite( fp[0], &v3 );
-  zVec3DDataFWrite( fp[0], &v1 );
+  zVec3DDataNLFWrite( fp[0], &v1 );
+  zVec3DDataNLFWrite( fp[0], &v2 );
+  zVec3DDataNLFWrite( fp[0], &v3 );
+  zVec3DDataNLFWrite( fp[0], &v1 );
   fclose( fp[0] );
 
   fp[0] = fopen( "s", "w" );
@@ -27,9 +27,9 @@ int main(void)
     zVec3DCreate( &p,  zRandF(0,1), zRandF(0,1), zRandF(0,1) );
     if( zRandI(0,9) == 0 )
       zTri3DProj( &t, &p, &p );
-    zVec3DDataFWrite( fp[0], &p );
+    zVec3DDataNLFWrite( fp[0], &p );
     if( zTri3DPointIsOn( &t, &p ) )
-      zVec3DDataFWrite( fp[1], &p );
+      zVec3DDataNLFWrite( fp[1], &p );
   }
   fclose( fp[0] );
   fclose( fp[1] );

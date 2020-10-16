@@ -23,15 +23,15 @@ int main(void)
 #endif
   for( i=0; i<=N; i++ ){
     t = (double)i / N;
-    zMat3DInnerDiv( &m1, &m2, t, &m );
+    zMat3DInterDiv( &m1, &m2, t, &m );
     zMat3DToAA( &m, &e );
-    zVec3DInnerDiv( &e1, &e2, t, &em );
-    printf( "%f %f %f %f ", zVec3DElem(&e1,zX), zVec3DElem(&e2,zX), zVec3DElem(&e,zX), zVec3DElem(&em,zX) );
-    printf( "%f %f %f %f ", zVec3DElem(&e1,zY), zVec3DElem(&e2,zY), zVec3DElem(&e,zY), zVec3DElem(&em,zY) );
-    printf( "%f %f %f %f\n", zVec3DElem(&e1,zZ), zVec3DElem(&e2,zZ), zVec3DElem(&e,zZ), zVec3DElem(&em,zZ) );
+    zVec3DInterDiv( &e1, &e2, t, &em );
+    printf( "%f %f %f %f ",  e1.e[zX], e2.e[zX], e.e[zX], em.e[zX] );
+    printf( "%f %f %f %f ",  e1.e[zY], e2.e[zY], e.e[zY], em.e[zY] );
+    printf( "%f %f %f %f\n", e1.e[zZ], e2.e[zZ], e.e[zZ], em.e[zZ] );
 #if 0
-    fprintf( fp[0], "0.1 3 " ); zVec3DDataFWrite(fp[0],&e);
-    fprintf( fp[1], "0.1 3 " ); zVec3DDataFWrite(fp[1],&em);
+    fprintf( fp[0], "0.1 3 " ); zVec3DDataNLFWrite(fp[0],&e);
+    fprintf( fp[1], "0.1 3 " ); zVec3DDataNLFWrite(fp[1],&em);
 #endif
   }
 #if 0

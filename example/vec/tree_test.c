@@ -1,55 +1,29 @@
 #include <zeo/zeo_vec3d.h>
 #include <sys/time.h>
 
-/* +++ nearest neighbor search: naive algorithm +++ */
-zVec3D *zVec3DListNN(zVec3DList *list, zVec3D *v, double *dmin)
-{
-  zVec3DListCell *cell;
-  double d;
-  zVec3D *nn = NULL;
-
-  *dmin = HUGE_VAL;
-  zListForEach( list, cell )
-    if( ( d = zVec3DSqrDist( cell->data, v ) ) < *dmin ){
-      *dmin = d;
-      nn = cell->data;
-    }
-  *dmin = sqrt( *dmin );
-  return nn;
-}
-
-void output_list(FILE *fp, zVec3DList *list)
-{
-  zVec3DListCell *cell;
-
-  zListForEach( list, cell )
-    zVec3DDataFWrite( fp, cell->data );
-}
-
-/* +++ kd-tree search +++ */
 void output_node(FILE *fp, zVecTree3D *node)
 {
   /* face 1 */
-  fprintf( fp, "%g %g %g\n",   zVec3DElem(&node->vmin,zX), zVec3DElem(&node->vmin,zY), zVec3DElem(&node->vmin,zZ) );
-  fprintf( fp, "%g %g %g\n",   zVec3DElem(&node->vmin,zX), zVec3DElem(&node->vmax,zY), zVec3DElem(&node->vmin,zZ) );
-  fprintf( fp, "%g %g %g\n",   zVec3DElem(&node->vmax,zX), zVec3DElem(&node->vmax,zY), zVec3DElem(&node->vmin,zZ) );
-  fprintf( fp, "%g %g %g\n",   zVec3DElem(&node->vmax,zX), zVec3DElem(&node->vmin,zY), zVec3DElem(&node->vmin,zZ) );
-  fprintf( fp, "%g %g %g\n\n", zVec3DElem(&node->vmin,zX), zVec3DElem(&node->vmin,zY), zVec3DElem(&node->vmin,zZ) );
+  fprintf( fp, "%g %g %g\n",   node->vmin.e[zX], node->vmin.e[zY], node->vmin.e[zZ] );
+  fprintf( fp, "%g %g %g\n",   node->vmin.e[zX], node->vmax.e[zY], node->vmin.e[zZ] );
+  fprintf( fp, "%g %g %g\n",   node->vmax.e[zX], node->vmax.e[zY], node->vmin.e[zZ] );
+  fprintf( fp, "%g %g %g\n",   node->vmax.e[zX], node->vmin.e[zY], node->vmin.e[zZ] );
+  fprintf( fp, "%g %g %g\n\n", node->vmin.e[zX], node->vmin.e[zY], node->vmin.e[zZ] );
   /* face 2 */
-  fprintf( fp, "%g %g %g\n",   zVec3DElem(&node->vmin,zX), zVec3DElem(&node->vmin,zY), zVec3DElem(&node->vmax,zZ) );
-  fprintf( fp, "%g %g %g\n",   zVec3DElem(&node->vmin,zX), zVec3DElem(&node->vmax,zY), zVec3DElem(&node->vmax,zZ) );
-  fprintf( fp, "%g %g %g\n",   zVec3DElem(&node->vmax,zX), zVec3DElem(&node->vmax,zY), zVec3DElem(&node->vmax,zZ) );
-  fprintf( fp, "%g %g %g\n",   zVec3DElem(&node->vmax,zX), zVec3DElem(&node->vmin,zY), zVec3DElem(&node->vmax,zZ) );
-  fprintf( fp, "%g %g %g\n\n", zVec3DElem(&node->vmin,zX), zVec3DElem(&node->vmin,zY), zVec3DElem(&node->vmax,zZ) );
+  fprintf( fp, "%g %g %g\n",   node->vmin.e[zX], node->vmin.e[zY], node->vmax.e[zZ] );
+  fprintf( fp, "%g %g %g\n",   node->vmin.e[zX], node->vmax.e[zY], node->vmax.e[zZ] );
+  fprintf( fp, "%g %g %g\n",   node->vmax.e[zX], node->vmax.e[zY], node->vmax.e[zZ] );
+  fprintf( fp, "%g %g %g\n",   node->vmax.e[zX], node->vmin.e[zY], node->vmax.e[zZ] );
+  fprintf( fp, "%g %g %g\n\n", node->vmin.e[zX], node->vmin.e[zY], node->vmax.e[zZ] );
   /* pole x 4 */
-  fprintf( fp, "%g %g %g\n",   zVec3DElem(&node->vmin,zX), zVec3DElem(&node->vmin,zY), zVec3DElem(&node->vmin,zZ) );
-  fprintf( fp, "%g %g %g\n\n", zVec3DElem(&node->vmin,zX), zVec3DElem(&node->vmin,zY), zVec3DElem(&node->vmax,zZ) );
-  fprintf( fp, "%g %g %g\n",   zVec3DElem(&node->vmin,zX), zVec3DElem(&node->vmax,zY), zVec3DElem(&node->vmin,zZ) );
-  fprintf( fp, "%g %g %g\n\n", zVec3DElem(&node->vmin,zX), zVec3DElem(&node->vmax,zY), zVec3DElem(&node->vmax,zZ) );
-  fprintf( fp, "%g %g %g\n",   zVec3DElem(&node->vmax,zX), zVec3DElem(&node->vmax,zY), zVec3DElem(&node->vmin,zZ) );
-  fprintf( fp, "%g %g %g\n\n", zVec3DElem(&node->vmax,zX), zVec3DElem(&node->vmax,zY), zVec3DElem(&node->vmax,zZ) );
-  fprintf( fp, "%g %g %g\n",   zVec3DElem(&node->vmax,zX), zVec3DElem(&node->vmin,zY), zVec3DElem(&node->vmin,zZ) );
-  fprintf( fp, "%g %g %g\n\n", zVec3DElem(&node->vmax,zX), zVec3DElem(&node->vmin,zY), zVec3DElem(&node->vmax,zZ) );
+  fprintf( fp, "%g %g %g\n",   node->vmin.e[zX], node->vmin.e[zY], node->vmin.e[zZ] );
+  fprintf( fp, "%g %g %g\n\n", node->vmin.e[zX], node->vmin.e[zY], node->vmax.e[zZ] );
+  fprintf( fp, "%g %g %g\n",   node->vmin.e[zX], node->vmax.e[zY], node->vmin.e[zZ] );
+  fprintf( fp, "%g %g %g\n\n", node->vmin.e[zX], node->vmax.e[zY], node->vmax.e[zZ] );
+  fprintf( fp, "%g %g %g\n",   node->vmax.e[zX], node->vmax.e[zY], node->vmin.e[zZ] );
+  fprintf( fp, "%g %g %g\n\n", node->vmax.e[zX], node->vmax.e[zY], node->vmax.e[zZ] );
+  fprintf( fp, "%g %g %g\n",   node->vmax.e[zX], node->vmin.e[zY], node->vmin.e[zZ] );
+  fprintf( fp, "%g %g %g\n\n", node->vmax.e[zX], node->vmin.e[zY], node->vmax.e[zZ] );
 }
 
 void output(FILE *fp, zVecTree3D *tree)
@@ -60,7 +34,6 @@ void output(FILE *fp, zVecTree3D *tree)
   if( tree->s[1] )
     output( fp, tree->s[1] );
 }
-
 
 int deltatime(struct timeval *tv1, struct timeval *tv2)
 {
@@ -91,7 +64,7 @@ int main(int argc, char *argv[])
     zVec3DCreate( &v, zRandF(-10,10), zRandF(-10,10), zRandF(-10,10) );
     zVec3DListInsert( &list, &v, true );
     zVecTree3DAdd( &tree, &v );
-    zVec3DDataFWrite( fp, &v );
+    zVec3DDataNLFWrite( fp, &v );
   }
   fclose( fp );
 
@@ -103,7 +76,7 @@ int main(int argc, char *argv[])
 
   fp = fopen( "tst", "w" );
   node = zVecTree3DPart( &tree, &v );
-  zVec3DDataFWrite( fp, &v );
+  zVec3DDataNLFWrite( fp, &v );
   fprintf( fp, "\n" );
   output_node( fp, node );
   fclose( fp );
@@ -114,8 +87,8 @@ int main(int argc, char *argv[])
   eprintf( "kd-tree: %g - ", dmin1 ); zVec3DFWrite( stderr, &node->v );
   printf( "%d %d ", n, deltatime(&tv1,&tv2) );
   fp = fopen( "nn", "w" );
-  zVec3DDataFWrite( fp, &v );
-  zVec3DDataFWrite( fp, &node->v );
+  zVec3DDataNLFWrite( fp, &v );
+  zVec3DDataNLFWrite( fp, &node->v );
   fclose( fp );
   /* for comparison */
   gettimeofday( &tv1, NULL );
@@ -124,8 +97,8 @@ int main(int argc, char *argv[])
   eprintf( "naive  : %g - ", dmin2 ); zVec3DFWrite( stderr, nn );
   printf( "%d\n", deltatime(&tv1,&tv2) );
   fp = fopen( "nnn", "w" );
-  zVec3DDataFWrite( fp, &v );
-  zVec3DDataFWrite( fp, nn );
+  zVec3DDataNLFWrite( fp, &v );
+  zVec3DDataNLFWrite( fp, nn );
   fclose( fp );
 
   if( !zIsTiny( dmin1-dmin2 ) )

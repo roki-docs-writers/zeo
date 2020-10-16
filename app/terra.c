@@ -80,7 +80,7 @@ void terraOutputOpticOne(FILE *fp, char *hex, char *name)
   zOpticalInfo opt;
 
   zRGBDec( &rgb, hex );
-  zOpticalInfoCreateSimple( &opt, zRed(&rgb), zGreen(&rgb), zBlue(&rgb), name );
+  zOpticalInfoCreateSimple( &opt, rgb.r, rgb.g, rgb.b, name );
   zOpticalInfoSetAlpha( &opt, 0.8 );
   fprintf( fp, "[optic]\n" );
   zOpticalInfoFWrite( fp, &opt );

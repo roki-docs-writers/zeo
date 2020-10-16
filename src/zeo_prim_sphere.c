@@ -47,7 +47,7 @@ zSphere3D *zSphere3DCopy(zSphere3D *src, zSphere3D *dest)
 zSphere3D *zSphere3DMirror(zSphere3D *src, zSphere3D *dest, zAxis axis)
 {
   zSphere3DCopy( src, dest );
-  zVec3DElem(zSphere3DCenter(dest),axis) *= -1;
+  zSphere3DCenter(dest)->e[axis] *= -1;
   return dest;
 }
 
@@ -150,7 +150,7 @@ zPH3D *zSphere3DToPH(zSphere3D *sphere, zPH3D *ph)
   /* -- vertices -- */
   /* north pole */
   zVec3DCopy( zSphere3DCenter(sphere), &vert[0] );
-  zVec3DElem( &vert[0], zZ ) += zSphere3DRadius(sphere);
+  vert[0].e[zZ] += zSphere3DRadius(sphere);
   /* general vertices */
   for( n=1, i=1; i<zSphere3DDiv(sphere); i++ )
     for( j=0; j<zSphere3DDiv(sphere); j++, n++ ){
@@ -161,7 +161,7 @@ zPH3D *zSphere3DToPH(zSphere3D *sphere, zPH3D *ph)
     }
   /* south pole */
   zVec3DCopy( zSphere3DCenter(sphere), &vert[n] );
-  zVec3DElem( &vert[n], zZ ) -= zSphere3DRadius(sphere);
+  vert[n].e[zZ] -= zSphere3DRadius(sphere);
 
   /* -- faces -- */
   /* arctic faces */
@@ -182,6 +182,50 @@ zPH3D *zSphere3DToPH(zSphere3D *sphere, zPH3D *ph)
       &vert[i], &vert[zPH3DVertNum(ph)-1], &vert[j] );
 
   return ph;
+}
+
+/* zSphere3DFit
+ * - fit a sphere to point cloud.
+ */
+zSphere3D *zSphere3DFit(zSphere3D *s, zVec3DList *pc)
+{
+  zMat c;
+  zVec e, d;
+  zVec3DListCell *p;
+  int iter = 0;
+  register int i, j;
+
+  c = zMatAlloc( zListNum(pc), 4 );
+  e = zVecAlloc( zListNum(pc) );
+  d = zVecAlloc( 4 );
+  /* initial guess */
+  zVec3DBarycenterPL( pc, zSphere3DCenter(s) );
+  zSphere3DSetRadius( s, 0 );
+  zListForEach( pc, p )
+    zSphere3DRadius(s) += zVec3DDist( p->data, zSphere3DCenter(s) );
+  zSphere3DRadius(s) /= zListNum(pc);
+  /* iterative fitting */
+  ZITERINIT( iter );
+  for( i=0; i<iter; i++ ){
+    j = 0;
+    zListForEach( pc, p ){
+      zMatElem(c,j,0) = p->data->e[zX] - zSphere3DCenter(s)->e[zX];
+      zMatElem(c,j,1) = p->data->e[zY] - zSphere3DCenter(s)->e[zY];
+      zMatElem(c,j,2) = p->data->e[zZ] - zSphere3DCenter(s)->e[zZ];
+      zMatElem(c,j,3) = zSphere3DRadius(s);
+      zVecElem(e,j)   = zVec3DSqrDist(p->data,zSphere3DCenter(s)) - zSqr(zSphere3DRadius(s));
+      j++;
+    }
+    zLESolveErrorMin( c, e, NULL, d );
+    if( zVecIsTiny( d ) ) goto TERMINATE;
+    zVec3DCatDRC( zSphere3DCenter(s), 0.5, (zVec3D*)&zVecElem(d,0) );
+    zSphere3DRadius(s) += 0.5*zVecElem(d,3);
+  }
+  ZITERWARN( iter );
+
+ TERMINATE:
+  zMatFree( c );
+  return s;
 }
 
 /* (static)

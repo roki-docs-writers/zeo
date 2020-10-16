@@ -194,8 +194,8 @@ double *zFrame3DToArrayZYX(zFrame3D *f, double *array)
 
   zMat3DToZYX( zFrame3DAtt(f), &angle );
   for( i=0; i<3; i++ ){
-    array[i]   = zVec3DElem( zFrame3DPos(f), i );
-    array[i+3] = zVec3DElem( &angle, i );
+    array[i]   = zFrame3DPos(f)->e[i];
+    array[i+3] = angle.e[i];
   }
   return array;
 }
@@ -206,7 +206,7 @@ double *zFrame3DToArrayZYX(zFrame3D *f, double *array)
  */
 zFrame3D *zVec6DToFrame3DZYX(zVec6D *v, zFrame3D *f)
 {
-  return zArrayToFrame3DZYX( zVec6DArray(v), f );
+  return zArrayToFrame3DZYX( v->e, f );
 }
 
 /* zFrame3DZYXToVec6D
@@ -215,7 +215,7 @@ zFrame3D *zVec6DToFrame3DZYX(zVec6D *v, zFrame3D *f)
  */
 zVec6D *zFrame3DToVec6DZYX(zFrame3D *f, zVec6D *v)
 {
-  zFrame3DToArrayZYX( f, zVec6DArray(v) );
+  zFrame3DToArrayZYX( f, v->e );
   return v;
 }
 
@@ -239,8 +239,8 @@ double *zFrame3DToArrayZYZ(zFrame3D *f, double *array)
 
   zMat3DToZYZ( zFrame3DAtt(f), &angle );
   for( i=0; i<3; i++ ){
-    array[i]   = zVec3DElem( zFrame3DPos(f), i );
-    array[i+3] = zVec3DElem( &angle, i );
+    array[i]   = zFrame3DPos(f)->e[i];
+    array[i+3] = angle.e[i];
   }
   return array;
 }
@@ -251,7 +251,7 @@ double *zFrame3DToArrayZYZ(zFrame3D *f, double *array)
  */
 zFrame3D *zVec6DToFrame3DZYZ(zVec6D *v, zFrame3D *f)
 {
-  return zArrayToFrame3DZYZ( zVec6DArray(v), f );
+  return zArrayToFrame3DZYZ( v->e, f );
 }
 
 /* zFrame3DToVec6DZYZ
@@ -260,7 +260,7 @@ zFrame3D *zVec6DToFrame3DZYZ(zVec6D *v, zFrame3D *f)
  */
 zVec6D *zFrame3DToVec6DZYZ(zFrame3D *f, zVec6D *v)
 {
-  zFrame3DToArrayZYZ( f, zVec6DArray(v) );
+  zFrame3DToArrayZYZ( f, v->e );
   return v;
 }
 
@@ -284,8 +284,8 @@ double* zFrame3DToArrayAA(zFrame3D *f, double *array)
 
   zMat3DToAA( zFrame3DAtt(f), &aa );
   for( i=0; i<3; i++ ){
-    array[i  ] = zVec3DElem( zFrame3DPos(f), i );
-    array[i+3] = zVec3DElem( &aa, i );
+    array[i  ] = zFrame3DPos(f)->e[i];
+    array[i+3] = aa.e[i];
   }
   return array;
 }
@@ -295,7 +295,7 @@ double* zFrame3DToArrayAA(zFrame3D *f, double *array)
  */
 zFrame3D* zVec6DToFrame3DAA(zVec6D *v, zFrame3D *f)
 {
-  return zArrayToFrame3DAA( zVec6DArray(v), f );
+  return zArrayToFrame3DAA( v->e, f );
 }
 
 /* zFrame3DToVec6DAA
@@ -304,7 +304,7 @@ zFrame3D* zVec6DToFrame3DAA(zVec6D *v, zFrame3D *f)
  */
 zVec6D* zFrame3DToVec6DAA(zFrame3D *f, zVec6D *v)
 {
-  zFrame3DToArrayAA( f, zVec6DArray(v) );
+  zFrame3DToArrayAA( f, v->e );
   return v;
 }
 
@@ -317,8 +317,8 @@ zFrame3D *zFrame3DFRead(FILE *fp, zFrame3D *f)
 
   for( i=0; i<3; i++ ){
     for( j=0; j<3; j++ )
-      zMat3DSetElem( zFrame3DAtt(f), i, j, zFDouble(fp) );
-    zVec3DSetElem( zFrame3DPos(f), i, zFDouble(fp) );
+      zFrame3DAtt(f)->e[j][i] = zFDouble(fp);
+    zFrame3DPos(f)->e[i] = zFDouble(fp);
   }
   return f;
 }
@@ -351,10 +351,10 @@ void zFrame3DFWrite(FILE *fp, zFrame3D *f)
     fprintf( fp, "{\n" );
     for( i=0; i<3; i++ )
       fprintf( fp, " %.10g, %.10g, %.10g, %.10g\n",
-        zMat3DElem(zFrame3DAtt(f),i,0),
-        zMat3DElem(zFrame3DAtt(f),i,1),
-        zMat3DElem(zFrame3DAtt(f),i,2),
-        zVec3DElem(zFrame3DPos(f),i) );
+        zFrame3DAtt(f)->e[0][i],
+        zFrame3DAtt(f)->e[1][i],
+        zFrame3DAtt(f)->e[2][i],
+        zFrame3DPos(f)->e[i] );
     fprintf( fp, "}\n" );
   }
 }
@@ -369,9 +369,9 @@ void zFrame3DFWriteXML(FILE *fp, zFrame3D *f)
   fprintf( fp, "\"" );
   for( i=0; i<3; i++ )
     fprintf( fp, " %.10g %.10g %.10g %.10g\n",
-      zMat3DElem(zFrame3DAtt(f),i,0),
-      zMat3DElem(zFrame3DAtt(f),i,1),
-      zMat3DElem(zFrame3DAtt(f),i,2),
-      zVec3DElem(zFrame3DPos(f),i) );
+      zFrame3DAtt(f)->e[0][i],
+      zFrame3DAtt(f)->e[1][i],
+      zFrame3DAtt(f)->e[2][i],
+      zFrame3DPos(f)->e[i] );
   fprintf( fp, "\"" );
 }

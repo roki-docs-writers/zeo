@@ -88,23 +88,23 @@ zEP *zMat3DToEP(zMat3D *m, zEP *ep)
   double s;
   register int i, j, k, l;
 
-  if( !zIsTiny( ( s = zMat3DElem(m,0,0)+zMat3DElem(m,1,1)+zMat3DElem(m,2,2)+1 ) ) ){
+  if( !zIsTiny( ( s = m->e[0][0]+m->e[1][1]+m->e[2][2]+1 ) ) ){
     ep->ex.w = 0.5 * sqrt( s );
     s = 0.25 / ep->ex.w;
     zVec3DCreate( &ep->ex.v,
-      (zMat3DElem(m,2,1)-zMat3DElem(m,1,2)) * s,
-      (zMat3DElem(m,0,2)-zMat3DElem(m,2,0)) * s,
-      (zMat3DElem(m,1,0)-zMat3DElem(m,0,1)) * s );
+      ( m->e[1][2] - m->e[2][1] ) * s,
+      ( m->e[2][0] - m->e[0][2] ) * s,
+      ( m->e[0][1] - m->e[1][0] ) * s );
   } else{
     ep->ex.w = 0;
     for( i=0; i<3; i++ ){
       j = i == 2 ? 0 : i+1;
       k = i == 0 ? 3 : i;
       l = k - 1;
-      if( ( s = zMat3DElem(m,i,i)+zMat3DElem(m,j,j) ) < 0 ){
+      if( ( s = m->e[i][i] + m->e[j][j] ) < 0 ){
         s = 0.25 / ( ep->e[k] = sqrt( -0.5*s ) );
-        ep->e[i+1] = (zMat3DElem(m,l,i)+zMat3DElem(m,i,l)) * s;
-        ep->e[j+1] = (zMat3DElem(m,j,l)+zMat3DElem(m,l,j)) * s;
+        ep->e[i+1] = ( m->e[i][l] + m->e[l][i] ) * s;
+        ep->e[j+1] = ( m->e[l][j] + m->e[j][l] ) * s;
         goto RET;
       }
     }

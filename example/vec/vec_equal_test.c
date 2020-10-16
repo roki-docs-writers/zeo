@@ -9,7 +9,7 @@ int main(void)
   printf( "vec1: " ); zVec3DWrite( &v1 );
   printf( "vec2: " ); zVec3DWrite( &v2 );
   printf( "%s\n", zVec3DEqual( &v1, &v2 ) ? "equal" : "inequal" );
-  zVec3DElem( &v2, zX ) += zTOL;
+  v2.e[zX] += zTOL;
   printf( "vec1: " ); zVec3DWrite( &v1 );
   printf( "vec2: " ); zVec3DWrite( &v2 );
   printf( "%s\n", zVec3DEqual( &v1, &v2 ) ? "equal" : "inequal" );

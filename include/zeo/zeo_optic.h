@@ -42,36 +42,29 @@ typedef struct{
 #define zOpticalInfoSetSns(o,s)   ( zOpticalInfoSns(o) = (s) )
 #define zOpticalInfoSetAlpha(o,a) ( zOpticalInfoAlpha(o) = (a) )
 
-/* METHOD:
- * zOpticalInfoCreate, zOpticalInfoInit,
- * zOpticalInfoCopy, zOpticalInfoDestroy
- * - creation, initialization, copy and destruction of optical
- * parameter set.
+/*! \brief create, initialize, copy and destroy a set of optical parameters.
  *
- * 'zOpticalInfoCreate()' creates an optical parameter set 'oi'
- * from the arguments. The meanings of each argument are as follows -
- *  'amb'  : coefficients of reflection for ambient.
- *  'dif'  : coefficients of diffuse reflection.
- *  'spc'  : coefficients of specular reflection.
- *  'ns'   : Phong's specular exponential value.
- *  'sns'  : shininess.
- *  'alpha': alpha value.
- *  'name' : a name of the optical set.
- * #
- * 'zOpticalInfoInit()' initializes 'oi'. All parameters will
- * be set for 1.0. Actually, 'zOpticalInfoInit()' is defined as
- * a macro(see zoptic.h).
- * #
- * 'zOpticalInfoCopy()' copies parameters of 'src' to 'dest'.
- * #
- * 'zOpticalInfoDestroy()' destroys the instance 'oi'.
- * [RETURN VALUE]
- * 'zOpticalInfoCreate()' and 'zOpticalInfoInit()' return a
- * pointer to 'oi'.
- * #
- * 'zOpticalInfoCopy()' returns a pointer to 'dest'.
- * #
- * 'zOpticalInfoDestroy()' returns no value.
+ * zOpticalInfoCreate() creates a set of optical parameters \a oi.
+ * \a amb is a coefficient of reflection for ambient.
+ * \a dif is a coefficient of diffuse reflection.
+ * \a spc is a coefficient of specular reflection.
+ * \a ns is Phong's specular exponential value.
+ * \a sns is the shininess.
+ * \a alpha is the alpha value.
+ * \a name is a name of the optical set.
+ *
+ * zOpticalInfoInit() initializes a set of optical parameters \a oi.
+ * All parameters will be set for 1.0.
+ *
+ * zOpticalInfoCopy() copies a set of optical parameters \a src to \a dest.
+ *
+ * zOpticalInfoDestroy() destroys a set of optical parameters \a oi.
+ * \return
+ * zOpticalInfoCreate() and zOpticalInfoInit() return a pointer \a oi.
+ *
+ * zOpticalInfoCopy() returns a pointer \a dest.
+ *
+ * zOpticalInfoDestroy() returns no value.
  */
 __EXPORT zOpticalInfo *zOpticalInfoCreate(zOpticalInfo *oi, float ar, float ag, float ab, float dr, float dg, float db, float sr, float sg, float sb, double ns, double sns, double alpha, char *name);
 #define zOpticalInfoCreateSimple(o,r,g,b,n) \
@@ -90,16 +83,12 @@ __EXPORT zOpticalInfo *zOpticalInfoMul(zOpticalInfo *oi1, zOpticalInfo *oi2, zOp
 /* tag to identify optical info. */
 #define ZOPTIC_TAG "optic"
 
-/* METHOD:
- * zOpticalInfoFRead, zOpticalInfoRead,
- * zOpticalInfoFWrite, zOpticalInfoWrite
- * - input/output of the information of the optical parameter set.
+/*! \brief input/output of a set of optical parameters.
  *
- * 'zOpticalInfoFRead()' reads an information about the optical
- * parameter set from the current position of the file 'fp',
- * and copies them to 'oi'.
+ * zOpticalInfoFRead() reads a set of optical parameters from the current
+ * position of a file \a fp and copies it to \a oi.
  * An acceptable data file format is as follows.
- * #
+ *
  *  name     <string> <- the name of optical parameter set
  *  ambient  <value> <value> <value>
  *    ^ coefficients of reflection for ambient
@@ -111,22 +100,19 @@ __EXPORT zOpticalInfo *zOpticalInfoMul(zOpticalInfo *oi1, zOpticalInfo *oi2, zOp
  *    ^ Phong s specular exponential value
  *  alpha <value>
  *    ^ alpha value
- * #
- * 'zOpticalInfoRead()' reads an information about the optical
- * parameter set simply from the standard in and copies them
- * to 'oi'.
- * #
- * 'zOpticalInfoFWrite()' writes an information of 'oi' to the
- * current position of the file 'fp'.
- * #
- * 'zOpticalInfoWrite()' writes an information of 'oi' simply
- * to the standard out.
- * [RETURN VALUE]
- * 'zOpticalInfoFRead()' and 'zOpticalInfoRead()' return a
- * pointer to 'oi'.
- * #
- * 'zOpticalInfoFWrite()' and 'zOpticalInfoWrite()' return
- * no value.
+ *
+ * zOpticalInfoRead() reads a set of optical parameters from the standard
+ * input and copies them to \a oi.
+ *
+ * zOpticalInfoFWrite() writes a set of optical parameters given by \a oi
+ * to the current position of a file \a fp.
+ *
+ * zOpticalInfoWrite() writes a set of optical parameters given by \a oi
+ * to the standard output.
+ * \return
+ * zOpticalInfoFRead() and zOpticalInfoRead() return a pointer \a oi.
+ *
+ * zOpticalInfoFWrite() and zOpticalInfoWrite() return no value.
  */
 __EXPORT zOpticalInfo *zOpticalInfoFRead(FILE *fp, zOpticalInfo *oi);
 #define zOpticalInfoRead(i) zOpticalInfoFRead( stdin, (i) )

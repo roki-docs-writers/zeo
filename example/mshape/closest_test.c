@@ -11,8 +11,8 @@ void test1(zMShape3D *ms, int n)
   for( i=0; i<n; i++ ){
     zVec3DCreate( &p, zRandF(-0.4,0.4), zRandF(-0.4,0.4), zRandF(-0.4,0.4) );
     zMShape3DClosest( ms, &p, &cp );
-    zVec3DDataFWrite( fp1, &p );
-    zVec3DDataFWrite( fp2, &cp );
+    zVec3DDataNLFWrite( fp1, &p );
+    zVec3DDataNLFWrite( fp2, &cp );
   }
   fclose( fp1 );
   fclose( fp2 );
@@ -28,8 +28,8 @@ void test2(zMShape3D *ms, int n)
   for( i=0; i<n; i++ ){
     zVec3DCreate( &p, zRandF(-0.4,0.4), zRandF(-0.4,0.4), zRandF(-0.4,0.4) );
     zMShape3DClosest( ms, &p, &cp );
-    zVec3DDataFWrite( fp, &p );
-    zVec3DDataFWrite( fp, &cp );
+    zVec3DDataNLFWrite( fp, &p );
+    zVec3DDataNLFWrite( fp, &cp );
     fprintf( fp, "\n\n" );
   }
   fclose( fp );

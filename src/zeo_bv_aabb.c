@@ -46,12 +46,12 @@ zAABox3D *zAABox3DCopy(zAABox3D *src, zAABox3D *dst)
 zAABox3D *zAABox3DMerge(zAABox3D *dst, zAABox3D *src1, zAABox3D *src2)
 {
   return zAABox3DCreate( dst,
-    zMin( zVec3DElem(&src1->pmin,zX), zVec3DElem(&src2->pmin,zX) ),
-    zMin( zVec3DElem(&src1->pmin,zY), zVec3DElem(&src2->pmin,zY) ),
-    zMin( zVec3DElem(&src1->pmin,zZ), zVec3DElem(&src2->pmin,zZ) ),
-    zMax( zVec3DElem(&src1->pmax,zX), zVec3DElem(&src2->pmax,zX) ),
-    zMax( zVec3DElem(&src1->pmax,zY), zVec3DElem(&src2->pmax,zY) ),
-    zMax( zVec3DElem(&src1->pmax,zZ), zVec3DElem(&src2->pmax,zZ) ) );
+    zMin( src1->pmin.e[zX], src2->pmin.e[zX] ),
+    zMin( src1->pmin.e[zY], src2->pmin.e[zY] ),
+    zMin( src1->pmin.e[zZ], src2->pmin.e[zZ] ),
+    zMax( src1->pmax.e[zX], src2->pmax.e[zX] ),
+    zMax( src1->pmax.e[zY], src2->pmax.e[zY] ),
+    zMax( src1->pmax.e[zZ], src2->pmax.e[zZ] ) );
 }
 
 /* zAABox3DPointIsInside
@@ -62,12 +62,12 @@ bool zAABox3DPointIsInside(zAABox3D *box, zVec3D *p, bool rim)
   double eps;
 
   eps = rim ? zTOL : 0;
-  return zVec3DElem(p,zX) >= zVec3DElem(&box->pmin,zX) - eps &&
-         zVec3DElem(p,zX) <= zVec3DElem(&box->pmax,zX) + eps &&
-         zVec3DElem(p,zY) >= zVec3DElem(&box->pmin,zY) - eps &&
-         zVec3DElem(p,zY) <= zVec3DElem(&box->pmax,zY) + eps &&
-         zVec3DElem(p,zZ) >= zVec3DElem(&box->pmin,zZ) - eps &&
-         zVec3DElem(p,zZ) <= zVec3DElem(&box->pmax,zZ) + eps ?
+  return p->e[zX] >= box->pmin.e[zX] - eps &&
+         p->e[zX] <= box->pmax.e[zX] + eps &&
+         p->e[zY] >= box->pmin.e[zY] - eps &&
+         p->e[zY] <= box->pmax.e[zY] + eps &&
+         p->e[zZ] >= box->pmin.e[zZ] - eps &&
+         p->e[zZ] <= box->pmax.e[zZ] + eps ?
     true : false;
 }
 
@@ -76,9 +76,9 @@ bool zAABox3DPointIsInside(zAABox3D *box, zVec3D *p, bool rim)
  */
 double zAABox3DVolume(zAABox3D *box)
 {
-  return fabs( ( zVec3DElem(&box->pmax,zX) - zVec3DElem(&box->pmin,zX) )
-             * ( zVec3DElem(&box->pmax,zY) - zVec3DElem(&box->pmin,zY) )
-             * ( zVec3DElem(&box->pmax,zZ) - zVec3DElem(&box->pmin,zZ) ) );
+  return fabs( ( box->pmax.e[zX] - box->pmin.e[zX] )
+             * ( box->pmax.e[zY] - box->pmin.e[zY] )
+             * ( box->pmax.e[zZ] - box->pmin.e[zZ] ) );
 }
 
 /* zAABox3DToBox3D
@@ -114,12 +114,12 @@ void zAABox3DDataFWrite(FILE *fp, zAABox3D *box)
 {
   double x0, y0, z0, x1, y1, z1;
 
-  x0 = zVec3DElem(&box->pmin,zX);
-  y0 = zVec3DElem(&box->pmin,zY);
-  z0 = zVec3DElem(&box->pmin,zZ);
-  x1 = zVec3DElem(&box->pmax,zX);
-  y1 = zVec3DElem(&box->pmax,zY);
-  z1 = zVec3DElem(&box->pmax,zZ);
+  x0 = box->pmin.e[zX];
+  y0 = box->pmin.e[zY];
+  z0 = box->pmin.e[zZ];
+  x1 = box->pmax.e[zX];
+  y1 = box->pmax.e[zY];
+  z1 = box->pmax.e[zZ];
   fprintf( fp, "%g %g %g\n", x0, y0, z0 );
   fprintf( fp, "%g %g %g\n", x1, y0, z0 );
   fprintf( fp, "%g %g %g\n", x1, y1, z0 );
@@ -154,12 +154,12 @@ static int _zAABBTest(zAABox3D *bb, zVec3D *p, zDir u);
  */
 int _zAABBTest(zAABox3D *bb, zVec3D *p, zDir u)
 {
-  if( zVec3DElem(p,u) > zVec3DElem(&bb->pmax,u) ){
-    zVec3DSetElem( &bb->pmax, u, zVec3DElem(p,u) );
+  if( p->e[u] > bb->pmax.e[u] ){
+    bb->pmax.e[u] = p->e[u];
     return 0;
   }
-  if( zVec3DElem(p,u) < zVec3DElem(&bb->pmin,u) ){
-    zVec3DSetElem( &bb->pmin, u, zVec3DElem(p,u) );
+  if( p->e[u] < bb->pmin.e[u] ){
+    bb->pmin.e[u] = p->e[u];
     return 3;
   }
   return -1;

@@ -15,20 +15,17 @@
 static zRGB *_zRGBRatio(zRGB *rgb, char *ratio);
 static zRGB *_zRGBHex(zRGB *rgb, char *hex);
 
-/* OBJECT:
- * zblackrgb, zwhitergb
- * - black & white RGB set.
- */
-const zRGB zblackrgb = { 0, 0, 0 }, zwhitergb = { 1, 1, 1 };
+/* RGB sets for black and white */
+const zRGB zrgbblack = { 0.0, 0.0, 0.0 }, zrgbwhite = { 1.0, 1.0, 1.0 };
 
 /* zRGBSet
  * - set RGB parameters.
  */
 zRGB *zRGBSet(zRGB *rgb, float red, float green, float blue)
 {
-  zRedSet(   rgb, zLimit( red,   0, 1 ) );
-  zGreenSet( rgb, zLimit( green, 0, 1 ) );
-  zBlueSet(  rgb, zLimit( blue,  0, 1 ) );
+  rgb->r = zLimit( red,   0, 1 );
+  rgb->g = zLimit( green, 0, 1 );
+  rgb->b = zLimit( blue,  0, 1 );
   return rgb;
 }
 
@@ -37,7 +34,7 @@ zRGB *zRGBSet(zRGB *rgb, float red, float green, float blue)
  */
 zRGB *zRGBMul(zRGB *rgb1, zRGB *rgb2, zRGB *rgb)
 {
-  return zRGBSet( rgb, zRed(rgb1)*zRed(rgb2), zGreen(rgb1)*zGreen(rgb2), zBlue(rgb1)*zBlue(rgb2) );
+  return zRGBSet( rgb, rgb1->r*rgb2->r, rgb1->g*rgb2->g, rgb1->b*rgb2->b );
 }
 
 /* (static)
@@ -71,7 +68,7 @@ zRGB *_zRGBHex(zRGB *rgb, char *hex)
     b <<= 4; b |= atox_c( hex[i+len*2] );
     d <<= 4; d |= 0xf;
   }
-  return zRGBSet( rgb, (double)r/d, (double)g/d, (double)b/d );
+  return zRGBSet( rgb, (float)r/d, (float)g/d, (float)b/d );
 }
 
 /* zRGBDec
@@ -87,7 +84,7 @@ zRGB *zRGBDec(zRGB *rgb, char *str)
  */
 zRGB *zRGBFRead(FILE *fp, zRGB *rgb)
 {
-  double r, g, b;
+  float r, g, b;
 
   r = zFDouble(fp);
   g = zFDouble(fp);
@@ -100,7 +97,7 @@ zRGB *zRGBFRead(FILE *fp, zRGB *rgb)
  */
 void zRGBFWrite(FILE *fp, zRGB *rgb)
 {
-  fprintf( fp, "%.10g:%.10g:%.10g\n", zRed(rgb), zGreen(rgb), zBlue(rgb) );
+  fprintf( fp, "%.10g:%.10g:%.10g\n", rgb->r, rgb->g, rgb->b );
 }
 
 /* zRGBFWriteXML
@@ -108,7 +105,7 @@ void zRGBFWrite(FILE *fp, zRGB *rgb)
  */
 void zRGBFWriteXML(FILE *fp, zRGB *rgb)
 {
-  fprintf( fp, "\"%.10g %.10g %.10g\"", zRed(rgb), zGreen(rgb), zBlue(rgb) );
+  fprintf( fp, "\"%.10g %.10g %.10g\"", rgb->r, rgb->g, rgb->b );
 }
 
 /* ********************************************************** */
@@ -124,37 +121,37 @@ zHSV *zRGB2HSV(zRGB *rgb, zHSV *hsv)
   float max, min, d, phase, phase0;
 
   /* find principal primary color */
-  if( zRed(rgb) > zGreen(rgb) ){
-    if( zRed(rgb) > zBlue(rgb) ){
-      max = zRed(rgb);
-      min = zMin( zGreen(rgb), zBlue(rgb) );
-      phase = zGreen(rgb) - zBlue(rgb);
+  if( rgb->r > rgb->g ){
+    if( rgb->r > rgb->b ){
+      max = rgb->r;
+      min = zMin( rgb->g, rgb->b );
+      phase = rgb->g - rgb->b;
       phase0 = 0;
     } else{
-      max = zBlue(rgb);
-      min = zGreen(rgb);
-      phase = zRed(rgb) - zGreen(rgb);
+      max = rgb->b;
+      min = rgb->g;
+      phase = rgb->r - rgb->g;
       phase0 = 240;
     }
   } else{
-    if( zGreen(rgb) > zBlue(rgb) ){
-      max = zGreen(rgb);
-      min = zMin( zRed(rgb), zBlue(rgb) );
-      phase = zBlue(rgb) - zRed(rgb);
+    if( rgb->g > rgb->b ){
+      max = rgb->g;
+      min = zMin( rgb->r, rgb->b );
+      phase = rgb->b - rgb->r;
       phase0 = 120;
     } else{
-      max = zBlue(rgb);
-      min = zRed(rgb);
-      phase = zRed(rgb) - zGreen(rgb);
+      max = rgb->b;
+      min = rgb->r;
+      phase = rgb->r - rgb->g;
       phase0 = 240;
     }
   }
   d = max - min;
   /* conversion */
-  zHSVHue(hsv) =   d == 0 ? 0 : 60.0 * phase / d + phase0;
-  if( zHSVHue(hsv) < 0 ) zHSVHue(hsv) += 360;
-  zHSVSat(hsv) = max == 0 ? 0 : d / max;
-  zHSVVal(hsv) = max;
+  hsv->hue =   d == 0 ? 0 : 60.0 * phase / d + phase0;
+  if( hsv->hue < 0 ) hsv->hue += 360;
+  hsv->sat = max == 0 ? 0 : d / max;
+  hsv->val = max;
   return hsv;
 }
 
@@ -166,19 +163,19 @@ zRGB *zHSV2RGB(zHSV *hsv, zRGB *rgb)
   float h, f, p, q, t;
   int i;
 
-  h = zHSVHue(hsv) / 60;
+  h = hsv->hue / 60;
   i = (int)floor( h ) % 6;
   f = h - i;
-  p = zHSVVal(hsv) * ( 1 - zHSVSat(hsv) );
-  q = zHSVVal(hsv) * ( 1 - f * zHSVSat(hsv) );
-  t = zHSVVal(hsv) * ( 1 - (1-f) * zHSVSat(hsv) );
+  p = hsv->val * ( 1 - hsv->sat );
+  q = hsv->val * ( 1 - f * hsv->sat );
+  t = hsv->val * ( 1 - (1-f) * hsv->sat );
   switch( i ){
-  case 0: zRGBSet( rgb, zHSVVal(hsv), t, p ); break;
-  case 1: zRGBSet( rgb, q, zHSVVal(hsv), p ); break;
-  case 2: zRGBSet( rgb, p, zHSVVal(hsv), t ); break;
-  case 3: zRGBSet( rgb, p, q, zHSVVal(hsv) ); break;
-  case 4: zRGBSet( rgb, t, p, zHSVVal(hsv) ); break;
-  case 5: zRGBSet( rgb, zHSVVal(hsv), p, q ); break;
+  case 0: zRGBSet( rgb, hsv->val, t, p ); break;
+  case 1: zRGBSet( rgb, q, hsv->val, p ); break;
+  case 2: zRGBSet( rgb, p, hsv->val, t ); break;
+  case 3: zRGBSet( rgb, p, q, hsv->val ); break;
+  case 4: zRGBSet( rgb, t, p, hsv->val ); break;
+  case 5: zRGBSet( rgb, hsv->val, p, q ); break;
   default: ;
   }
   return rgb;
@@ -189,5 +186,5 @@ zRGB *zHSV2RGB(zHSV *hsv, zRGB *rgb)
  */
 void zHSVFWrite(FILE *fp, zHSV *hsv)
 {
-  fprintf( fp, "%.10g:%.10g:%.10g\n", zHSVHue(hsv), zHSVSat(hsv), zHSVVal(hsv) );
+  fprintf( fp, "%.10g:%.10g:%.10g\n", hsv->hue, hsv->sat, hsv->val );
 }

@@ -17,7 +17,7 @@ int main(void)
   for( i=0; i<=N; i++ ){
     r = (double)i / N;
     zVec3DInnerDiv( &v1, &v2, r, &v );
-    printf( "ratio=%f: ", r ); zVec3DDataWrite( &v );
+    printf( "ratio=%f: ", r ); zVec3DDataNLWrite( &v );
   }
   return 0;
 }

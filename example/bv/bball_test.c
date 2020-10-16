@@ -9,7 +9,7 @@ void veclist_create_rand(void)
 
   for( i=0; i<N; i++ ){
     zVec3DCreatePolar( &v[i], zRandF(-5,5), zRandF(-zPI,zPI), zRandF(-0.5*zPI,0.5*zPI) );
-    zVec3DDataWrite( &v[i] );
+    zVec3DDataNLWrite( &v[i] );
   }
 }
 
