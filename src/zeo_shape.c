@@ -328,6 +328,7 @@ zShape3D *zShape3DFRead(FILE *fp, zShape3D *shape, zShape3D *sarray, int ns, zOp
   _zShape3DParam prm;
   int cur;
   zAABox3D aabb;
+  zPH3D ph;
 
   prm.shape = shape;
   prm.sarray = sarray;
@@ -348,16 +349,23 @@ zShape3D *zShape3DFRead(FILE *fp, zShape3D *shape, zShape3D *sarray, int ns, zOp
   shape->com = com[zShape3DType(shape)];
   if( !shape->com->_fread( fp, &shape->body ) ) goto ERROR;
   /* bounding box */
-  switch( prm.bb_type ){
-  case ZSHAPE_BB_AABB:
-    zAABB( &aabb, zShape3DVertBuf(shape), zShape3DVertNum(shape), NULL );
-    zAABox3DToBox3D( &aabb, zShape3DBB(shape) );
-    break;
-  case ZSHAPE_BB_OBB:
-    zOBB( zShape3DBB(shape), zShape3DVertBuf(shape), zShape3DVertNum(shape) );
-    break;
-  default:
+  if( prm.bb_type == ZSHAPE_BB_NONE ){
     zBox3DInit( zShape3DBB(shape) );
+  } else {
+    zPH3DInit( &ph );
+    if( !shape->com->_toph( &shape->body, &ph ) ) goto ERROR;
+    switch( prm.bb_type ){
+    case ZSHAPE_BB_AABB:
+      zAABB( &aabb, zPH3DVertBuf(&ph), zPH3DVertNum(&ph), NULL );
+      zAABox3DToBox3D( &aabb, zShape3DBB(shape) );
+      break;
+    case ZSHAPE_BB_OBB:
+      zOBB( zShape3DBB(shape), zPH3DVertBuf(&ph), zPH3DVertNum(&ph) );
+      break;
+    default:
+      break;
+    }
+    zPH3DDestroy( &ph );
   }
   return shape;
 
