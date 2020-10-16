@@ -1,14 +1,10 @@
 /* Zeo - Z/Geometry and optics computation library.
  * Copyright (C) 2005 Tomomichi Sugihara (Zhidao)
  *
- * zeo_vec3d_pca - principal component analysis.
+ * zeo_vec3d_pca - principal component analysis for 3D vectors.
  */
 
 #include <zeo/zeo_mat3d.h>
-
-/* ********************************************************** */
-/* utilities
- * ********************************************************** */
 
 /* zVec3DBarycenterPL
  * - barycenter of vector cloud given by a list.

@@ -14,7 +14,7 @@ OBJ=zeo_color.o zeo_optic.o\
 	zeo_misc.o\
 	zeo_vec2d.o zeo_mat2d.o\
 	zeo_vec3d.o zeo_vec6d.o zeo_mat3d.o zeo_mat6d.o\
-	zeo_vec3d_list.o zeo_vec3d_tree.o\
+	zeo_vec3d_list.o zeo_vec3d_tree.o zeo_vec3d_pca.o\
 	zeo_ep.o zeo_frame.o\
 	zeo_elem.o zeo_elem_list.o zeo_ph.o zeo_triangulate.o\
 	zeo_prim_box.o zeo_prim_sphere.o zeo_prim_ellips.o zeo_prim_cyl.o zeo_prim_ecyl.o zeo_prim_cone.o zeo_prim_ph.o\
