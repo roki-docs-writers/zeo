@@ -48,7 +48,9 @@ zVec3D *zVec3DCreatePolar(zVec3D *v, double r, double theta, double phi)
  */
 bool zVec3DMatch(zVec3D *v1, zVec3D *v2)
 {
-  return v1->e[zX] == v2->e[zX] && v1->e[zY] == v2->e[zY] && v1->e[zZ] == v2->e[zZ];
+  return v1->e[zX] == v2->e[zX] &&
+         v1->e[zY] == v2->e[zY] &&
+         v1->e[zZ] == v2->e[zZ];
 }
 
 /* zVec3DEqual
@@ -56,9 +58,9 @@ bool zVec3DMatch(zVec3D *v1, zVec3D *v2)
  */
 bool zVec3DEqual(zVec3D *v1, zVec3D *v2)
 {
-  zVec3D err;
-
-  return zVec3DIsTiny( zVec3DSub( v1, v2, &err ) );
+  return zIsTiny( v1->e[zX] - v2->e[zX] ) &&
+         zIsTiny( v1->e[zY] - v2->e[zY] ) &&
+         zIsTiny( v1->e[zZ] - v2->e[zZ] );
 }
 
 /* zVec3DIsTol
@@ -90,8 +92,10 @@ bool zVec3DIsNan(zVec3D *v)
  */
 zVec3D *zVec3DAdd(zVec3D *v1, zVec3D *v2, zVec3D *v)
 {
-  return zVec3DCreate( v,
-    v1->e[zX] + v2->e[zX], v1->e[zY] + v2->e[zY], v1->e[zZ] + v2->e[zZ] );
+  v->e[zX] = v1->e[zX] + v2->e[zX];
+  v->e[zY] = v1->e[zY] + v2->e[zY];
+  v->e[zZ] = v1->e[zZ] + v2->e[zZ];
+  return v;
 }
 
 /* zVec3DSub
@@ -99,8 +103,10 @@ zVec3D *zVec3DAdd(zVec3D *v1, zVec3D *v2, zVec3D *v)
  */
 zVec3D *zVec3DSub(zVec3D *v1, zVec3D *v2, zVec3D *v)
 {
-  return zVec3DCreate( v,
-    v1->e[zX] - v2->e[zX], v1->e[zY] - v2->e[zY], v1->e[zZ] - v2->e[zZ] );
+  v->e[zX] = v1->e[zX] - v2->e[zX];
+  v->e[zY] = v1->e[zY] - v2->e[zY];
+  v->e[zZ] = v1->e[zZ] - v2->e[zZ];
+  return v;
 }
 
 /* zVec3DRev
@@ -108,7 +114,10 @@ zVec3D *zVec3DSub(zVec3D *v1, zVec3D *v2, zVec3D *v)
  */
 zVec3D *zVec3DRev(zVec3D *v, zVec3D *rv)
 {
-  return zVec3DCreate( rv, -v->e[zX], -v->e[zY], -v->e[zZ] );
+  rv->e[zX] = -v->e[zX];
+  rv->e[zY] = -v->e[zY];
+  rv->e[zZ] = -v->e[zZ];
+  return rv;
 }
 
 /* zVec3DMul
@@ -116,7 +125,10 @@ zVec3D *zVec3DRev(zVec3D *v, zVec3D *rv)
  */
 zVec3D *zVec3DMul(zVec3D *v, double k, zVec3D *mv)
 {
-  return zVec3DCreate( mv, v->e[zX]*k, v->e[zY]*k, v->e[zZ]*k );
+  mv->e[zX] = k * v->e[zX];
+  mv->e[zY] = k * v->e[zY];
+  mv->e[zZ] = k * v->e[zZ];
+  return mv;
 }
 
 /* zVec3DDiv
@@ -124,9 +136,15 @@ zVec3D *zVec3DMul(zVec3D *v, double k, zVec3D *mv)
  */
 zVec3D *zVec3DDiv(zVec3D *v, double k, zVec3D *dv)
 {
-  if( k != 0 ) return zVec3DMul( v, 1.0/k, dv );
-  ZRUNWARN( ZEO_ERR_ZERODIV );
-  return NULL;
+  if( k == 0 ){
+    ZRUNWARN( ZEO_ERR_ZERODIV );
+    return NULL;
+  }
+  k = 1.0 / k;
+  dv->e[zX] = k * v->e[zX];
+  dv->e[zY] = k * v->e[zY];
+  dv->e[zZ] = k * v->e[zZ];
+  return dv;
 }
 
 /* zVec3DAmp
@@ -134,8 +152,10 @@ zVec3D *zVec3DDiv(zVec3D *v, double k, zVec3D *dv)
  */
 zVec3D *zVec3DAmp(zVec3D *v, zVec3D *a, zVec3D *av)
 {
-  return zVec3DCreate( av,
-    v->e[zX] * a->e[zX], v->e[zY] * a->e[zY], v->e[zZ] * a->e[zZ] );
+  av->e[zX] = a->e[zX] * v->e[zX];
+  av->e[zY] = a->e[zY] * v->e[zY];
+  av->e[zZ] = a->e[zZ] * v->e[zZ];
+  return av;
 }
 
 /* zVec3DCat
@@ -143,8 +163,10 @@ zVec3D *zVec3DAmp(zVec3D *v, zVec3D *a, zVec3D *av)
  */
 zVec3D *zVec3DCat(zVec3D *v1, double k, zVec3D *v2, zVec3D *v)
 {
-  return zVec3DCreate( v,
-    v1->e[zX] + v2->e[zX]*k, v1->e[zY] + v2->e[zY]*k, v1->e[zZ] + v2->e[zZ]*k );
+  v->e[zX] = v1->e[zX] + k * v2->e[zX];
+  v->e[zY] = v1->e[zY] + k * v2->e[zY];
+  v->e[zZ] = v1->e[zZ] + k * v2->e[zZ];
+  return v;
 }
 
 /* zVec3DSqrNorm
@@ -152,7 +174,7 @@ zVec3D *zVec3DCat(zVec3D *v1, double k, zVec3D *v2, zVec3D *v)
  */
 double zVec3DSqrNorm(zVec3D *v)
 {
-  return zVec3DInnerProd( v, v );
+  return v->e[zX]*v->e[zX] + v->e[zY]*v->e[zY] + v->e[zZ]*v->e[zZ];
 }
 
 /* zVec3DWSqrNorm
@@ -160,7 +182,7 @@ double zVec3DSqrNorm(zVec3D *v)
  */
 double zVec3DWSqrNorm(zVec3D *v, zVec3D *w)
 {
-  return zSqr(v->e[zX]) * w->e[zX] + zSqr(v->e[zY]) * w->e[zY] + zSqr(v->e[zZ]) * w->e[zZ];
+  return v->e[zX]*v->e[zX]*w->e[zX] + v->e[zY]*v->e[zY]*w->e[zY] + v->e[zZ]*v->e[zZ]*w->e[zZ];
 }
 
 /* zVec3DSqrDist
@@ -168,9 +190,12 @@ double zVec3DWSqrNorm(zVec3D *v, zVec3D *w)
  */
 double zVec3DSqrDist(zVec3D *v1, zVec3D *v2)
 {
-  zVec3D v;
+  double dx, dy, dz;
 
-  return zVec3DSqrNorm( zVec3DSub( v1, v2, &v ) );
+  dx = v1->e[zX] - v2->e[zX];
+  dy = v1->e[zY] - v2->e[zY];
+  dz = v1->e[zZ] - v2->e[zZ];
+  return dx*dx + dy*dy + dz*dz;
 }
 
 /* zVec3DNormalizeNC
@@ -178,9 +203,12 @@ double zVec3DSqrDist(zVec3D *v1, zVec3D *v2)
  */
 double zVec3DNormalizeNC(zVec3D *v, zVec3D *nv)
 {
-  double l;
+  double l, k;
 
-  zVec3DDiv( v, ( l = zVec3DNorm(v) ), nv );
+  k = 1.0 / ( l = zVec3DNorm(v) );
+  nv->e[zX] = k * v->e[zX];
+  nv->e[zY] = k * v->e[zY];
+  nv->e[zZ] = k * v->e[zZ];
   return l;
 }
 
@@ -189,11 +217,17 @@ double zVec3DNormalizeNC(zVec3D *v, zVec3D *nv)
  */
 double zVec3DNormalize(zVec3D *v, zVec3D *nv)
 {
+  double l, k;
+
   if( zVec3DIsTiny( v ) ){
     ZRUNWARN( ZEO_ERR_ZERONORM );
     return -1;
   }
-  return zVec3DNormalizeNC( v, nv );
+  k = 1.0 / ( l = zVec3DNorm(v) );
+  nv->e[zX] = k * v->e[zX];
+  nv->e[zY] = k * v->e[zY];
+  nv->e[zZ] = k * v->e[zZ];
+  return l;
 }
 
 /* zVec3DInnerProd
@@ -201,7 +235,7 @@ double zVec3DNormalize(zVec3D *v, zVec3D *nv)
  */
 double zVec3DInnerProd(zVec3D *v1, zVec3D *v2)
 {
-  return v1->e[zX] * v2->e[zX] + v1->e[zY] * v2->e[zY] + v1->e[zZ] * v2->e[zZ];
+  return v1->e[zX]*v2->e[zX] + v1->e[zY]*v2->e[zY] + v1->e[zZ]*v2->e[zZ];
 }
 
 /* zVec3DOuterProd
@@ -209,10 +243,16 @@ double zVec3DInnerProd(zVec3D *v1, zVec3D *v2)
  */
 zVec3D *zVec3DOuterProd(zVec3D *v1, zVec3D *v2, zVec3D *v)
 {
-  return zVec3DCreate( v,
-    v1->e[zY] * v2->e[zZ] - v1->e[zZ] * v2->e[zY],
-    v1->e[zZ] * v2->e[zX] - v1->e[zX] * v2->e[zZ],
-    v1->e[zX] * v2->e[zY] - v1->e[zY] * v2->e[zX] );
+  double x, y, z;
+
+  /* v1 and v2 might be the same with v */
+  x = v1->e[zY] * v2->e[zZ] - v1->e[zZ] * v2->e[zY];
+  y = v1->e[zZ] * v2->e[zX] - v1->e[zX] * v2->e[zZ];
+  z = v1->e[zX] * v2->e[zY] - v1->e[zY] * v2->e[zX];
+  v->e[zX] = x;
+  v->e[zY] = y;
+  v->e[zZ] = z;
+  return v;
 }
 
 /* zVec3DOuterProdNorm
@@ -230,9 +270,13 @@ double zVec3DOuterProdNorm(zVec3D *v1, zVec3D *v2)
  */
 double zVec3DGrassmannProd(zVec3D *v1, zVec3D *v2, zVec3D *v3)
 {
-  zVec3D v;
+  double x, y, z;
 
-  return zVec3DInnerProd( v1, zVec3DOuterProd( v2, v3, &v ) );
+  /* v1 and v2 might be the same with v */
+  x = v2->e[zY] * v3->e[zZ] - v2->e[zZ] * v3->e[zY];
+  y = v2->e[zZ] * v3->e[zX] - v2->e[zX] * v3->e[zZ];
+  z = v2->e[zX] * v3->e[zY] - v2->e[zY] * v3->e[zX];
+  return v1->e[zX]*x + v1->e[zY]*y + v1->e[zZ]*z;
 }
 
 /* zVec3DTripleProd
@@ -240,8 +284,14 @@ double zVec3DGrassmannProd(zVec3D *v1, zVec3D *v2, zVec3D *v3)
  */
 zVec3D *zVec3DTripleProd(zVec3D *v1, zVec3D *v2, zVec3D *v3, zVec3D *v)
 {
-  zVec3DMul( v2, zVec3DInnerProd(v1,v3), v );
-  return zVec3DCatDRC( v,-zVec3DInnerProd(v1,v2), v3 );
+  double d1, d2;
+
+  d1 = v1->e[zX]*v3->e[zX] + v1->e[zY]*v3->e[zY] + v1->e[zZ]*v3->e[zZ];
+  d2 = v1->e[zX]*v2->e[zX] + v1->e[zY]*v2->e[zY] + v1->e[zZ]*v2->e[zZ];
+  v->e[zX] = v2->e[zX]*d1 - v3->e[zX]*d2;
+  v->e[zY] = v2->e[zY]*d1 - v3->e[zY]*d2;
+  v->e[zZ] = v2->e[zZ]*d1 - v3->e[zZ]*d2;
+  return v;
 }
 
 /* ********************************************************** */
@@ -253,8 +303,10 @@ zVec3D *zVec3DTripleProd(zVec3D *v1, zVec3D *v2, zVec3D *v3, zVec3D *v)
  */
 zVec3D *zVec3DInterDiv(zVec3D *v1, zVec3D *v2, double ratio, zVec3D *v)
 {
-  zVec3DSub( v2, v1, v );
-  return zVec3DCat( v1, ratio, v, v );
+  v->e[zX] = v1->e[zX] + ratio * ( v2->e[zX] - v1->e[zX] );
+  v->e[zY] = v1->e[zY] + ratio * ( v2->e[zY] - v1->e[zY] );
+  v->e[zZ] = v1->e[zZ] + ratio * ( v2->e[zZ] - v1->e[zZ] );
+  return v;
 }
 
 /* zVec3DMid
@@ -262,7 +314,10 @@ zVec3D *zVec3DInterDiv(zVec3D *v1, zVec3D *v2, double ratio, zVec3D *v)
  */
 zVec3D *zVec3DMid(zVec3D *v1, zVec3D *v2, zVec3D *v)
 {
-  return zVec3DInterDiv( v1, v2, 0.5, v );
+  v->e[zX] = 0.5 * ( v1->e[zX] + v2->e[zX] );
+  v->e[zY] = 0.5 * ( v1->e[zY] + v2->e[zY] );
+  v->e[zZ] = 0.5 * ( v1->e[zZ] + v2->e[zZ] );
+  return v;
 }
 
 /* zVec3DAngle
@@ -273,9 +328,8 @@ double zVec3DAngle(zVec3D *v1, zVec3D *v2, zVec3D *n)
   double c, s;
   zVec3D d;
 
-  zVec3DOuterProd( v1, v2, &d );
   c = zVec3DInnerProd( v1, v2 );
-  s = zVec3DNorm( &d );
+  s = zVec3DNorm( zVec3DOuterProd( v1, v2, &d ) );
   if( n && zVec3DInnerProd( &d, n ) < 0 ) s = -s;
   return atan2( s, c );
 }
@@ -285,10 +339,17 @@ double zVec3DAngle(zVec3D *v1, zVec3D *v2, zVec3D *n)
  */
 zVec3D *zVec3DProj(zVec3D *v, zVec3D *n, zVec3D *pv)
 {
-  zVec3D d;
+  double l;
 
-  if( !zVec3DNormalize( n, &d ) ) return NULL;
-  return zVec3DMul( &d, zVec3DInnerProd(&d,v), pv );
+  if( zVec3DIsTiny( n ) ){
+    ZRUNWARN( ZEO_ERR_ZERONORM );
+    return NULL;
+  }
+  l = ( n->e[zX]*v->e[zX] + n->e[zY]*v->e[zY] + n->e[zZ]*v->e[zZ] ) / ( n->e[zX]*n->e[zX] + n->e[zY]*n->e[zY] + n->e[zZ]*n->e[zZ] );
+  pv->e[zX] = l * n->e[zX];
+  pv->e[zY] = l * n->e[zY];
+  pv->e[zZ] = l * n->e[zZ];
+  return pv;
 }
 
 /* zVec3DOrthogonalize
@@ -296,10 +357,17 @@ zVec3D *zVec3DProj(zVec3D *v, zVec3D *n, zVec3D *pv)
  */
 zVec3D *zVec3DOrthogonalize(zVec3D *v, zVec3D *n, zVec3D *ov)
 {
-  zVec3D tmp;
+  double l;
 
-  if( !zVec3DProj( v, n, &tmp ) ) return NULL;
-  return zVec3DSub( v, &tmp, ov );
+  if( zVec3DIsTiny( n ) ){
+    ZRUNWARN( ZEO_ERR_ZERONORM );
+    return NULL;
+  }
+  l = ( n->e[zX]*v->e[zX] + n->e[zY]*v->e[zY] + n->e[zZ]*v->e[zZ] ) / ( n->e[zX]*n->e[zX] + n->e[zY]*n->e[zY] + n->e[zZ]*n->e[zZ] );
+  ov->e[zX] = v->e[zX] - l * n->e[zX];
+  ov->e[zY] = v->e[zY] - l * n->e[zY];
+  ov->e[zZ] = v->e[zZ] - l * n->e[zZ];
+  return ov;
 }
 
 /* zVec3DOrthoSpace
@@ -307,13 +375,24 @@ zVec3D *zVec3DOrthogonalize(zVec3D *v, zVec3D *n, zVec3D *ov)
  */
 bool zVec3DOrthoSpace(zVec3D *v, zVec3D *sv1, zVec3D *sv2)
 {
+  double l;
+
   zVec3DCopy( v, sv1 );
   if( v->e[zY] != 0 || v->e[zZ] != 0 )
     sv1->e[zX] += 1.0;
   else
     sv1->e[zY] = 1.0;
-  if( !zVec3DOrthogonalize( sv1, v, sv1 ) ) return false;
-  zVec3DOuterProd( v, sv1, sv2 );
+  if( zVec3DIsTiny( v ) ){
+    ZRUNWARN( ZEO_ERR_ZERONORM );
+    return false;
+  }
+  l = ( v->e[zX]*sv1->e[zX] + v->e[zY]*sv1->e[zY] + v->e[zZ]*sv1->e[zZ] ) / ( v->e[zX]*v->e[zX] + v->e[zY]*v->e[zY] + v->e[zZ]*v->e[zZ] );
+  sv1->e[zX] -= l * v->e[zX];
+  sv1->e[zY] -= l * v->e[zY];
+  sv1->e[zZ] -= l * v->e[zZ];
+  sv2->e[zX] = v->e[zY] * sv1->e[zZ] - v->e[zZ] * sv1->e[zY];
+  sv2->e[zY] = v->e[zZ] * sv1->e[zX] - v->e[zX] * sv1->e[zZ];
+  sv2->e[zZ] = v->e[zX] * sv1->e[zY] - v->e[zY] * sv1->e[zX];
   return true;
 }
 

@@ -26,9 +26,9 @@ zMat3D *zMat3DCreate(zMat3D *m,
   double a21, double a22, double a23,
   double a31, double a32, double a33)
 {
-  zVec3DCreate( &m->v[0], a11, a21, a31 );
-  zVec3DCreate( &m->v[1], a12, a22, a32 );
-  zVec3DCreate( &m->v[2], a13, a23, a33 );
+  m->e[0][0] = a11; m->e[1][0] = a12; m->e[2][0] = a13;
+  m->e[0][1] = a21; m->e[1][1] = a22; m->e[2][1] = a23;
+  m->e[0][2] = a31; m->e[1][2] = a32; m->e[2][2] = a33;
   return m;
 }
 
@@ -37,10 +37,10 @@ zMat3D *zMat3DCreate(zMat3D *m,
  */
 zMat3D *zMat3DT(zMat3D *m, zMat3D *tm)
 {
-  return zMat3DCreate( tm,
-    m->e[0][0], m->e[1][0], m->e[2][0],
-    m->e[0][1], m->e[1][1], m->e[2][1],
-    m->e[0][2], m->e[1][2], m->e[2][2] );
+  tm->e[0][0] = m->e[0][0]; tm->e[1][0] = m->e[0][1]; tm->e[2][0] = m->e[0][2];
+  tm->e[0][1] = m->e[1][0]; tm->e[1][1] = m->e[1][1]; tm->e[2][1] = m->e[1][2];
+  tm->e[0][2] = m->e[2][0]; tm->e[1][2] = m->e[2][1]; tm->e[2][2] = m->e[2][2];
+  return tm;
 }
 
 /* zMat3DRow
@@ -48,7 +48,10 @@ zMat3D *zMat3DT(zMat3D *m, zMat3D *tm)
  */
 zVec3D *zMat3DRow(zMat3D *m, int i, zVec3D *v)
 {
-  return zVec3DCreate( v, m->e[0][i], m->e[1][i], m->e[2][i] );
+  v->e[0] = m->e[0][i];
+  v->e[1] = m->e[1][i];
+  v->e[2] = m->e[2][i];
+  return v;
 }
 
 /* zMat3DCol
@@ -56,7 +59,10 @@ zVec3D *zMat3DRow(zMat3D *m, int i, zVec3D *v)
  */
 zVec3D *zMat3DCol(zMat3D *m, int i, zVec3D *v)
 {
-  return zVec3DCopy( &m->v[i], v );
+  v->e[0] = m->e[i][0];
+  v->e[1] = m->e[i][1];
+  v->e[2] = m->e[i][2];
+  return v;
 }
 
 /* ********************************************************** */
@@ -68,9 +74,15 @@ zVec3D *zMat3DCol(zMat3D *m, int i, zVec3D *v)
  */
 zMat3D *zMat3DAdd(zMat3D *m1, zMat3D *m2, zMat3D *m)
 {
-  zVec3DAdd( &m1->v[0], &m2->v[0], &m->v[0] );
-  zVec3DAdd( &m1->v[1], &m2->v[1], &m->v[1] );
-  zVec3DAdd( &m1->v[2], &m2->v[2], &m->v[2] );
+  m->e[0][0] = m1->e[0][0] + m2->e[0][0];
+  m->e[1][0] = m1->e[1][0] + m2->e[1][0];
+  m->e[2][0] = m1->e[2][0] + m2->e[2][0];
+  m->e[0][1] = m1->e[0][1] + m2->e[0][1];
+  m->e[1][1] = m1->e[1][1] + m2->e[1][1];
+  m->e[2][1] = m1->e[2][1] + m2->e[2][1];
+  m->e[0][2] = m1->e[0][2] + m2->e[0][2];
+  m->e[1][2] = m1->e[1][2] + m2->e[1][2];
+  m->e[2][2] = m1->e[2][2] + m2->e[2][2];
   return m;
 }
 
@@ -79,9 +91,15 @@ zMat3D *zMat3DAdd(zMat3D *m1, zMat3D *m2, zMat3D *m)
  */
 zMat3D *zMat3DSub(zMat3D *m1, zMat3D *m2, zMat3D *m)
 {
-  zVec3DSub( &m1->v[0], &m2->v[0], &m->v[0] );
-  zVec3DSub( &m1->v[1], &m2->v[1], &m->v[1] );
-  zVec3DSub( &m1->v[2], &m2->v[2], &m->v[2] );
+  m->e[0][0] = m1->e[0][0] - m2->e[0][0];
+  m->e[1][0] = m1->e[1][0] - m2->e[1][0];
+  m->e[2][0] = m1->e[2][0] - m2->e[2][0];
+  m->e[0][1] = m1->e[0][1] - m2->e[0][1];
+  m->e[1][1] = m1->e[1][1] - m2->e[1][1];
+  m->e[2][1] = m1->e[2][1] - m2->e[2][1];
+  m->e[0][2] = m1->e[0][2] - m2->e[0][2];
+  m->e[1][2] = m1->e[1][2] - m2->e[1][2];
+  m->e[2][2] = m1->e[2][2] - m2->e[2][2];
   return m;
 }
 
@@ -90,9 +108,15 @@ zMat3D *zMat3DSub(zMat3D *m1, zMat3D *m2, zMat3D *m)
  */
 zMat3D *zMat3DRev(zMat3D *m, zMat3D *rm)
 {
-  zVec3DRev( &m->v[0], &rm->v[0] );
-  zVec3DRev( &m->v[1], &rm->v[1] );
-  zVec3DRev( &m->v[2], &rm->v[2] );
+  rm->e[0][0] = -m->e[0][0];
+  rm->e[1][0] = -m->e[1][0];
+  rm->e[2][0] = -m->e[2][0];
+  rm->e[0][1] = -m->e[0][1];
+  rm->e[1][1] = -m->e[1][1];
+  rm->e[2][1] = -m->e[2][1];
+  rm->e[0][2] = -m->e[0][2];
+  rm->e[1][2] = -m->e[1][2];
+  rm->e[2][2] = -m->e[2][2];
   return rm;
 }
 
@@ -101,9 +125,15 @@ zMat3D *zMat3DRev(zMat3D *m, zMat3D *rm)
  */
 zMat3D *zMat3DMul(zMat3D *m, double k, zMat3D *mm)
 {
-  zVec3DMul( &m->v[0], k, &mm->v[0] );
-  zVec3DMul( &m->v[1], k, &mm->v[1] );
-  zVec3DMul( &m->v[2], k, &mm->v[2] );
+  mm->e[0][0] = k * m->e[0][0];
+  mm->e[1][0] = k * m->e[1][0];
+  mm->e[2][0] = k * m->e[2][0];
+  mm->e[0][1] = k * m->e[0][1];
+  mm->e[1][1] = k * m->e[1][1];
+  mm->e[2][1] = k * m->e[2][1];
+  mm->e[0][2] = k * m->e[0][2];
+  mm->e[1][2] = k * m->e[1][2];
+  mm->e[2][2] = k * m->e[2][2];
   return mm;
 }
 
@@ -117,9 +147,15 @@ zMat3D *zMat3DDiv(zMat3D *m, double k, zMat3D *dm)
     return NULL;
   }
   k = 1.0 / k;
-  zVec3DMul( &m->v[0], k, &dm->v[0] );
-  zVec3DMul( &m->v[1], k, &dm->v[1] );
-  zVec3DMul( &m->v[2], k, &dm->v[2] );
+  dm->e[0][0] = k * m->e[0][0];
+  dm->e[1][0] = k * m->e[1][0];
+  dm->e[2][0] = k * m->e[2][0];
+  dm->e[0][1] = k * m->e[0][1];
+  dm->e[1][1] = k * m->e[1][1];
+  dm->e[2][1] = k * m->e[2][1];
+  dm->e[0][2] = k * m->e[0][2];
+  dm->e[1][2] = k * m->e[1][2];
+  dm->e[2][2] = k * m->e[2][2];
   return dm;
 }
 
@@ -128,9 +164,15 @@ zMat3D *zMat3DDiv(zMat3D *m, double k, zMat3D *dm)
  */
 zMat3D *zMat3DCat(zMat3D *m1, double k, zMat3D *m2, zMat3D *m)
 {
-  zVec3DCat( &m1->v[0], k, &m2->v[0], &m->v[0] );
-  zVec3DCat( &m1->v[1], k, &m2->v[1], &m->v[1] );
-  zVec3DCat( &m1->v[2], k, &m2->v[2], &m->v[2] );
+  m->e[0][0] = m1->e[0][0] + k * m2->e[0][0];
+  m->e[1][0] = m1->e[1][0] + k * m2->e[1][0];
+  m->e[2][0] = m1->e[2][0] + k * m2->e[2][0];
+  m->e[0][1] = m1->e[0][1] + k * m2->e[0][1];
+  m->e[1][1] = m1->e[1][1] + k * m2->e[1][1];
+  m->e[2][1] = m1->e[2][1] + k * m2->e[2][1];
+  m->e[0][2] = m1->e[0][2] + k * m2->e[0][2];
+  m->e[1][2] = m1->e[1][2] + k * m2->e[1][2];
+  m->e[2][2] = m1->e[2][2] + k * m2->e[2][2];
   return m;
 }
 
@@ -139,9 +181,15 @@ zMat3D *zMat3DCat(zMat3D *m1, double k, zMat3D *m2, zMat3D *m)
  */
 zMat3D *zMat3DDyad(zVec3D *v1, zVec3D *v2, zMat3D *dyad)
 {
-  zVec3DMul( v1, v2->e[0], &dyad->v[0] );
-  zVec3DMul( v1, v2->e[1], &dyad->v[1] );
-  zVec3DMul( v1, v2->e[2], &dyad->v[2] );
+  dyad->e[0][0] = v1->e[0] * v2->e[0];
+  dyad->e[1][0] = v1->e[0] * v2->e[1];
+  dyad->e[2][0] = v1->e[0] * v2->e[2];
+  dyad->e[0][1] = v1->e[1] * v2->e[0];
+  dyad->e[1][1] = v1->e[1] * v2->e[1];
+  dyad->e[2][1] = v1->e[1] * v2->e[2];
+  dyad->e[0][2] = v1->e[2] * v2->e[0];
+  dyad->e[1][2] = v1->e[2] * v2->e[1];
+  dyad->e[2][2] = v1->e[2] * v2->e[2];
   return dyad;
 }
 
@@ -150,10 +198,10 @@ zMat3D *zMat3DDyad(zVec3D *v1, zVec3D *v2, zMat3D *dyad)
  */
 zMat3D *zVec3DOuterProdMat3D(zVec3D *v, zMat3D *m)
 {
-  return zMat3DCreate( m,
-           0,-v->e[zZ], v->e[zY],
-    v->e[zZ],        0,-v->e[zX],
-   -v->e[zY], v->e[zX],        0 );
+  m->e[0][0] = 0.0;      m->e[1][0] =-v->e[zZ]; m->e[2][0] = v->e[zY];
+  m->e[0][1] = v->e[zZ]; m->e[1][1] = 0.0;      m->e[2][1] =-v->e[zX];
+  m->e[0][2] =-v->e[zY]; m->e[1][2] = v->e[zX]; m->e[2][2] = 0.0;
+  return m;
 }
 
 /* zVec3DOuterProd2Mat3D
@@ -161,13 +209,15 @@ zMat3D *zVec3DOuterProdMat3D(zVec3D *v, zMat3D *m)
  */
 zMat3D *zVec3DOuterProd2Mat3D(zVec3D *v1, zVec3D *v2, zMat3D *m)
 {
-  double val;
-
-  zMat3DDyad( v2, v1, m );
-  val = zVec3DInnerProd( v1, v2 );
-  m->e[0][0] -= val;
-  m->e[1][1] -= val;
-  m->e[2][2] -= val;
+  m->e[0][0] =-v1->e[1]*v2->e[1] - v1->e[2]*v2->e[2];
+  m->e[1][1] =-v1->e[2]*v2->e[2] - v1->e[0]*v2->e[0];
+  m->e[2][2] =-v1->e[0]*v2->e[0] - v1->e[1]*v2->e[1];
+  m->e[1][0] = v1->e[1]*v2->e[0];
+  m->e[2][0] = v1->e[2]*v2->e[0];
+  m->e[0][1] = v1->e[0]*v2->e[1];
+  m->e[2][1] = v1->e[2]*v2->e[1];
+  m->e[0][2] = v1->e[0]*v2->e[2];
+  m->e[1][2] = v1->e[1]*v2->e[2];
   return m;
 }
 
@@ -175,7 +225,7 @@ zMat3D *zVec3DOuterProd2Mat3D(zVec3D *v1, zVec3D *v2, zMat3D *m)
 /* inverse of a 3x3 matrix
  * ********************************************************** */
 
-static void _zMat3DInvRow(zMat3D *m, zMat3D *im, int i, int j, int k, double det);
+static void _zMat3DInvRow(zMat3D *m, zMat3D *im, int i, int j, int k, double idet);
 
 /* zMat3DDet
  * - determinant of 3D matrix.
@@ -191,11 +241,11 @@ double zMat3DDet(zMat3D *m)
  * _zMat3DInvRow
  * - misc for real inverse of 3D matrix.
  */
-void _zMat3DInvRow(zMat3D *m, zMat3D *im, int i, int j, int k, double det)
+void _zMat3DInvRow(zMat3D *m, zMat3D *im, int i, int j, int k, double idet)
 {
-  im->e[i][i] = ( m->e[j][j]*m->e[k][k] - m->e[k][j]*m->e[j][k] ) / det;
-  im->e[j][i] = ( m->e[k][i]*m->e[j][k] - m->e[j][i]*m->e[k][k] ) / det;
-  im->e[k][i] = ( m->e[j][i]*m->e[k][j] - m->e[k][i]*m->e[j][j] ) / det;
+  im->e[i][i] = idet * ( m->e[j][j]*m->e[k][k] - m->e[k][j]*m->e[j][k] );
+  im->e[j][i] = idet * ( m->e[k][i]*m->e[j][k] - m->e[j][i]*m->e[k][k] );
+  im->e[k][i] = idet * ( m->e[j][i]*m->e[k][j] - m->e[k][i]*m->e[j][j] );
 }
 
 /* zMat3DInv
@@ -203,15 +253,16 @@ void _zMat3DInvRow(zMat3D *m, zMat3D *im, int i, int j, int k, double det)
  */
 zMat3D *zMat3DInv(zMat3D *m, zMat3D *im)
 {
-  double det;
+  double det, idet;
 
   if( zIsTiny( ( det = zMat3DDet( m ) ) ) ){
     ZRUNERROR( ZEO_ERR_SINGULARMAT );
     return NULL;
   }
-  _zMat3DInvRow( m, im, 0, 1, 2, det );
-  _zMat3DInvRow( m, im, 1, 2, 0, det );
-  _zMat3DInvRow( m, im, 2, 0, 1, det );
+  idet = 1.0 / det;
+  _zMat3DInvRow( m, im, 0, 1, 2, idet );
+  _zMat3DInvRow( m, im, 1, 2, 0, idet );
+  _zMat3DInvRow( m, im, 2, 0, 1, idet );
   return im;
 }
 
@@ -219,18 +270,36 @@ zMat3D *zMat3DInv(zMat3D *m, zMat3D *im)
 /* multiplication of a 3D vector by a 3x3 matrix
  * ********************************************************** */
 
-static double _zMulInvMatVec3DRow(zMat3D *m, zVec3D *v, int i, int j, int k, double det);
-static zVec3D *_zMulInvMatVec3D(zMat3D *m, zVec3D *v, zVec3D *miv, double det);
+static double _zMulInvMatVec3DRow(zMat3D *m, zVec3D *v, int i, int j, int k, double idet);
+static zVec3D *_zMulInvMatVec3D(zMat3D *m, zVec3D *v, zVec3D *miv, double idet);
+
+#define __zVec3DCreate(v,x,y,z) do{\
+  double __x, __y, __z;\
+  __x = x;\
+  __y = y;\
+  __z = z;\
+  (v)->e[zX] = __x;\
+  (v)->e[zY] = __y;\
+  (v)->e[zZ] = __z;\
+} while(0)
+
+#define __zMulMatVec3D(m,v,mv) __zVec3DCreate( mv,\
+  (m)->e[0][0]*(v)->e[0] + (m)->e[1][0]*(v)->e[1] + (m)->e[2][0]*(v)->e[2],\
+  (m)->e[0][1]*(v)->e[0] + (m)->e[1][1]*(v)->e[1] + (m)->e[2][1]*(v)->e[2],\
+  (m)->e[0][2]*(v)->e[0] + (m)->e[1][2]*(v)->e[1] + (m)->e[2][2]*(v)->e[2] )
+
+#define __zMulMatTVec3D(m,v,mv) __zVec3DCreate( mv,\
+  (m)->e[0][0]*(v)->e[0] + (m)->e[0][1]*(v)->e[1] + (m)->e[0][2]*(v)->e[2],\
+  (m)->e[1][0]*(v)->e[0] + (m)->e[1][1]*(v)->e[1] + (m)->e[1][2]*(v)->e[2],\
+  (m)->e[2][0]*(v)->e[0] + (m)->e[2][1]*(v)->e[1] + (m)->e[2][2]*(v)->e[2] )
 
 /* zMulMatVec3D
  * - multiply a 3D vector by 3D matrix.
  */
 zVec3D *zMulMatVec3D(zMat3D *m, zVec3D *v, zVec3D *mv)
 {
-  return zVec3DCreate( mv,
-    m->e[0][0]*v->e[0] + m->e[1][0]*v->e[1] + m->e[2][0]*v->e[2],
-    m->e[0][1]*v->e[0] + m->e[1][1]*v->e[1] + m->e[2][1]*v->e[2],
-    m->e[0][2]*v->e[0] + m->e[1][2]*v->e[1] + m->e[2][2]*v->e[2] );
+  __zMulMatVec3D( m, v, mv );
+  return mv;
 }
 
 /* zMulMatTVec3D
@@ -238,34 +307,33 @@ zVec3D *zMulMatVec3D(zMat3D *m, zVec3D *v, zVec3D *mv)
  */
 zVec3D *zMulMatTVec3D(zMat3D *m, zVec3D *v, zVec3D *mv)
 {
-  return zVec3DCreate( mv,
-    m->e[0][0]*v->e[0] + m->e[0][1]*v->e[1] + m->e[0][2]*v->e[2],
-    m->e[1][0]*v->e[0] + m->e[1][1]*v->e[1] + m->e[1][2]*v->e[2],
-    m->e[2][0]*v->e[0] + m->e[2][1]*v->e[1] + m->e[2][2]*v->e[2] );
+  __zMulMatTVec3D( m, v, mv );
+  return mv;
 }
 
 /* (static)
  * _zMulInvMatVec3DRow
  * - misc for multiplication of a vector by real inverse of 3D matrix.
  */
-double _zMulInvMatVec3DRow(zMat3D *m, zVec3D *v, int i, int j, int k, double det)
+double _zMulInvMatVec3DRow(zMat3D *m, zVec3D *v, int i, int j, int k, double idet)
 {
-  return
+  return idet *
     ( ( m->e[j][j]*m->e[k][k] - m->e[k][j]*m->e[j][k] ) * v->e[i]
     + ( m->e[k][i]*m->e[j][k] - m->e[j][i]*m->e[k][k] ) * v->e[j]
-    + ( m->e[j][i]*m->e[k][j] - m->e[k][i]*m->e[j][j] ) * v->e[k] ) / det;
+    + ( m->e[j][i]*m->e[k][j] - m->e[k][i]*m->e[j][j] ) * v->e[k] );
 }
 
 /* (static)
  * _zMulInvMatVec3D
  * - multiply a 3D vector by inverse matrix of 3x3 matrix.
  */
-zVec3D *_zMulInvMatVec3D(zMat3D *m, zVec3D *v, zVec3D *miv, double det)
+zVec3D *_zMulInvMatVec3D(zMat3D *m, zVec3D *v, zVec3D *miv, double idet)
 {
-  return zVec3DCreate( miv,
-    _zMulInvMatVec3DRow( m, v, 0, 1, 2, det ),
-    _zMulInvMatVec3DRow( m, v, 1, 2, 0, det ),
-    _zMulInvMatVec3DRow( m, v, 2, 0, 1, det ) );
+  __zVec3DCreate( miv,
+    _zMulInvMatVec3DRow( m, v, 0, 1, 2, idet ),
+    _zMulInvMatVec3DRow( m, v, 1, 2, 0, idet ),
+    _zMulInvMatVec3DRow( m, v, 2, 0, 1, idet ) );
+  return miv;
 }
 
 /* zMulInvMatVec3D
@@ -279,7 +347,7 @@ zVec3D *zMulInvMatVec3D(zMat3D *m, zVec3D *v, zVec3D *miv)
     ZRUNERROR( ZEO_ERR_SINGULARMAT );
     return NULL;
   }
-  return _zMulInvMatVec3D( m, v, miv, det );
+  return _zMulInvMatVec3D( m, v, miv, 1.0 / det );
 }
 
 /* zVec3DCatRatio
@@ -308,11 +376,10 @@ zMat3D *zMulMatMat3D(zMat3D *m1, zMat3D *m2, zMat3D *m)
 {
   zMat3D tmp;
 
-  zMulMatVec3D( m1, &m2->v[0], &tmp.v[0] );
-  zMulMatVec3D( m1, &m2->v[1], &tmp.v[1] );
-  zMulMatVec3D( m1, &m2->v[2], &tmp.v[2] );
-  zMat3DCopy( &tmp, m );
-  return m;
+  __zMulMatVec3D( m1, &m2->v[0], &tmp.v[0] );
+  __zMulMatVec3D( m1, &m2->v[1], &tmp.v[1] );
+  __zMulMatVec3D( m1, &m2->v[2], &tmp.v[2] );
+  return zMat3DCopy( &tmp, m );
 }
 
 /* zMulMatTMat3D
@@ -322,28 +389,31 @@ zMat3D *zMulMatTMat3D(zMat3D *m1, zMat3D *m2, zMat3D *m)
 {
   zMat3D tmp;
 
-  zMulMatTVec3D( m1, &m2->v[0], &tmp.v[0] );
-  zMulMatTVec3D( m1, &m2->v[1], &tmp.v[1] );
-  zMulMatTVec3D( m1, &m2->v[2], &tmp.v[2] );
-  zMat3DCopy( &tmp, m );
-  return m;
+  __zMulMatTVec3D( m1, &m2->v[0], &tmp.v[0] );
+  __zMulMatTVec3D( m1, &m2->v[1], &tmp.v[1] );
+  __zMulMatTVec3D( m1, &m2->v[2], &tmp.v[2] );
+  return zMat3DCopy( &tmp, m );
 }
 
 /* zMulMatMatT3D
  * - multiply a matrix by transpose matrix from rightside.
  */
+#define __zMulMatMatT3DElem(m1,m2,i,j,m) \
+  ( (m)->e[i][j] = (m1)->e[0][j]*(m2)->e[0][i] + (m1)->e[1][j]*(m2)->e[1][i] + (m1)->e[2][j]*(m2)->e[2][i] )
 zMat3D *zMulMatMatT3D(zMat3D *m1, zMat3D *m2, zMat3D *m)
 {
-  register int i;
   zMat3D tmp;
 
-  for( i=0; i<3; i++ ){
-    zVec3DMul( &m1->v[0], m2->e[0][i], &tmp.v[i] );
-    zVec3DCatDRC( &tmp.v[i], m2->e[1][i], &m1->v[1] );
-    zVec3DCatDRC( &tmp.v[i], m2->e[2][i], &m1->v[2] );
-  }
-  zMat3DCopy( &tmp, m );
-  return m;
+  __zMulMatMatT3DElem( m1, m2, 0, 0, &tmp );
+  __zMulMatMatT3DElem( m1, m2, 0, 1, &tmp );
+  __zMulMatMatT3DElem( m1, m2, 0, 2, &tmp );
+  __zMulMatMatT3DElem( m1, m2, 1, 0, &tmp );
+  __zMulMatMatT3DElem( m1, m2, 1, 1, &tmp );
+  __zMulMatMatT3DElem( m1, m2, 1, 2, &tmp );
+  __zMulMatMatT3DElem( m1, m2, 2, 0, &tmp );
+  __zMulMatMatT3DElem( m1, m2, 2, 1, &tmp );
+  __zMulMatMatT3DElem( m1, m2, 2, 2, &tmp );
+  return zMat3DCopy( &tmp, m );
 }
 
 /* _zMulInvMatMat3D
@@ -351,15 +421,16 @@ zMat3D *zMulMatMatT3D(zMat3D *m1, zMat3D *m2, zMat3D *m)
  */
 zMat3D *zMulInvMatMat3D(zMat3D *m1, zMat3D *m2, zMat3D *m)
 {
-  double det;
+  double det, idet;
 
   if( zIsTiny( ( det = zMat3DDet( m1 ) ) ) ){
     ZRUNERROR( ZEO_ERR_SINGULARMAT );
     return NULL;
   }
-  zMulInvMatVec3D( m1, &m2->v[0], &m->v[0] );
-  zMulInvMatVec3D( m1, &m2->v[1], &m->v[1] );
-  zMulInvMatVec3D( m1, &m2->v[2], &m->v[2] );
+  idet = 1.0 /det;
+  _zMulInvMatVec3D( m1, &m2->v[0], &m->v[0], idet );
+  _zMulInvMatVec3D( m1, &m2->v[1], &m->v[1], idet );
+  _zMulInvMatVec3D( m1, &m2->v[2], &m->v[2], idet );
   return m;
 }
 
@@ -372,8 +443,8 @@ zMat3D *zMulInvMatMat3D(zMat3D *m1, zMat3D *m2, zMat3D *m)
  */
 zVec6D *zMulMatVec6D(zMat3D *m, zVec6D *v, zVec6D *mv)
 {
-  zMulMatVec3D( m, zVec6DLin(v), zVec6DLin(mv) );
-  zMulMatVec3D( m, zVec6DAng(v), zVec6DAng(mv) );
+  __zMulMatVec3D( m, zVec6DLin(v), zVec6DLin(mv) );
+  __zMulMatVec3D( m, zVec6DAng(v), zVec6DAng(mv) );
   return mv;
 }
 
@@ -382,8 +453,8 @@ zVec6D *zMulMatVec6D(zMat3D *m, zVec6D *v, zVec6D *mv)
  */
 zVec6D *zMulMatTVec6D(zMat3D *m, zVec6D *v, zVec6D *mv)
 {
-  zMulMatTVec3D( m, zVec6DLin(v), zVec6DLin(mv) );
-  zMulMatTVec3D( m, zVec6DAng(v), zVec6DAng(mv) );
+  __zMulMatTVec3D( m, zVec6DLin(v), zVec6DLin(mv) );
+  __zMulMatTVec3D( m, zVec6DAng(v), zVec6DAng(mv) );
   return mv;
 }
 
@@ -524,10 +595,10 @@ zVec3D *zMat3DToZYX(zMat3D *m, zVec3D *angle)
 
   azim = atan2( m->e[0][1], m->e[0][0] );
   zSinCos( azim, &sa, &ca );
-  return zVec3DCreate( angle,
-    azim,
-    atan2(-m->e[0][2], m->e[0][0]*ca+m->e[0][1]*sa ),
-    atan2( m->e[2][0]*sa-m->e[2][1]*ca, -m->e[1][0]*sa+m->e[1][1]*ca ) );
+  angle->e[0] = azim;
+  angle->e[1] = atan2(-m->e[0][2], m->e[0][0]*ca+m->e[0][1]*sa );
+  angle->e[2] = atan2( m->e[2][0]*sa-m->e[2][1]*ca, -m->e[1][0]*sa+m->e[1][1]*ca );
+  return angle;
 }
 
 /* zMat3DZYZSC, zMat3DZYZ
@@ -560,10 +631,10 @@ zVec3D *zMat3DToZYZ(zMat3D *m, zVec3D *angle)
 
   heading = atan2( m->e[2][1], m->e[2][0] );
   zSinCos( heading, &sh, &ch );
-  return zVec3DCreate( angle,
-    heading,
-    atan2( m->e[2][0]*ch+m->e[2][1]*sh, m->e[2][2] ),
-    atan2(-m->e[0][0]*sh+m->e[0][1]*ch,-m->e[1][0]*sh+m->e[1][1]*ch ) );
+  angle->e[0] = heading;
+  angle->e[1] = atan2( m->e[2][0]*ch+m->e[2][1]*sh, m->e[2][2] );
+  angle->e[2] = atan2(-m->e[0][0]*sh+m->e[0][1]*ch,-m->e[1][0]*sh+m->e[1][1]*ch );
+  return angle;
 }
 
 /* zMat3DAA
@@ -603,18 +674,18 @@ zVec3D *zMat3DToAA(zMat3D *m, zVec3D *aa)
   register int i;
   double l, a;
 
-  zVec3DCreate( aa,
-    m->e[1][2]-m->e[2][1], m->e[2][0]-m->e[0][2], m->e[0][1]-m->e[1][0] );
+  aa->e[0] = m->e[1][2]-m->e[2][1];
+  aa->e[1] = m->e[2][0]-m->e[0][2];
+  aa->e[2] = m->e[0][1]-m->e[1][0];
   l = zVec3DNorm( aa );
   a = atan2( l, m->e[0][0]+m->e[1][1]+m->e[2][2]-1 );
   if( zIsTiny( l ) )
     for( i=0; i<3; i++ ){
       zMat3DCol( m, i, aa );
       aa->e[i] += 1.0;
-      if( !zIsTiny( l = zVec3DNorm(aa) ) )
-        break;
+      if( !zVec3DIsTiny( aa ) ) break;
     }
-  return zVec3DMulDRC( aa, a / l );
+  return zVec3DMulDRC( aa, a / zVec3DNorm(aa) );
 }
 
 /* zRotMat3D

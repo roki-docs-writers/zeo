@@ -221,7 +221,7 @@ zVec6D *zVec6DFRead(FILE *fp, zVec6D *v)
 zVec6D *zVec6DDataFWrite(FILE *fp, zVec6D *v)
 {
   if( !v ) return NULL;
-  fprintf( fp, "%.10g %.10g %.10g %.10g %.10g %.10g\n",
+  fprintf( fp, " %.10g %.10g %.10g %.10g %.10g %.10g",
     v->e[zX], v->e[zY], v->e[zZ], v->e[zXA], v->e[zYA], v->e[zZA] );
   return v;
 }

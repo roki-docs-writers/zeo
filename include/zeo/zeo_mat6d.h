@@ -19,6 +19,7 @@ typedef struct{
   zMat3D m[4]; /*!< \brief four 3x3 matrices */
 } zMat6D;
 
+#define zMat6DElem(mat,i,j)  zMat3DElem(&(mat)->m[(i/3)*2+(j/3)], i%3, j%3 )
 #define zMat6DMat3D(mat,i,j) ( &(mat)->m[(i)*2+(j)] )
 
 /*! \brief create a 6x6 matrix. */

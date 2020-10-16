@@ -27,6 +27,7 @@ __BEGIN_DECLS
  * \a c1 and \a c2.
  */
 __EXPORT bool zGJK(zVec3D p1[], int n1, zVec3D p2[], int n2, zVec3D *c1, zVec3D *c2);
+__EXPORT bool zGJKDepth(zVec3D p1[], int n1, zVec3D p2[], int n2, zVec3D *c1, zVec3D *c2);
 __EXPORT bool zGJKPL(zVec3DList *pl1, zVec3DList *pl2, zVec3D *ca, zVec3D *cb);
 
 __END_DECLS
