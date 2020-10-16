@@ -445,6 +445,7 @@ bool _zQHHorizon(zQHFacetList *vs, zQHPoint *p, zQHFacetList *cone)
   zQHFacet *f, *f_prev;
   zQHPoint *p0;
   int s;
+  int cnt = 0;
 
   zListInit( cone );
   /* find first ridge */
@@ -463,6 +464,8 @@ bool _zQHHorizon(zQHFacetList *vs, zQHPoint *p, zQHFacetList *cone)
   s = ( s + 1 ) % 3;
   p0 = f->p[s];
   do{
+    /* safety */
+    if( cnt++ > 1000 ) return false;
     if( f->c[s]->visible ){
       f_prev = f;
       f = f->c[s];

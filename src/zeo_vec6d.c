@@ -80,8 +80,14 @@ bool zVec6DIsTol(zVec6D *v, double tol)
  */
 zVec6D *zVec6DAdd(zVec6D *v1, zVec6D *v2, zVec6D *v)
 {
-  zVec3DAdd( zVec6DLin(v1), zVec6DLin(v2), zVec6DLin(v) );
-  zVec3DAdd( zVec6DAng(v1), zVec6DAng(v2), zVec6DAng(v) );
+  v->e[zX] = v1->e[zX] + v2->e[zX];
+  v->e[zY] = v1->e[zY] + v2->e[zY];
+  v->e[zZ] = v1->e[zZ] + v2->e[zZ];
+  v->e[zXA] = v1->e[zXA] + v2->e[zXA];
+  v->e[zYA] = v1->e[zYA] + v2->e[zYA];
+  v->e[zZA] = v1->e[zZA] + v2->e[zZA];
+  /* zVec3DAdd( zVec6DLin(v1), zVec6DLin(v2), zVec6DLin(v) ); */
+  /* zVec3DAdd( zVec6DAng(v1), zVec6DAng(v2), zVec6DAng(v) ); */
   return v;
 }
 
@@ -90,8 +96,15 @@ zVec6D *zVec6DAdd(zVec6D *v1, zVec6D *v2, zVec6D *v)
  */
 zVec6D *zVec6DSub(zVec6D *v1, zVec6D *v2, zVec6D *v)
 {
-  zVec3DSub( zVec6DLin(v1), zVec6DLin(v2), zVec6DLin(v) );
-  zVec3DSub( zVec6DAng(v1), zVec6DAng(v2), zVec6DAng(v) );
+  v->e[zX] = v1->e[zX] - v2->e[zX];
+  v->e[zY] = v1->e[zY] - v2->e[zY];
+  v->e[zZ] = v1->e[zZ] - v2->e[zZ];
+  v->e[zXA] = v1->e[zXA] - v2->e[zXA];
+  v->e[zYA] = v1->e[zYA] - v2->e[zYA];
+  v->e[zZA] = v1->e[zZA] - v2->e[zZA];
+
+  /* zVec3DSub( zVec6DLin(v1), zVec6DLin(v2), zVec6DLin(v) ); */
+  /* zVec3DSub( zVec6DAng(v1), zVec6DAng(v2), zVec6DAng(v) ); */
   return v;
 }
 
@@ -100,8 +113,15 @@ zVec6D *zVec6DSub(zVec6D *v1, zVec6D *v2, zVec6D *v)
  */
 zVec6D *zVec6DRev(zVec6D *v, zVec6D *rv)
 {
-  zVec3DRev( zVec6DLin(v), zVec6DLin(rv) );
-  zVec3DRev( zVec6DAng(v), zVec6DAng(rv) );
+  rv->e[0] = -v->e[0];
+  rv->e[1] = -v->e[1];
+  rv->e[2] = -v->e[2];
+  rv->e[3] = -v->e[3];
+  rv->e[4] = -v->e[4];
+  rv->e[5] = -v->e[5];
+
+  /* zVec3DRev( zVec6DLin(v), zVec6DLin(rv) ); */
+  /* zVec3DRev( zVec6DAng(v), zVec6DAng(rv) ); */
   return rv;
 }
 
@@ -110,8 +130,15 @@ zVec6D *zVec6DRev(zVec6D *v, zVec6D *rv)
  */
 zVec6D *zVec6DMul(zVec6D *v, double k, zVec6D *mv)
 {
-  zVec3DMul( zVec6DLin(v), k, zVec6DLin(mv) );
-  zVec3DMul( zVec6DAng(v), k, zVec6DAng(mv) );
+  mv->e[zX] = k * v->e[zX];
+  mv->e[zY] = k * v->e[zY];
+  mv->e[zZ] = k * v->e[zZ];
+  mv->e[zXA] = k * v->e[zXA];
+  mv->e[zYA] = k * v->e[zYA];
+  mv->e[zZA] = k * v->e[zZA];
+
+  /* zVec3DMul( zVec6DLin(v), k, zVec6DLin(mv) ); */
+  /* zVec3DMul( zVec6DAng(v), k, zVec6DAng(mv) ); */
   return mv;
 }
 
@@ -120,8 +147,20 @@ zVec6D *zVec6DMul(zVec6D *v, double k, zVec6D *mv)
  */
 zVec6D *zVec6DDiv(zVec6D *v, double k, zVec6D *dv)
 {
-  zVec3DDiv( zVec6DLin(v), k, zVec6DLin(dv) );
-  zVec3DDiv( zVec6DAng(v), k, zVec6DAng(dv) );
+  if( k == 0 ){
+    ZRUNWARN( ZEO_ERR_ZERODIV );
+    return NULL;
+  }
+  k = 1.0 / k;
+  dv->e[zX] = k * v->e[zX];
+  dv->e[zY] = k * v->e[zY];
+  dv->e[zZ] = k * v->e[zZ];
+  dv->e[zXA] = k * v->e[zXA];
+  dv->e[zYA] = k * v->e[zYA];
+  dv->e[zZA] = k * v->e[zZA];
+
+  /* zVec3DDiv( zVec6DLin(v), k, zVec6DLin(dv) ); */
+  /* zVec3DDiv( zVec6DAng(v), k, zVec6DAng(dv) ); */
   return dv;
 }
 
@@ -130,8 +169,12 @@ zVec6D *zVec6DDiv(zVec6D *v, double k, zVec6D *dv)
  */
 zVec6D *zVec6DCat(zVec6D *v1, double k, zVec6D *v2, zVec6D *v)
 {
-  zVec3DCat( zVec6DLin(v1), k, zVec6DLin(v2), zVec6DLin(v) );
-  zVec3DCat( zVec6DAng(v1), k, zVec6DAng(v2), zVec6DAng(v) );
+  v->e[zX] = v1->e[zX] + k * v2->e[zX];
+  v->e[zY] = v1->e[zY] + k * v2->e[zY];
+  v->e[zZ] = v1->e[zZ] + k * v2->e[zZ];
+  v->e[zXA] = v1->e[zXA] + k * v2->e[zXA];
+  v->e[zYA] = v1->e[zYA] + k * v2->e[zYA];
+  v->e[zZA] = v1->e[zZA] + k * v2->e[zZA];
   return v;
 }
 
@@ -140,8 +183,11 @@ zVec6D *zVec6DCat(zVec6D *v1, double k, zVec6D *v2, zVec6D *v)
  */
 double zVec6DInnerProd(zVec6D *v1, zVec6D *v2)
 {
-  return zVec3DInnerProd( zVec6DLin(v1), zVec6DLin(v2) )
-         + zVec3DInnerProd( zVec6DAng(v1), zVec6DAng(v2) );
+  return v1->e[zX]*v2->e[zX]   + v1->e[zY]*v2->e[zY]   + v1->e[zZ]*v2->e[zZ] +
+         v1->e[zXA]*v2->e[zXA] + v1->e[zYA]*v2->e[zYA] + v1->e[zZA]*v2->e[zZA];
+
+  /* return zVec3DInnerProd( zVec6DLin(v1), zVec6DLin(v2) ) */
+  /*        + zVec3DInnerProd( zVec6DAng(v1), zVec6DAng(v2) ); */
 }
 
 /* zVec6DLinShift
@@ -149,8 +195,19 @@ double zVec6DInnerProd(zVec6D *v1, zVec6D *v2)
  */
 zVec6D *zVec6DLinShift(zVec6D *src, zVec3D *pos, zVec6D *dest)
 {
+  zVec3D v;
+
   zVec6DCopy( src, dest );
-  return zVec6DLinShiftDRC( dest, pos );
+  v.e[0] = src->e[zYA] * pos->e[zZ] - src->e[zZA] * pos->e[zY];
+  v.e[1] = src->e[zZA] * pos->e[zX] - src->e[zXA] * pos->e[zZ];
+  v.e[2] = src->e[zXA] * pos->e[zY] - src->e[zYA] * pos->e[zX];
+  dest->e[zX] += v.e[0];
+  dest->e[zY] += v.e[1];
+  dest->e[zZ] += v.e[2];
+  return dest;
+
+  /* zVec6DCopy( src, dest ); */
+  /* return zVec6DLinShiftDRC( dest, pos ); */
 }
 
 /* zVec6DLinShiftDRC
@@ -160,8 +217,15 @@ zVec6D *zVec6DLinShiftDRC(zVec6D *vec, zVec3D *pos)
 {
   zVec3D v;
 
-  zVec3DOuterProd( zVec6DAng(vec), pos, &v );
-  zVec3DAddDRC( zVec6DLin(vec), &v );
+  v.e[0] = vec->e[zYA] * pos->e[zZ] - vec->e[zZA] * pos->e[zY];
+  v.e[1] = vec->e[zZA] * pos->e[zX] - vec->e[zXA] * pos->e[zZ];
+  v.e[2] = vec->e[zXA] * pos->e[zY] - vec->e[zYA] * pos->e[zX];
+  vec->e[zX] += v.e[0];
+  vec->e[zY] += v.e[1];
+  vec->e[zZ] += v.e[2];
+
+  /* zVec3DOuterProd( zVec6DAng(vec), pos, &v ); */
+  /* zVec3DAddDRC( zVec6DLin(vec), &v ); */
   return vec;
 }
 
@@ -170,8 +234,19 @@ zVec6D *zVec6DLinShiftDRC(zVec6D *vec, zVec3D *pos)
  */
 zVec6D *zVec6DAngShift(zVec6D *src, zVec3D *pos, zVec6D *dest)
 {
+  zVec3D v;
+
   zVec6DCopy( src, dest );
-  return zVec6DAngShiftDRC( dest, pos );
+  v.e[0] = pos->e[zY] * src->e[zZ] - pos->e[zZ] * src->e[zY];
+  v.e[1] = pos->e[zZ] * src->e[zX] - pos->e[zX] * src->e[zZ];
+  v.e[2] = pos->e[zX] * src->e[zY] - pos->e[zY] * src->e[zX];
+  dest->e[zXA] += v.e[0];
+  dest->e[zYA] += v.e[1];
+  dest->e[zZA] += v.e[2];
+  return dest;
+
+  /* zVec6DCopy( src, dest ); */
+  /* return zVec6DAngShiftDRC( dest, pos ); */
 }
 
 /* zVec6DAngShiftDRC
@@ -179,10 +254,18 @@ zVec6D *zVec6DAngShift(zVec6D *src, zVec3D *pos, zVec6D *dest)
  */
 zVec6D *zVec6DAngShiftDRC(zVec6D *vec, zVec3D *pos)
 {
-  zVec3D n;
+  zVec3D v;
 
-  zVec3DOuterProd( pos, zVec6DLin(vec), &n );
-  zVec3DAddDRC( zVec6DAng(vec), &n );
+  v.e[0] = pos->e[zY] * vec->e[zZ] - pos->e[zZ] * vec->e[zY];
+  v.e[1] = pos->e[zZ] * vec->e[zX] - pos->e[zX] * vec->e[zZ];
+  v.e[2] = pos->e[zX] * vec->e[zY] - pos->e[zY] * vec->e[zX];
+  vec->e[zXA] += v.e[0];
+  vec->e[zYA] += v.e[1];
+  vec->e[zZA] += v.e[2];
+
+  /* zVec3D n; */
+  /* zVec3DOuterProd( pos, zVec6DLin(vec), &n ); */
+  /* zVec3DAddDRC( zVec6DAng(vec), &n ); */
   return vec;
 }
 

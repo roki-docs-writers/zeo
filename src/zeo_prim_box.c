@@ -169,10 +169,13 @@ zMat3D *zBox3DInertia(zBox3D *box, zMat3D *inertia)
  */
 zVec3D *zBox3DVert(zBox3D *box, int i, zVec3D *v)
 {
-  zVec3DCreate( v,
-    ( (i&0x1)^(i>>1&0x1) ) ? -0.5*zBox3DDepth(box) : 0.5*zBox3DDepth(box),
-    (  i&0x2             ) ? -0.5*zBox3DWidth(box) : 0.5*zBox3DWidth(box),
-    (  i&0x4             ) ? -0.5*zBox3DHeight(box): 0.5*zBox3DHeight(box) );
+  v->e[0] = ( (i&0x1)^(i>>1&0x1) ) ? -0.5*zBox3DDepth(box) : 0.5*zBox3DDepth(box);
+  v->e[1] = (  i&0x2             ) ? -0.5*zBox3DWidth(box) : 0.5*zBox3DWidth(box);
+  v->e[2] = (  i&0x4             ) ? -0.5*zBox3DHeight(box): 0.5*zBox3DHeight(box);
+  /* zVec3DCreate( v, */
+  /*   ( (i&0x1)^(i>>1&0x1) ) ? -0.5*zBox3DDepth(box) : 0.5*zBox3DDepth(box), */
+  /*   (  i&0x2             ) ? -0.5*zBox3DWidth(box) : 0.5*zBox3DWidth(box), */
+  /*   (  i&0x4             ) ? -0.5*zBox3DHeight(box): 0.5*zBox3DHeight(box) ); */
   return zXfer3DDRC( &box->f, v );
 }
 

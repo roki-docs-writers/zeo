@@ -24,9 +24,12 @@ int _zBREPTruncBBCheck(zBREPVertList *vlist, zPlane3D *pl)
 {
   int count = 0;
   zBREPVertListCell *vp;
+  zVec3D tmp;
 
   zListForEach( vlist, vp ){
-    vp->data._d = zPlane3DPointDist( pl, &vp->data.p );
+    zVec3DSub( &vp->data.p, zPlane3DVert(pl), &tmp );
+    vp->data._d = zVec3DInnerProd( &tmp, zPlane3DNorm(pl) );
+    /* vp->data._d = zPlane3DPointDist( pl, &vp->data.p ); */
     if( zIsTiny( vp->data._d ) ) vp->data._d = 0;
     if( vp->data._d > 0 ) count++;
   }

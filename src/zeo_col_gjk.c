@@ -480,6 +480,8 @@ bool _zGJKPD(zVec3D p1[], int n1, zVec3D p2[], int n2, zVec3D *c1, zVec3D *c2, z
       if( zVec3DEqual( &ns.w, &sc->data.w ) ) goto BREAK;
     _zGJKSlotListInsert( &slist, &ns );
     zVec3DListInsert( &vlist, &ns.w, true );
+
+    zPH3DDestroy( &ph );
   }
  BREAK:
   zVec3DClear( c1 );
